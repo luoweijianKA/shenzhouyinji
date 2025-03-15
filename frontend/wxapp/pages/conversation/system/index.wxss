@@ -1,0 +1,80 @@
+page {
+  box-sizing: border-box;
+  background-color: rgba(125, 125, 125, 0.1);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 192rpx);
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-wrapper,
+.badge-wrapper {
+  margin: 0 !important;
+}
+
+.t-cell__title-text {
+  font-size: 28rpx;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.t-cell__description-text {
+  font-size: medium;
+  color: rgba(0, 0, 0, 0.87);
+  background-color: #f5f5f5;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  border-top-left-radius: 0;
+  line-height: 1.5;
+}
+
+.right .t-cell__title-text {
+  justify-content: flex-end;
+}
+
+.right .t-cell__description-text {
+  border-top-left-radius: 20rpx !important;
+  border-top-right-radius: 0 !important;
+}
+
+.conversation-box {
+  position: fixed;
+  bottom: 0;
+  background-color: #f5f5f5;
+  min-height: 192rpx;
+  width: 100%;
+}
+
+.conversation-box .form-control {
+  margin-bottom: 48rpx;
+}
+
+.conversation-box .form-control .t-input {
+  margin: 24rpx;
+  border-radius: 20rpx;
+}
+
+.onlyRead-container {
+  background-color: rgba(170, 170, 170, 0.1);
+  margin: 24rpx;
+  padding: 24rpx 12rpx;
+  border-radius: 24rpx;
+  min-height: 144rpx;
+}
+
+.onlyRead-container .title {
+  color: #bbb;
+  font-size: small;
+  text-align: center;
+}
+
+.onlyRead-container .content {
+  color: rgba(0, 0, 0, 0.7);
+  font-size: medium;
+  text-align: start;
+  text-indent: 3mm;
+  margin-top: 24rpx;
+}

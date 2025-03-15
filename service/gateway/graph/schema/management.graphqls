@@ -1,0 +1,88 @@
+type Category {
+  id: ID!
+  name: String!
+  parent_id: String
+  has_subclass: Boolean
+  status: Int!
+  sort: Int!
+}
+
+input NewCategory {
+  name: String!
+  parent_id: String
+  has_subclass: Boolean
+  status: Int!
+  sort: Int!
+}
+
+input UpdateCategory {
+  id: ID!
+  name: String
+  parent_id: String
+  has_subclass: Boolean
+  status: Int
+  sort: Int
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  category_id: String!
+  status: Int!
+}
+
+input NewTag {
+  name: String!
+  category_id: String!
+  status: Int!
+}
+
+input UpdateTag {
+  id: ID!
+  name: String
+  category_id: String
+  status: Int
+}
+
+type Auditing {
+  id: ID!
+  code: String!
+  message: String!
+  data: Map
+  createdBy: String!
+  createdTime: Int!
+}
+
+input AuditingFilter {
+  code: String
+  createdBy: String
+  startTime: Int
+  endTime: Int
+}
+
+type AuditingEdge {
+  cursor: ID!
+  node: Auditing
+}
+
+type AuditingConnection {
+  totalCount: Int!
+  edges: [AuditingEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum Restore {
+  SCENERYSPOT
+  EVENT
+  USER
+  TASK
+  BADGE
+  LIKE
+  POINTS
+  CONVERSATION
+}
+
+enum Export {
+  USER
+  PASSPORT
+}

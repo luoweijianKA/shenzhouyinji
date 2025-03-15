@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "竞技打榜",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+  },
+  "enablePullDownRefresh": true
+}

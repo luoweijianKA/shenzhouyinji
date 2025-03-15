@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "激活绑定",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
+}

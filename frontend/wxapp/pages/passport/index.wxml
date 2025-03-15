@@ -1,0 +1,62 @@
+<view class="page-container">
+  <view class="passport" style="background-image: url(/assets/bg1.png);background-size: 100%;height:100vh">
+    <view class="event">
+      <image class="logo" src="{{event.logo}}" mode="heightFix"></image>
+      <view class="name">{{event.name}}</view>
+    </view>
+    <view style="padding: 0 48rpx;">
+      <text>请填输入正确的个人信息，以便下一步人脸识别</text>
+    </view>
+    <form bindsubmit="onSubmit">
+      <view class="form">
+        <view>
+          <input class="form-control" maxlength="20" type="text" name="realName" placeholder="姓名" />
+        </view>
+        <view>
+          <input class="form-control" maxlength="19" type="text" name="nric" placeholder="身份证号" />
+        </view>
+        <view>
+          <button class="form-control phone-number{{value.phone && value.phone.length > 0 ? '' : ' placeholder'}}" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+            {{value.phone && value.phone.length > 0 ? value.phone : '必须选择本微信绑定的手机号码'}}
+          </button>
+        </view>
+        <picker bindchange="onChangeGender" value="{{index}}" range="{{genders}}">
+          <input class="form-control" maxlength="2" type="text" name="gender" value="{{value.gender}}" placeholder="性别" />
+        </picker>
+        <view>
+          <input class="form-control" maxlength="20" type="text" name="profession" placeholder="职业" />
+        </view>
+        <view>
+          <button class="form-action" form-type="submit">提交</button>
+        </view>
+      </view>
+    </form>
+    <view class="note">
+      <text>提示：请核对上述信息真实性，如有疑问请联系微信客服；如你年龄未满14岁，须提供监护人信息</text>
+    </view>
+  </view>
+</view>
+
+<t-popup visible="{{visibleGuardian}}" bind:visible-change="onVisibleGuardianChange" placement="bottom">
+  <form bindsubmit="onSubmitGuardian">
+    <view class="popup-content">
+      <view class="popup-content-text">
+        <text>请填写监护人信息</text>
+      </view>
+      <view class="list">
+        <view class="list-item">
+          <input class="form-control" maxlength="20" type="text" name="name" placeholder="姓名" />
+        </view>
+        <view class="list-item">
+          <input class="form-control" maxlength="19" type="text" name="nric" placeholder="身份证号" />
+        </view>
+        <view class="list-item">
+          <input class="form-control" maxlength="11" type="text" name="phone" placeholder="手机号码" />
+        </view>
+      </view>
+    </view>
+    <view class="popup-action">
+      <button class="button" form-type="submit">确定</button>
+    </view>
+  </form>
+</t-popup>

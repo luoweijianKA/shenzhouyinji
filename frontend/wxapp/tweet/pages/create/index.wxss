@@ -1,0 +1,264 @@
+.tag-container {
+  display: block;
+  margin: 24rpx;
+}
+
+.title {
+  font-size: x-large;
+  font-weight: 500;
+  text-align: left;
+  padding: 12rpx 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.tag-list {
+  gap: 1rem;
+}
+
+.tag {
+  max-width: 100%;
+  font-size: 0.8125rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  color: rgba(0, 0, 0, 0.87);
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  white-space: nowrap;
+  transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  cursor: default;
+  outline: 0px;
+  text-decoration: none;
+  border: 0px;
+  padding: 24rpx;
+  margin: 8rpx;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.tag.active {
+  color: #fff;
+  background-color: #2dc5c6;
+}
+
+.user-card {
+  padding: 0 24rpx;
+  margin-bottom: 48rpx;
+}
+
+.ucc-header {
+  height: 96rpx;
+  line-height: 48rpx;
+  display: flex;
+  align-items: center;
+  color: #333;
+  position: relative;
+}
+
+.ucc-header-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  overflow: hidden;
+}
+
+.ucc-header-name {
+  font-size: 36rpx;
+  line-height: 48rpx;
+  color: #333;
+  font-weight: bold;
+  margin-left: 24rpx;
+  margin-right: 16rpx;
+}
+
+.tweet-container {
+  position: relative;
+  height: calc(100vh - 250rpx);
+}
+
+.tweet-text-container {
+  padding: 24rpx;
+  margin-bottom: 48rpx;
+}
+
+.tweet-text {
+  padding: 6rpx;
+  border-radius: 18rpx;
+  border: 1rpx solid rgba(204, 204, 204, 0.5);
+}
+
+.tweet-text .t-textarea__wrapper {
+  padding: 16rpx;
+}
+
+.external-class {
+  height: 300rpx;
+}
+
+.tweet-btn {
+  bottom: 24rpx;
+  position: fixed;
+  padding: 24rpx;
+  letter-spacing: 12rpx;
+  width: calc(100vw - 48rpx);
+}
+
+.btn-create {
+  width: 100%;
+  background-color: #2dc5c6;
+  border: 0;
+  border-radius: 20px;
+  color: #fff;
+}
+
+.block {
+  color: #333;
+  padding-bottom: 48rpx;
+}
+
+.block-bottom {
+  height: 100vh;
+  position: relative;
+}
+
+.tweet-photo-container {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 24rpx;
+  padding-bottom: 192rpx !important;
+}
+
+.tweet-photo-preview-container {
+  display: inline-flex;
+  float: left;
+}
+
+.tweet-photo-preview {
+  display: grid;
+  align-content: center;
+  background-color: rgba(204, 204, 204, 0.3);
+}
+
+.tweet-photo-preview .img {
+  width: 100%;
+  border-radius: 20rpx;
+  position: relative;
+}
+
+.tweet-photo-preview .tweet-camera-action {
+  background-color: rgba(0, 0, 0, 0.35);
+  border-bottom-left-radius: 20rpx;
+  border-bottom-right-radius: 20rpx;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 86rpx;
+  margin-top: -86rpx;
+}
+
+.tweet-camera-action .title {
+  color: #fff;
+  font-size: medium;
+  text-align: center;
+  margin: 0;
+  padding: 24rpx;
+}
+
+.tweet-camera-action .action {
+  margin: 0;
+  font-size: small;
+  color: #fff;
+  display: flex;
+}
+
+.tweet-open-camera {
+  color: #bbb;
+  background-color: rgba(204, 204, 204, 0.3);
+  border-radius: 20rpx;
+}
+
+.tweet-open-camera .t-icon-base {
+  padding-top: 60rpx;
+}
+
+.tweet-camera {
+  width: 100%;
+  height: calc(100vh - 250rpx);
+}
+
+.hide-camera {
+  display: none;
+  z-index: -100000;
+}
+
+.show-camera {
+  display: block;
+  z-index: 100000;
+}
+
+.tweet-camera-btn-group-container {
+  position: absolute;
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  width: 100%;
+  height: 250rpx;
+  background-color: #ccc;
+}
+
+.tweet-camera-btn-group {
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tweet-camera-btn {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50rpx;
+  background-color: #fff;
+  box-shadow: 0 0 0 5px #bbb;
+}
+
+.tweet-camera-btn-cancel {
+  width: 100rpx;
+  height: 100rpx;
+  color: #fff;
+  padding-top: 25rpx;
+  margin-right: 50rpx;
+  border-radius: 50rpx;
+}
+
+.tweet-camera-btn-device {
+  width: 100rpx;
+  height: 100rpx;
+  color: #fff;
+  padding-top: 25rpx;
+  margin-left: 50rpx;
+  border-radius: 50rpx;
+}
+
+.location {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.loading-overlay>.t-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-wrapper {
+  text-align: center;
+  color: #fff;
+}
+
+.t-loading__spinner {
+  color: #fff !important;
+}

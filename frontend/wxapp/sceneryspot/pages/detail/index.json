@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "景区详情",
+  "usingComponents": {
+    "t-icon": "../../../miniprogram_npm/tdesign-miniprogram/icon/icon",
+    "t-navbar": "../../../miniprogram_npm/tdesign-miniprogram/navbar/navbar"
+  }
+}

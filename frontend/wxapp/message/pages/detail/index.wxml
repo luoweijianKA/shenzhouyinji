@@ -1,0 +1,11 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+
+<view class="page-container">
+  <view class="message">
+    <view class="message-header">
+      <view class="title">{{message.name}}</view>
+      <view class="datetime">发布时间：{{tools.timeFormat(message.release_time)}}</view>
+    </view>
+    <view class="message-content">{{message.content}}</view>
+  </view>
+</view>

@@ -1,0 +1,56 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view style="background-color: #fff;">
+  <t-cell-group>
+    <t-cell title="头像" arrow="" note="" data-type="avatar" bordered="{{false}}">
+      <view slot="note">
+        <image class="avatar" src="{{resourceUrl}}{{userInfo.wechat_avatar}}" mode="widthFix"></image>
+      </view>
+      <t-button class="icon-btn" icon="chevron-right" suffix="slot" slot="note" size="large" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar"></t-button>
+
+    </t-cell>
+    <view class="dividing"></view>
+    <t-cell title="昵称" arrow="" note="{{userInfo.wechat_name}}" data-type="nickname" bordered="{{false}}" bind:click="onClickCell">
+      <t-icon name="chevron-right" size="48rpx" slot="note" />
+    </t-cell>
+    <view class="dividing"></view>
+    <t-cell title="邮箱地址" arrow="" note="{{userInfo.profile.email}}" data-type="email" bordered="{{false}}" bind:click="onClickCell">
+      <t-icon name="chevron-right" size="48rpx" slot="note" />
+    </t-cell>
+
+    <view style="height: 24rpx;background-color: #f5f5f5;"></view>
+    <!-- <t-cell title="名字" arrow="" note="{{userInfo.profile.name}}" data-type="name" bordered="{{false}}" bind:click="onClickCell">
+      <t-icon name="chevron-right" size="48rpx" slot="note" />
+    </t-cell> -->
+    <!-- <view class="dividing"></view>
+    <t-cell title="性别" arrow="" note="{{userInfo.profile.gender}}" data-type="gender" bordered="{{false}}" bind:click="onClickCell">
+      <t-icon name="chevron-right" size="48rpx" slot="note" />
+    </t-cell> -->
+    <!-- <view class="dividing"></view>
+    <t-cell title="生日" arrow="" note="{{tools.timeFormat(userInfo.profile.birthday)}}" data-type="birthday" bordered="{{false}}" bind:click="onClickCell">
+      <t-icon name="chevron-right" size="48rpx" slot="note" />
+    </t-cell> -->
+    <!-- <view class="dividing"></view> -->
+    <t-cell title="手机号码" arrow="" note="{{userInfo.profile.phone}}" data-type="phone" bordered="{{false}}">
+    </t-cell>
+  </t-cell-group>
+</view>
+
+<t-popup visible="{{visible}}" placement="center">
+  <view class="block">
+    <form bindsubmit="{{submit}}">
+      <view class="edit-container">
+        <view class="title">{{editTitle}}</view>
+        <input wx:if="{{editType == 'nickname'}}" type="nickname" name="nickname" class="weui-input" placeholder="{{userInfo.wechat_name}}" maxlength="10" />
+        <input wx:if="{{editType == 'phone'}}" type="phone" name="phone" class="weui-input" placeholder="{{userInfo.profile.phone}}" />
+        <input wx:if="{{editType == 'email'}}" type="email" name="email" class="weui-input" placeholder="{{userInfo.profile.email}}" />
+      </view>
+      <view wx:if="{{editType == 'nickname'}}">
+        <view class="note">仅限字母+数字+汉字并不超过10个字符</view>
+      </view>
+      <view class="button-group">
+        <button class="btn-save" form-type="submit">保存</button>
+        <t-button class="btn-cancel" size="large" variant="text" bindtap="cancelEdit">取消</t-button>
+      </view>
+    </form>
+  </view>
+</t-popup>

@@ -1,0 +1,76 @@
+.page-header {
+  padding: 24rpx;
+  display: flex;
+  justify-content: space-between;
+}
+
+.page-header-left,
+.page-header-right {
+  display: flex;
+  justify-content: space-between;
+}
+
+.header-text {
+  margin-left: 12rpx;
+  font-size: small;
+}
+
+.header-icon {
+  font-size: small;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+}
+
+.dividing {
+  height: 5rpx;
+  width: 100%;
+  background-color: #f9f9f9;
+}
+
+.t-swipe-cell-demo-btn-wrapper {
+  height: 100%;
+}
+
+.t-swipe-cell-demo-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 144rpx !important;
+  height: 100%;
+  text-align: center;
+  color: white;
+}
+
+.t-swipe-cell-demo-btn.delete-btn {
+  background-color: #e34d59;
+}
+
+.t-swipe-cell-demo-btn.edit-btn {
+  background-color: #ed7b2f;
+}
+
+.t-swipe-cell-demo-btn.favor-btn {
+  background-color: #0052d9;
+}
+
+.t-swipe-cell {
+  margin-bottom: 5rpx;
+}
+
+.title-image-large {
+  margin-right: 8rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 16rpx;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  overflow: hidden;
+}

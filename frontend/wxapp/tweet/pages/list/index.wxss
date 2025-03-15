@@ -1,0 +1,205 @@
+@import '../../../style/iconfont.wxss';
+
+page {
+  background-color: #ffffff;
+}
+
+.go-back {
+  margin-top: 90rpx;
+  margin-left: -10rpx;
+  margin-bottom: 10rpx;
+  height: 80rpx;
+  width: 80rpx;
+  border-radius: 50rpx;
+  display: grid;
+  align-content: center;
+  justify-content: center;
+}
+
+.user-card {
+  width: 100%;
+  padding: 0 24rpx;
+  margin-bottom: 64rpx;
+}
+
+.ucc-header {
+  margin-top: 12rpx;
+  height: 96rpx;
+  line-height: 48rpx;
+  display: flex;
+  align-items: center;
+  color: #333;
+  position: relative;
+}
+
+.ucc-header-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  overflow: hidden;
+}
+
+.ucc-header-name {
+  font-size: 36rpx;
+  line-height: 48rpx;
+  color: #333;
+  font-weight: bold;
+  margin-left: 24rpx;
+  margin-right: 16rpx;
+}
+
+.ucc-header-photo {
+  width: calc(100vw - 340rpx);
+}
+
+.ucc-header-photo .icon {
+  float: right;
+}
+
+.tweet-info-container {
+  padding: 6rpx 12rpx;
+}
+
+.tweet-info {
+  border-radius: 20rpx;
+}
+
+.tweet-info-group {
+  width: 100%;
+  padding: 12rpx;
+  display: flex;
+}
+
+.tweet-info-cell {
+  width: calc((100vw - 320rpx)/4);
+  margin-right: 12rpx;
+  padding: 12rpx 36rpx 12rpx 24rpx;
+  display: flex;
+  justify-content: space-between;
+  font-size: medium;
+  background-image: linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);
+  border-radius: 50rpx;
+}
+
+.tweet-list-container {
+  min-height: calc(100vh - 520rpx);
+  padding: 24rpx;
+  padding-bottom: 100rpx;
+}
+
+.tweet-container {
+  margin-top: 24rpx;
+  height: auto;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid rgba(187, 187, 187, 0.2);
+}
+
+.tweet-header {
+  margin-bottom: 32rpx;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tweet-header-left {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tweet-header-left-text {
+  margin-left: 40rpx;
+  font-size: larger;
+  align-self: center;
+}
+
+.tweet-header-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+  overflow: hidden;
+}
+
+.tweet-header-right {
+  display: flex;
+  align-self: center;
+  justify-content: space-between;
+}
+
+.tweet-header-right-text {
+  margin-left: 12rpx;
+  font-size: 26rpx;
+}
+
+.swiper-wrap {
+  margin: 0;
+}
+
+.swiper-wrap .t-swiper {
+  height: 500rpx;
+}
+
+.swiper-wrap .t-swiper .t-cell__note {
+  font-size: small;
+  color: #4286F3;
+}
+
+.swiper-wrap .t-swiper .t-cell::after {
+  border-bottom: none;
+}
+
+.img {
+  width: 100%;
+  height: 500rpx;
+  border-radius: 16rpx;
+}
+
+.tweet-text {
+  font-size: medium;
+  padding: 24rpx 0rpx;
+}
+
+.tweet-time {
+  font-size: small;
+  color: #bbb;
+}
+
+.noTweet {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 520rpx);
+}
+
+.noTweet-img {
+  width: 100%;
+}
+
+.noTweet-text {
+  font-size: small;
+  color: #bbb;
+}
+
+.tweet-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tweet-footer-left {
+  display: flex;
+}
+
+.tweet-icon-group {
+  display: flex;
+  margin-top: 24rpx;
+  margin-right: 24rpx;
+}
+
+.tweet-icon {
+  display: flex;
+  margin-right: 24rpx;
+}
+
+.tweet-icon-text {
+  font-size: small;
+  color: #bbb;
+}

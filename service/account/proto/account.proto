@@ -1,0 +1,199 @@
+syntax = "proto3";
+
+package shenzhouyinji;
+option go_package = "./proto;shenzhouyinji";
+
+service AccountService {
+    rpc CreateAccount (Account) returns (AsKeyword) {}
+    rpc UpdateAccount (Account) returns (AsRes) {}
+    rpc GetAccount (AsKeyword) returns (Account) {}
+    rpc GetAccounts (AccountRequest) returns (AccountResponse) {}
+    rpc DeleteAccount (AsKeyword) returns (AccountResponse) {}
+
+    rpc UpdateProfile (Profile) returns (AsRes) {}
+    rpc GetProfileByUserID (AsKeyword) returns (Profile) {}
+    rpc GetProfileByName (AsKeyword) returns (Profile) {}
+
+    rpc CreateClaimCode (ClaimCode) returns (AsKeyword) {}
+    rpc UpdateClaimCode (ClaimCode) returns (AsRes) {}
+    rpc GetClaimCodeByUserID (AsKeyword) returns (ClaimCode) {}
+
+    rpc Login (LoginReq) returns (LoginRes) {}
+    rpc LoginWithWechat (WechatReq) returns (LoginRes) {}
+    rpc UpdatePassword(PasswordReq) returns (AsRes) {}
+
+    rpc CreateIndivIdentity(IndivIdentity) returns (IndivIdentityResponse) {}
+    rpc GetIndivIdentity(IndivIdentityRequest) returns (IndivIdentityResponse) {}
+    rpc GetIndivIdentityAccount(IndivIdentityAccountRequest) returns (IndivIdentityAccountResponse) {}
+    rpc DeleteIndivIdentity(IndivIdentityRequest) returns (IndivIdentityResponse) {}
+
+    rpc GetUserPoints(UserPointsRequest) returns (UserPointsResponse) {}
+    rpc AddUserPoints(UserPoints) returns (UserPointsResponse) {}
+
+    rpc GetExportUsers(ExportUserRequest) returns (ExportUserResponse) {}
+}
+
+message Account {
+    string id = 1;
+    string loginId = 2;
+    string password = 3;
+    string wechat = 4;
+    string wechat_name = 5;
+    string wechat_avatar = 6;
+    string role = 7;
+    int32 status = 8;
+    string scopes = 9;
+    int32 create_time = 10;
+}
+
+message Profile {
+    string id = 1;
+    string name = 2;
+    string gender = 3;
+    int32 age = 4;
+    int32 birthday = 5;
+    string email = 6;
+    string phone  = 7;
+    string city = 8;
+    string tags = 9;
+    string nric = 10;
+    bool authentication = 11;
+    string profession = 12;
+    string guardian_name = 13;
+    string guardian_nric = 14;
+    string guardian_phone = 15;
+    int32 create_time = 16;
+}
+
+message ClaimCode {
+    string id = 1;
+    string user_id = 2;
+    string code = 3;
+    int32 status = 4;
+    int32 create_time = 5;
+}
+
+message AsKeyword {
+    string value = 1;
+}
+
+message AsEmptyReq {}
+
+message AsRes {
+    bool value = 1;
+}
+
+message LoginReq {
+    string loginId = 1;
+    string password = 2;
+}
+
+message WechatReq {
+    string wechat = 1;
+}
+
+message LoginRes {
+    string id = 1;
+    string loginId = 2;
+    string role = 3;
+}
+
+message PasswordReq {
+    string loginId = 1;
+    string oldPassword = 2;
+    string newPassword = 3;
+}
+
+message AccountRequest {
+    repeated string roles = 1;
+    string search = 2;
+}
+
+message AccountResponse {
+   repeated Account data = 1;
+}
+
+message IndivIdentity {
+    string id = 1;
+    string userId = 2;
+    string accountId = 3;
+    string flowId = 4;
+    string shortLink = 5;
+    string url = 6;
+    int64 createTime = 7;
+}
+
+message IndivIdentityRequest {
+    string id = 1;
+}
+
+message IndivIdentityResponse {
+    IndivIdentity data = 1;
+}
+
+message IndivIdentityAccount {
+    string accountId = 1;
+}
+
+message IndivIdentityAccountRequest {
+    string userId = 1;
+}
+
+message IndivIdentityAccountResponse {
+    IndivIdentityAccount data = 1;
+}
+
+message UserPoints {
+    string id = 1;
+    string userId = 2;
+    string eventId = 3;
+    string content = 4;
+    string op = 5;
+    int32 points = 6;
+    int32 createTime = 7;
+}
+
+message UserPointsRequest {
+    string userId = 1;
+    string eventId = 2;
+    int32 timestamp = 3;
+}
+
+message UserPointsResponse {
+    repeated UserPoints data = 1;
+}
+
+message ExportUser {
+    string id = 1;
+    string loginId = 2;
+    string wechat = 3;
+    string wechat_name = 4;
+    string wechat_avatar = 5;
+    string role = 6;
+    int32 status = 7;
+    string scopes = 8;
+    int32 create_time = 9;
+    string name = 10;
+    string gender = 11;
+    int32 age = 12;
+    int32 birthday = 13;
+    string email = 14;
+    string phone  = 15;
+    string city = 16;
+    string tags = 17;
+    string nric = 18;
+    bool authentication = 19;
+    string profession = 20;
+    string guardian_name = 21;
+    string guardian_nric = 22;
+    string guardian_phone = 23;
+}
+
+message ExportUserRequest {
+    repeated string roles = 1;
+    string search = 2;
+}
+
+message ExportUserResponse {
+   repeated ExportUser data = 1;
+}

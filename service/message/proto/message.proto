@@ -1,0 +1,323 @@
+syntax = "proto3";
+
+package shenzhouyinji;
+option go_package = "./proto;shenzhouyinji";
+
+service MessagesService {
+    rpc CreateNotification(Notification) returns (MsgsKeyword) {}
+    rpc UpdateNotification(Notification) returns (NotificationsRes) {}
+    rpc DeleteNotification(DeleteNotificationRequest) returns (NotificationsRes) {}
+    rpc GetNotification(MsgsKeyword) returns (Notification) {}
+    rpc GetNotifications(MsgsEmptyReq) returns (NotificationsRes) {}
+
+    rpc UpdateUserNotification(UserNotification) returns (MsgsRes) {}
+    rpc GetUserNotifications(MsgsKeyword) returns (UserNotificationsRes) {}
+
+    rpc CreateConversation(Conversation) returns (MsgsKeyword) {}
+    rpc UpdateConversation(Conversation) returns (MsgsRes) {}
+    rpc GetConversation(MsgsKeyword) returns (Conversation) {}
+    rpc GetParticipantConversations(ParticipantConversationRequest) returns (ConversationsResponse) {}
+    rpc GetUserConversations(UserConversationRequest) returns (UserConversationResponse) {}
+    rpc GetServiceConversations(UserConversationRequest) returns (UserConversationResponse) {}
+
+    rpc GetUserUnreadMessage(MsgsKeyword) returns (UserUnreadMessage) {}
+    rpc ClearUserUnreadMessage(ClearUserUnreadMessageReq) returns (MsgsRes) {}
+
+    rpc CreateTweet(Tweet) returns (MsgsKeyword) {}
+    rpc UpdateTweet(Tweet) returns (MsgsRes) {}
+    rpc RemoveTweet(Tweet) returns (MsgsRes) {}
+    rpc GetTweet(MsgsKeyword) returns (Tweet) {}
+    rpc GetTweetByUserID(MsgsKeyword) returns (TweetsRes) {}
+    rpc GetNewestTweet(NewestTweetReq) returns (TweetsRes) {}
+    rpc GetUserTweet(UserTweetRequest) returns (TweetsRes) {}
+
+    rpc LikeTweet(TweetReq)returns (MsgsRes) {}
+    rpc UnlikeTweet(TweetReq)returns (MsgsRes) {}
+
+    rpc GetUserLikedRecord(MsgsKeyword) returns (UserLikeRecordsRes){}
+    rpc GetUserLikesRecord(MsgsKeyword) returns (UserLikeRecordsRes){}
+
+    rpc CreateFollowers(Followers) returns (MsgsRes) {}
+    rpc RemoveFollowers(Followers) returns (MsgsRes) {}
+    rpc GetFollowersByUserID(MsgsKeyword) returns (FollowerssRes) {}
+
+    rpc CreateFollowing(Following) returns (MsgsRes) {}
+    rpc RemoveFollowing(Following) returns (MsgsRes) {}
+    rpc GetFollowingByUserID(MsgsKeyword) returns (FollowingsRes) {}
+
+    rpc GetTweets(TweetRequest) returns (TweetResponse) {}
+
+    rpc ShareTweet(TweetReq)returns (MsgsRes) {}
+    rpc ViewTweet(TweetReq)returns (MsgsRes) {}
+
+    rpc GetTweetLikeRecord(MsgsKeyword) returns(TweetLikeRecordRes){}
+    rpc GetTweetShareRecord(MsgsKeyword) returns(TweetShareRecordRes){}
+    rpc GetTweetViewRecord(MsgsKeyword) returns(TweetViewRecordRes){}
+
+    rpc GetTweetUserActionState(MsgsKeyword) returns (TweetUserActionStateRes) {}
+    rpc GetTweetLikers(MsgsKeyword) returns (TweetUserRefRes) {}
+    rpc GetTweetSharers(MsgsKeyword) returns (TweetUserRefRes) {}
+    rpc GetTweetViewers(MsgsKeyword) returns (TweetUserRefRes) {}
+
+    rpc GetUserRecordByUserId(UserRecordReq) returns (UserRecordRes) {}
+    rpc GetUserRecordByTweetUserId(UserRecordReq) returns (UserRecordRes) {}
+}
+
+message Notification {
+    string id = 1;
+    string name = 2;
+    string category_id = 3;
+    string content = 4;
+    string sender = 5;
+    int32 release_time = 6;
+    int32 blocking_time = 7;
+    int32 create_time = 8;
+}
+
+message UserNotification {
+    string user_id = 1;
+    string notification_id = 2;
+    int32 status = 3;
+}
+
+message Conversation {
+    string id = 1;
+    string participant = 2;
+    string from = 3;
+    string to = 4;
+    string content = 5;
+    int32 send_time = 6;
+    int32 read_time = 7;
+    int32 status = 8;
+}
+
+message UserUnreadMessage {
+    string user_id = 1;
+    int32 notification = 2;
+    int32 conversation = 3;
+    int32 followers = 4;
+    int32 like = 5;
+    int32 share = 6;
+    int32 view = 7;
+    int32 system = 8;
+    int32 customerService = 9;
+    int32 reward = 10;
+    int32 badge = 11;
+}
+
+message Tweet {
+    string id = 1;
+    string user_id = 2;
+    string content = 3;
+    int32 like_count = 4;
+    int32 share_count = 5;
+    int32 view_count = 6;
+    int32 status = 7;
+    int32 create_time = 8;
+    string sceneryspot_id = 9;
+    string event_id = 10;
+    string location = 11;
+    string region = 13;
+    int32 updated_at = 14;
+}
+
+message TweetLikeRecord {
+    string id = 1;
+    string tweet_id = 2;
+    string like_user_id = 3;
+    string like_user_name = 4;
+    string like_user_avatar = 5;
+    int32 like_time = 6;
+}
+
+message TweetLikeRecordRes {
+    repeated TweetLikeRecord data = 1;
+}
+
+message TweetShareRecord {
+    string id = 1;
+    string tweet_id = 2;
+    string share_user_id = 3;
+    string share_user_name = 4;
+    string share_user_avatar = 5;
+    int32 share_time = 6;
+}
+
+message TweetShareRecordRes {
+    repeated TweetShareRecord data = 1;
+}
+
+message TweetViewRecord {
+    string id = 1;
+    string tweet_id = 2;
+    string view_user_id = 3;
+    string view_user_name = 4;
+    string view_user_avatar = 5;
+    int32 view_time = 6;
+}
+
+message TweetViewRecordRes {
+    repeated TweetViewRecord data = 1;
+}
+
+message TweetUserActionState {
+    string tweet_id = 1;
+    string user_id = 2;
+    int32 like = 3;
+    int32 share = 4;
+    int32 view = 5;
+}
+
+message TweetUserActionStateRes {
+    repeated TweetUserActionState data = 1;
+}
+
+message TweetUserRef {
+    string tweet_id = 1;
+    string user_id = 2;
+}
+
+message TweetUserRefRes {
+    repeated TweetUserRef data = 1;
+}
+
+message Followers {
+    string user_id = 1;
+    string follower = 2;
+    int32 follower_time = 3;
+}
+
+message Following {
+    string user_id = 1;
+    string following = 2;
+    int32 following_time = 3;
+}
+
+message UserLikeRecord {
+    string id = 1;
+    string user_id = 2;
+    string liker = 3;
+    string like_tweet =4;
+    int32 like_time = 5;
+}
+
+message MsgsKeyword {
+    string value = 1;
+}
+
+message MsgsEmptyReq {}
+
+message MsgsRes {
+    bool value = 1;
+}
+
+message NotificationsRes {
+    repeated Notification data = 1;
+}
+
+message UserNotificationsRes {
+    repeated UserNotification data = 1;
+}
+
+message ClearUserUnreadMessageReq{
+    string userId = 1;
+    string type = 2;
+}
+
+message ConversationsResponse {
+    repeated Conversation data = 1;
+}
+
+message TweetsRes {
+    repeated Tweet data = 1;
+    int64 total = 2;
+}
+
+message TweetReq{
+    string tweetId = 1;
+    string userId = 2;
+}
+
+message NewestTweetReq{
+    string eventId = 1;
+    string sceneryspotId = 2;
+    int32 pageIndex = 3;
+    int32 pageSize = 4;
+}
+
+message UserTweetRequest {
+    string userId = 1;
+    string eventId = 2;
+    string sceneryspotId = 3;
+}
+
+message FollowerssRes {
+    repeated Followers data = 1;
+}
+
+message FollowingsRes {
+    repeated Following data = 1;
+}
+
+message TweetRequest {
+    int32 status = 1;
+    string userId = 2;
+    string eventId = 3;
+    repeated string sceneryspots = 4;
+    int32 offset = 5;
+    int32 limit = 6;
+}
+
+message TweetResponse {
+    repeated Tweet data = 1;
+}
+
+message UserLikeRecordsRes{
+    repeated UserLikeRecord data = 1;
+}
+
+message DeleteNotificationRequest {
+    repeated string values = 1;
+}
+
+message PageInfo {
+    string startCursor = 1;
+    string endCursor = 2;
+    bool hasPreviousPage = 3;
+    bool hasNextPage = 4;
+}
+
+message ParticipantConversationRequest {
+    string participant = 1;
+    string from = 2;
+    string userId = 3;
+}
+
+message UserConversationRequest {
+    int32 first = 1;
+    string after = 2;
+    string userId = 3;
+}
+
+message UserConversationResponse {
+    repeated Conversation data = 1;
+    PageInfo pageInfo = 2;
+}
+
+message UserRecord {
+    string id = 1;
+    string user_id = 2;
+    string tweet_id =3;
+    string tweet_user_id = 4;
+    string action_type = 5;
+    int32 time = 6;
+}
+
+message UserRecordReq {
+    string user_id = 1;
+    string action_type = 2;
+}
+
+message UserRecordRes {
+    repeated UserRecord data = 1;
+}

@@ -1,0 +1,127 @@
+{
+  "pages": [
+    "pages/start/index",
+    "pages/home/home",
+    "pages/map/index",
+    "pages/tweet/index",
+    "pages/conversation/index",
+    "pages/conversation/details/index",
+    "pages/conversation/list/index",
+    "pages/conversation/system/index",
+    "pages/conversation/cs/index",
+    "pages/conversation/reward/index",
+    "pages/event/list/index",
+    "pages/event/detail/index",
+    "pages/usercenter/index",
+    "pages/usercenter/like/index",
+    "pages/usercenter/followers/index",
+    "pages/usercenter/following/index",
+    "pages/usercenter/profile/index",
+    "pages/usercenter/myevent/index",
+    "pages/usercenter/map/index",
+    "pages/usercenter/honour/index",
+    "pages/usercenter/ranking/index",
+    "pages/usercenter/points/index",
+    "pages/usercenter/record/index",
+    "pages/sceneryspot/index",
+    "pages/passport/index",
+    "pages/passport/takecode/index",
+    "pages/passport/activate/index",
+    "pages/passport/guides/index",
+    "pages/passport/distribute/index",
+    "pages/passport/distribute-history/index",
+    "pages/passport/distribute-history/list",
+    "pages/task/index",
+    "pages/task/question/index",
+    "pages/task/trek/index",
+    "pages/task/geocaching/index",
+    "pages/task/screenshot/index",
+    "pages/task/puzzle/index",
+    "pages/task/temporary/index",
+    "pages/clock/index",
+    "pages/badge/index",
+    "pages/badge/swap",
+    "pages/badge/exchange",
+    "pages/badge/select",
+    "pages/stamp/index",
+    "pages/share/index",
+    "pages/chat/index",
+    "pages/chat/conversation/index"
+  ],
+  "subPackages": [
+    {
+      "root": "sceneryspot",
+      "name": "sceneryspot",
+      "independent": true,
+      "pages": [
+        "pages/detail/index",
+        "pages/serviceItem/index"
+      ]
+    },
+    {
+      "root": "message",
+      "name": "message",
+      "independent": true,
+      "pages": [
+        "pages/detail/index"
+      ]
+    },
+    {
+      "root": "tweet",
+      "name": "tweet",
+      "independent": true,
+      "pages": [
+        "pages/create/index",
+        "pages/list/index",
+        "pages/details/index"
+      ]
+    }
+  ],
+  "tabBar": {
+    "custom": true,
+    "color": "#666666",
+    "selectedColor": "#FF5F15",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/map/index",
+        "text": "景区导航"
+      },
+      {
+        "pagePath": "pages/tweet/index",
+        "iconPath": "assets/icons/yin.png",
+        "selectedIconPath": "assets/icons/yinok.png",
+        "text": "印迹打卡"
+      },
+      {
+        "pagePath": "pages/conversation/index",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/usercenter/index",
+        "text": "个人中心"
+      }
+    ]
+  },
+  "usingComponents": {},
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "Weixin",
+    "navigationBarTextStyle": "black"
+  },
+  "sitemapLocation": "sitemap.json",
+  "requiredPrivateInfos": [
+    "getLocation"
+  ],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示"
+    }
+  }
+}

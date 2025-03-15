@@ -1,0 +1,33 @@
+<view class="loading-container">
+  <image src="/assets/logo.jpg" class="logo" mode="heightFix"></image>
+  <t-loading wx:if="{{loading}}" theme="circular" size="56rpx" t-class-indicator="t-class-indicator">
+    <span slot="text" class="loading-text">加载中...</span>
+  </t-loading>
+</view>
+
+<t-popup visible="{{visibleUserInfo}}" placement="bottom">
+  <view class="block block-bottom">
+    <view class="brand">
+      <image class="brand-logo" src="../../assets/logo.png" mode="widthFix"></image>
+      <view class="brand-name">神州印迹</view>
+    </view>
+    <view class="popup-tip">为提供更好的体验，请设置你的昵称、头像</view>
+    <form bindsubmit="saveUserInfoEdit">
+      <view class="edit-avatar">
+        <view class="title">用户头像</view>
+        <view class="edit-avatar-right">
+          <image class="avatar" src="{{avatarUrl}}" mode="widthFix"></image>
+          <t-button class="icon-btn" icon="chevron-right" shape="square" size="small" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar"></t-button>
+        </view>
+      </view>
+      <view class="edit-name">
+        <view class="title">用户昵称</view>
+        <input type="nickname" name="nickname" class="weui-input" placeholder="{{nickname}}" maxlength="10" />
+      </view>
+      <view class="note">仅限字母+数字+汉字并不超过10个字符</view>
+      <view class="button-group">
+        <button class="btn-save" form-type="submit">保存</button>
+      </view>
+    </form>
+  </view>
+</t-popup>

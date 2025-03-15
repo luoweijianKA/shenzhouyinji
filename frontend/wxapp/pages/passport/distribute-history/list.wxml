@@ -1,0 +1,8 @@
+<view class="page-container">
+  <view class="cell-box">
+    <t-cell-group>
+      <t-cell wx:for="{{passports}}" wx:key="index" title="{{item.passportCode}}" description="{{item.claimTime}}" note="{{item.userName}}" bordered="{{false}}" t-class="t-cell-padding" t-class-note="order-group-note" t-class-left="order-group__left">
+      </t-cell>
+    </t-cell-group>
+  </view>
+</view>

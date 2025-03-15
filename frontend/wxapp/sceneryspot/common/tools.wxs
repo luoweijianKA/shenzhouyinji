@@ -1,0 +1,45 @@
+var substr = function (val, len) {
+  if (val.length > len) {
+    return val.substring(0, len) + "...";
+  } else {
+    return val;
+  }
+}
+
+module.exports.substr = substr;
+
+var getImageByStr = function (val, char) {
+  var defaultImageUrl = "../../assets/blackboardImage.png";
+  if (typeof (val) != "undefined") {
+    var charIndex = val.indexOf(char);
+    if (charIndex > 0) {
+      var url = val.substring(0, charIndex).replace(',', '');
+      if (url != "") {
+        defaultImageUrl = "https://static.shenzhouyinji.cn" + url;
+      }
+    } else {
+      var url = val.replace(',,,,', '');
+      if (url != "") {
+        defaultImageUrl = "https://static.shenzhouyinji.cn" + url;
+      }
+    }
+  }
+
+  return defaultImageUrl;
+}
+
+module.exports.getImageByStr = getImageByStr;
+
+
+var timeFormat = function (timestamp) {
+  var time = getDate(parseInt(timestamp) * 1000);
+  var y = time.getFullYear();
+  var m = time.getMonth() + 1;
+  var d = time.getDate();
+
+  var timeStr = y + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d);
+  return timeStr;
+}
+
+module.exports.timeFormat = timeFormat;
+

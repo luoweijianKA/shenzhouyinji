@@ -1,0 +1,43 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<map class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" polygons="{{polygons}}" markers="{{markers}}" show-compass="ture" enable-3D="ture" enable-overlooking="ture" enable-rotate="ture" enable-zoom="ture" enable-scroll="ture" show-location="true">
+</map>
+<view class="task-container">
+  <view class="task">
+    <view class="task-header">
+      <view class="subtitle">{{trek.name}}</view>
+      <view class="caption">距离我约：{{distance}} km</view>
+    </view>
+    <view class="task-media" wx:if="{{tools.isImg(trek.images)}}">
+      <image src="{{tools.resource(trek.images)}}" class="img" mode="widthFix"></image>
+    </view>
+    <view class="task-media" wx:else="">
+      <video class="video" wx:if="{{trek.images && trek.images.length > 0}}" src="{{tools.resource(trek.images)}}" autoplay="{{autoplay}}"></video>
+    </view>
+    <view class="caption">{{trek.introduction}}</view>
+  </view>
+</view>
+<view class="action-container">
+  <button class="button start" hidden="{{started}}" bindtap="bindStart">开始</button>
+  <button class="button" hidden="{{!started}}" bindtap="bindRefresh">刷新</button>
+  <button class="button end" hidden="{{!started}}" bindtap="bindEnd">结束</button>
+</view>
+<view class="page-container">
+  <view class="list">
+    <view class="list-item">
+      <view class="label">起始步数</view>
+      <view>{{run.start}}</view>
+    </view>
+    <view class="list-item">
+      <view class="label">当前步数</view>
+      <view>{{run.step}}</view>
+    </view>
+    <view class="list-item">
+      <view class="label">完成步数</view>
+      <view>{{run.complete}}</view>
+    </view>
+    <view class="list-item">
+      <view class="label">目标步数</view>
+      <view>{{run.target}}</view>
+    </view>
+  </view>
+</view>

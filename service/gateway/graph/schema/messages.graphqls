@@ -1,0 +1,217 @@
+type Notification {
+  id: ID!
+  name: String!
+  category_id: String!
+  content: String!
+  sender: String!
+  release_time: Int!
+  blocking_time: Int!
+  create_time: Int!
+}
+
+input NewNotification {
+  name: String!
+  category_id: String!
+  content: String!
+  sender: String!
+  release_time: Int!
+  blocking_time: Int!
+}
+
+input NotificationInput {
+  id: ID!
+  name: String!
+  content: String!
+}
+
+type UserNotification {
+  user_id: String!
+  notification_id: String!
+  status: Int!
+}
+
+input UpdateUserNotification {
+  user_id: String!
+  notification_id: String!
+  status: Int!
+}
+
+type UserUnreadMessage {
+  user_id: String!
+  notification: Int!
+  conversation: Int!
+  followers: Int!
+  like: Int!
+  share: Int!
+  view: Int!
+  system: Int!
+  customerService: Int!
+  reward: Int!
+  badge: Int!
+}
+
+type Conversation {
+  id: ID!
+  participant: String!
+  from: String!
+  user_id: String!
+  user_name: String!
+  user_avatar: String!
+  content: String!
+  send_time: Int!
+  read_time: Int!
+  has_new: Boolean!
+}
+
+input NewConversation {
+  participant: String!
+  to: String!
+  content: String!
+}
+
+input UpdateConversation {
+  id: ID!
+  status: Int!
+}
+
+type TweetUserActionState {
+  tweet_id: String!
+  user_id: String!
+  wechat_name: String!
+  wechat_avatar: String!
+  like: Int!
+  share: Int!
+  view: Int!
+}
+
+type TweetUserRef {
+  tweet_id: String!
+  user_id: String!
+  wechat_name: String!
+  wechat_avatar: String!
+}
+
+type Tweet {
+  id: ID!
+  user_id: String!
+  content: String!
+  like_count: Int
+  share_count: Int
+  view_count: Int
+  status: Int!
+  create_time: Int!
+  event_id: String!
+  sceneryspot_id: String!
+  location: String
+  region: String
+}
+
+type TweetWithAccount {
+  id: ID!
+  user_id: String!
+  wechat_name: String!
+  wechat_avatar: String!
+  content: String!
+  like_count: Int
+  share_count: Int
+  view_count: Int
+  status: Int!
+  create_time: Int
+  event_id: String!
+  sceneryspot_id: String!
+  location: String
+  region: String
+}
+
+type TweetConnection {
+  tweets: [TweetWithAccount]
+  total: Int
+}
+
+input NewTweet {
+  user_id: String!
+  content: String!
+  event_id: String!
+  sceneryspot_id: String!
+  location: String
+  region: String
+}
+
+input UpdateTweet {
+  id: ID!
+  like: String
+  share: String
+  status: Int
+}
+
+type Followers {
+  user_id: String!
+  follower: String!
+  follower_time: Int
+}
+
+input InputFollowers {
+  user_id: String!
+  follower: String!
+}
+
+type Following {
+  user_id: String!
+  following: String!
+  following_time: Int
+}
+
+input InputFollowing {
+  user_id: String!
+  following: String!
+}
+
+type UserLikeRecord {
+  id: String!
+  user_id: String!
+  liker: String!
+  liker_name: String
+  like_avatar: String
+  like_tweet: String!
+  like_time: Int!
+}
+
+type TweetLikeRecord {
+  id: String!
+  tweet_id: String!
+  like_user_id: String
+  like_user_name: String
+  like_user_avatar: String
+  like_time: Int
+}
+
+type TweetShareRecord {
+  id: String!
+  tweet_id: String!
+  share_user_id: String
+  share_user_name: String
+  share_user_avatar: String
+  share_time: Int
+}
+
+type TweetViewRecord {
+  id: String!
+  tweet_id: String!
+  view_user_id: String
+  view_user_name: String
+  view_user_avatar: String
+  view_time: Int
+}
+
+type UserRrcord {
+  id: String!
+  user_id: String!
+  user_name: String!
+  user_avatar: String!
+  tweet_id: String!
+  tweet_user_id: String!
+  tweet_user_name: String!
+  tweet_user_avatar: String!
+  action_type: String!
+  time: Int!
+}

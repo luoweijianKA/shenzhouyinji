@@ -1,0 +1,10 @@
+{
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "navigationBarTitleText": "发放记录",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
+}

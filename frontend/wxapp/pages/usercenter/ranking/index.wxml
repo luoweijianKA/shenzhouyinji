@@ -1,0 +1,112 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<!-- <view class="page-header user-container" wx:if="{{user}}">
+  <view class="user">
+    <t-avatar t-class="avatar" mode="aspectFill" image="{{user.avatar || defaultUserAvatar}}" />
+    <view class="user-name">{{user.name || '微信用户'}}</view>
+  </view>
+</view> -->
+<view class="page-header event">
+  <view class="event-header">
+    <view class="title">
+      <image src="/assets/logo.jpg" class="img" mode="heightFix"></image>
+      <image src="{{tools.resource(event.images[0])}}" class="img" mode="heightFix"></image>
+    </view>
+    <view class="action" bindtap="onSelectEvent">
+      切换活动
+      <t-icon name="chevron-right" size="36rpx" />
+    </view>
+  </view>
+</view>
+
+<view class="page-container event" wx:if="{{event}}">
+  <view class="event-content p0">
+    <image src="{{tools.resource(event.images[1])}}" class="img" mode="scaleToFill"></image>
+    <view class="event-header-content">
+      <view class="event-header-title">{{event.name}}</view>
+      <view class="event-header-action" id="{{event.id}}" bindtap="bindDetails">
+        活动详情
+        <t-icon name="chevron-right" size="36rpx" />
+      </view>
+    </view>
+  </view>
+  <view class="event-content">
+    <view class="list">
+      <view class="list-item">
+        <view class="label">活动时间</view>
+        <view>{{event.start_time}} - {{event.end_time}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所在阵营</view>
+        <view>{{event.camp_name}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">阵营积分</view>
+        <view>{{event.camp_points}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">阵营排名</view>
+        <view>{{event.camp_ranking}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">我的积分</view>
+        <view>{{event.user_points}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">活动排名</view>
+        <view>{{event.user_ranking}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">我的荣誉</view>
+        <view>{{event.user_honour}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="ranking-container">
+  <!-- <image src="/assets/camp-ranking.png" class="ranking-title" mode="heightFix"></image> -->
+  <view class="ranking-title">阵营榜</view>
+  <view class="page-container ranking">
+    <view class="ranking-header">
+      <text class="ranking-header-item">排名</text>
+      <text class="ranking-header-item">旗帜</text>
+      <text class="ranking-header-item">阵营</text>
+      <text class="ranking-header-item">规模</text>
+      <text class="ranking-header-item">战绩</text>
+    </view>
+    <view class="ranking-content list">
+      <view class="list-item" wx:for="{{ campRanks }}" wx:key="index">
+        <text class="list-item-text">{{item.rank}}</text>
+        <view class="list-item-text">
+          <image class="img" src="{{tools.resource(item.logo)}}" mode="widthFix"></image>
+        </view>
+        <text class="list-item-text">{{item.name}}</text>
+        <text class="list-item-text">{{item.user_count}}</text>
+        <text class="list-item-text">{{item.points}}</text>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="ranking-container">
+  <!-- <image src="/assets/user-ranking.png" class="ranking-title" mode="heightFix"></image> -->
+  <view class="ranking-title">玩家榜</view>
+  <view class="page-container ranking">
+    <view class="ranking-header">
+      <text class="ranking-header-item">排名</text>
+      <text class="ranking-header-item">玩家</text>
+      <text class="ranking-header-item">印迹</text>
+      <text class="ranking-header-item">称号</text>
+      <text class="ranking-header-item">阵营</text>
+      <text class="ranking-header-item">战绩</text>
+    </view>
+    <view class="ranking-content list user-ranking">
+      <view class="list-item" wx:for="{{userRanks}}" wx:key="index">
+        <text class="list-item-text">{{item.rank}}</text>
+        <text class="list-item-text">{{item.name}}</text>
+        <text class="list-item-text">{{item.trip_count}}</text>
+        <text class="list-item-text">{{item.honour_name}}</text>
+        <text class="list-item-text">{{item.camp_name}}</text>
+        <text class="list-item-text">{{item.points}}</text>
+      </view>
+    </view>
+  </view>
+</view>

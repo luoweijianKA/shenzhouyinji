@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "点赞记录",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
+}

@@ -1,0 +1,17 @@
+page {
+  box-sizing: border-box;
+  background-color: rgb(0, 0, 0, 0.035);
+}
+
+.page-container {
+  background: #fff;
+  display: grid;
+  gap: 1rem;
+  padding: 12rpx;
+  padding-bottom: 0;
+}
+
+.cell-box .t-cell-padding {
+  padding: 24rpx;
+  border-bottom: 1px solid rgb(0, 0, 0, 0.035);
+}

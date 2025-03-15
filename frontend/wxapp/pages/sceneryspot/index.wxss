@@ -1,0 +1,50 @@
+page {
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 180rpx);
+}
+
+.page-container {
+  background: #fff;
+  background-color: rgb(0, 0, 0, 0.035);
+  display: grid;
+  gap: 1rem;
+  padding: 16px;
+}
+
+.scenicyspot {
+  background: #fff;
+  color: rgb(0, 0, 0, 0.87);
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-radius: 10px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.scenicyspot .img {
+  display: block;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 100%;
+  object-fit: cover;
+}
+
+.scenicyspot-content {
+  padding: 16px;
+}
+
+.scenicyspot-content .name {
+  margin: 0px 0px 0.35em;
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.334;
+  letter-spacing: 0em;
+}
+
+.scenicyspot-content .introduction {
+  margin: 0px;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.43;
+  letter-spacing: 0.025em;
+}

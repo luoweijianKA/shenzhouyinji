@@ -1,0 +1,55 @@
+<view class="page-container">
+  <view class="passport" wx:if="{{event}}">
+    <view class="list">
+      <view class="list-item">
+        <view class="label">活动名称</view>
+        <view>{{event.name}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">姓名</view>
+        <view>{{passport.real_name}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">身份证号</view>
+        <view>{{passport.nric}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">手机号码</view>
+        <view>{{passport.phone}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">性别</view>
+        <view>{{passport.gender}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">职业</view>
+        <view>{{passport.profession}}</view>
+      </view>
+      <view class="list-item" wx:if="{{passport.guardian_name.length > 0}}">
+        <view class="label">监护人姓名</view>
+        <view>{{passport.guardian_name}}</view>
+      </view>
+      <view class="list-item" wx:if="{{passport.guardian_nric.length > 0}}">
+        <view class="label">监护人身份证号</view>
+        <view>{{passport.guardian_nric}}</view>
+      </view>
+      <view class="list-item" wx:if="{{passport.guardian_phone.length > 0}}">
+        <view class="label">监护人手机号码</view>
+        <view>{{passport.guardian_phone}}</view>
+      </view>
+      <view>
+        <view class="list-action">
+          <form bindsubmit="onSubmit">
+            <view class="form">
+              <view class="passport-code">
+                <input class="form-control" maxlength="50" type="number" name="passportCode" placeholder="护照编号" value="{{scanCode}}" />
+                <t-icon class="scan" name="scan" size="80rpx" bindtap="onScan" />
+              </view>
+              <button class="form-action" form-type="submit">激活</button>
+            </view>
+          </form>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,206 @@
+<wxs src="../../common/tools.wxs" module="tools" />
+
+<view style="text-align: center" wx:if="{{pageLoading}}">
+  <t-loading theme="circular" size="40rpx" loading t-class-indicator="t-class-indicator">
+    <span slot="text" class="loading-text">加载中...</span>
+  </t-loading>
+</view>
+
+<view class="home-page-header">
+  <view>
+    <t-badge count="{{total}}" offset="{{ [2, -3] }}" max-count="99" class="wrapper" bindtap="tapChat">
+      <t-icon name="notification" size="24" ariaLabel="消息" />
+    </t-badge>
+  </view>
+  <view class="swiper-wrap">
+    <t-swiper wx:if="{{notifySrcs.length > 0}}" current="{{current}}" autoplay="{{autoplay}}" duration="{{duration}}" interval="{{interval}}" navigation="{{navigation}}">
+      <t-swiper-item wx:for="{{notifySrcs}}" wx:key="index">
+        <t-cell id="{{index}}" title="{{tools.substr(item.name, 10)}}" description="{{tools.substr(item.content, 15)}}" note="查看" t-class-left="t-class-left" bindtap="messageDetail">
+        </t-cell>
+      </t-swiper-item>
+    </t-swiper>
+  </view>
+</view>
+
+<view class="home-page-container">
+  <view class="event">
+    <view class="event-header">
+      <view class="title">
+        <image src="/assets/logo.jpg" class="img" mode="heightFix"></image>
+        <image src="{{eventLogo}}" class="img" mode="heightFix"></image>
+      </view>
+      <view class="footer" bindtap="allEvent">切换活动
+        <t-icon name="chevron-right" size="36rpx" />
+      </view>
+    </view>
+    <view class="event-container">
+      <image src="{{eventBanner}}" class="img" mode="scaleToFill"></image>
+      <view class="summary-container">
+        <view class="summary-title">{{currentEvent.name}}</view>
+        <view id="{{currentEvent.id}}" class="summary-footer" bindtap="eventDetail">详情 >></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="sceneryspot">
+    <t-tabs t-class="t-tabs" t-class-active="tabs-external__active" t-class-item="tabs-external__item" t-class-track="tabs-external__track" defaultValue="{{0}}" bind:change="tabChangeHandle">
+      <t-tab-panel wx:for="{{tabList}}" wx:for-index="index" wx:key="index" label="{{item.name}}" value="{{index}}" />
+    </t-tabs>
+    <view class="sceneryspot-container">
+      <image src="{{currentSceneryspotImage}}" class="sceneryspot-img" bindtap="sceneryspotDetail" mode="scaleToFill"></image>
+      <view class="service-item-container">
+        <view class="service-item-container-cell" wx:for="{{[0, 3, 6]}}" wx:for-item="i" wx:key="{{i}}">
+          <view wx:for="{{[0, 1, 2]}}" wx:for-item="j" wx:key="{{j}}" class="service-item" bindtap="goService" data-index="{{i + j}}" data-url="{{services[i + j].url}}">
+            <image src="{{tools.resource(services[i + j].icon)}}" class="service-item-img" mode="heightFix"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="badge" style="background-image:url('{{badgeBackgroundUrl}}')">
+    <view class="badge-action" data-url="/pages/badge/index" bindtap="go">更多></view>
+    <barrage class="barrage" wx:if="{{toggle}}" bindtap="tapBarrage"></barrage>
+  </view>
+
+  <view class="camp">
+    <view class="camp-header">
+      <view class="title">竞技打榜</view>
+    </view>
+    <view class="camp-container">
+      <view class="camp-title">
+        <text class="camp-title-item">排名</text>
+        <text class="camp-title-item">旗帜</text>
+        <text class="camp-title-item">阵营</text>
+        <text class="camp-title-item">规模</text>
+        <text class="camp-title-item">战绩</text>
+      </view>
+      <view class="camp-cell rank" wx:for="{{ campRanks }}" wx:key="index">
+        <text class="camp-cell-item">{{item.rank}}</text>
+        <view class="camp-cell-item">
+          <image class="camp-flag" src="{{item.logo}}" mode="widthFix"></image>
+        </view>
+        <text class="camp-cell-item">{{item.name}}</text>
+        <text class="camp-cell-item">{{item.user_count}}</text>
+        <text class="camp-cell-item">{{item.points}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="ranking">
+    <view class="ranking-header">
+      <view class="title">玩家排行</view>
+    </view>
+
+    <view class="ranking-container">
+      <view class="ranking-title">
+        <text class="ranking-title-item">排名</text>
+        <text class="ranking-title-item">玩家</text>
+        <text class="ranking-title-item">印迹</text>
+        <text class="ranking-title-item">称号</text>
+        <text class="ranking-title-item">阵营</text>
+        <text class="ranking-title-item">战绩</text>
+      </view>
+      <view class="ranking-cell-container">
+        <view class="ranking-cell" wx:for="{{userRanks}}" wx:key="index">
+          <text class="ranking-cell-item">{{item.rank}}</text>
+          <text class="ranking-cell-item">{{item.name}}</text>
+          <text class="ranking-cell-item">{{item.trip_count}}</text>
+          <text class="ranking-cell-item">{{item.honour_name}}</text>
+          <text class="ranking-cell-item">{{item.camp_name}}</text>
+          <text class="ranking-cell-item">{{item.points}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tweet">
+    <view class="tweet-title">
+      <view class="title">印迹分享 & 印迹地图</view>
+    </view>
+
+    <view class="tweet-list-container" wx:if="{{tweets.length > 0}}">
+      <view class="tweet-container" wx:for="{{tweets}}" wx:key="index">
+        <view class="tweet-header">
+          <view class="tweet-header-left">
+            <image src="{{resourceUrl}}{{item.wechat_avatar}}" class="tweet-header-avatar" mode="aspectFit"></image>
+            <view class="tweet-header-left-text">{{item.wechat_name}}</view>
+          </view>
+          <view class="tweet-header-right" wx:if="{{!item.isself}}">
+            <view class="tweet-following">
+              <view class="following" wx:if="{{!item.isFollowing}}" bindtap="tapFollowing" id="{{item.user_id}}">
+                <t-icon prefix="wr" name="add" size="36rpx" style="margin-right: -30rpx;" />
+                <view class="tweet-header-right-text">关注</view>
+              </view>
+              <view class="following" wx:else="" id="{{item.user_id}}">
+                <view class="tweet-header-right-text" style="color: #ccc;">已关注</view>
+              </view>
+            </view>
+            <view class="tweet-like">
+              <view class="tweet-button" wx:if="{{item.hasLike}}" data-tweetId="{{item.id}}" data-index="{{index}}" bindtap="tapUnlike">
+                <t-icon prefix="wr" name="thumb_up_filled" size="36rpx" style="color: #fa550f;" />
+              </view>
+              <view class="tweet-button" wx:else="" data-tweetid="{{item.id}}" data-index="{{index}}" bindtap="tapLike">
+                <t-icon prefix="wr" name="thumb_up" size="36rpx" />
+              </view>
+              <view class="tweet-icon-text">{{item.like_count}}</view>
+            </view>
+          </view>
+          <view class="tweet-header-right" wx:else="">
+            <view class="tweet-like">
+              <view class="tweet-button-notap">
+                <t-icon prefix="wr" name="thumb_up" size="36rpx" />
+              </view>
+              <view class="tweet-icon-text">{{item.like_count}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="tweet-content-images">
+          <view class="swiper-wrap" data-url="{{'/pages/share/index?id=' + item.id + '&hasLike=' + item.hasLike}}" bindtap="go">
+            <t-swiper wx:if="{{item.content.images.length > 0}}" current="0" autoplay="false" navigation="{{navigation}}">
+              <t-swiper-item wx:for="{{item.content.images}}" wx:for-item="image" wx:key="index">
+                <image src="{{resourceUrl}}{{image}}" class="img" style="background-image: url({{tweetBackground}});background-size: cover;" mode="aspectFit"></image>
+              </t-swiper-item>
+            </t-swiper>
+          </view>
+        </view>
+        <view class="tweet-content-text">
+          <view>
+            <view class="tweet-text">{{item.content.text}}</view>
+            <view style="display: flex; gap: 8rpx;">
+              <view class="tweet-icon" wx:if="{{item.region && item.region.length > 0}}">
+                <t-icon prefix="wr" name="location" size="36rpx" style="margin-right: 8rpx;" />
+                <view class="tweet-time">{{item.region}}</view>
+              </view>
+              <view class="tweet-time">{{tools.timeFormat(item.create_time)}}</view>
+            </view>
+          </view>
+        </view>
+        <view class="tweet-footer">
+          <view class="tweet-footer-left">
+            <!-- <view class="tweet-icon-group">
+              <view class="tweet-icon">
+                <t-icon prefix="wr" name="share" size="36rpx" />
+              </view>
+              <view class="tweet-icon-text">{{item.share_count}}</view>
+            </view> -->
+            <view class="tweet-icon-group">
+              <view class="tweet-icon">
+                <t-icon prefix="wr" name="preview" size="36rpx" />
+              </view>
+              <view class="tweet-icon-text">{{item.view_count}}</view>
+            </view>
+          </view>
+          <view class="tweet-footer-right">
+            <view class="tweet-icon-group" data-url="{{'/pages/usercenter/map/index?uid=' + item.user_id + '&eventId=' + item.event_id}}" bindtap="go">
+              <view class=" tweet-icon tap" style="margin-right: 8rpx;">
+                <t-icon prefix="wr" name="map" size="36rpx" />
+              </view>
+              <view class="tweet-icon-text tap">印迹地图</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:else="" class="tweet-tips"> ----- 快来成为第一个打卡的吧 ----- </view>
+  </view>
+</view>

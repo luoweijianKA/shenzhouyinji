@@ -1,0 +1,53 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view class="page-container event">
+  <view class="event-header">
+    <view class="title">
+      <image src="/assets/logo.jpg" class="img" mode="heightFix"></image>
+      <image src="{{tools.resource(event.images[0])}}" class="img" mode="heightFix"></image>
+    </view>
+    <view class="action" bindtap="onSelectEvent">
+      切换活动
+      <t-icon name="chevron-right" size="36rpx" />
+    </view>
+  </view>
+</view>
+<view class="page-container" wx:if="{{event}}">
+  <view class="event-container">
+    <image src="{{tools.resource(event.images[1])}}" class="img" mode="widthFix"></image>
+  </view>
+</view>
+
+<view class="page-container">
+  <view class="card">
+    <view class="card-header">
+      <view class="title">彩蛋任务</view>
+    </view>
+    <view class="card-content">
+      <view class="list">
+        <view class="list-item task" wx:for="{{tasks}}" wx:key="index" data-value="{{item}}" bindtap="onTask">
+          <view class="subtitle">{{item.name}}</view>
+          <view class="task-content">
+            <view>
+              <view class="caption">类型</view>
+              <view>{{item.category_name}}</view>
+            </view>
+            <view>
+              <view class="caption">分值</view>
+              <view>{{item.points}}</view>
+            </view>
+            <view wx:if="{{!item.completed}}">
+              <view>待处理</view>
+            </view>
+            <view wx:if="{{item.completed}}">
+              <view class="caption">{{item.completedTime}}</view>
+              <view class="done">已完成</view>
+            </view>
+            <view>
+              <t-icon name="chevron-right" size="36rpx" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

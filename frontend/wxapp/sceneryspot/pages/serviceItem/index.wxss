@@ -1,0 +1,88 @@
+page {
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 96rpx);
+  background: rgb(0, 0, 0， 0.3);
+}
+
+.page-container {
+  display: block;
+  padding: 24rpx;
+}
+
+.sceneryspot {
+  height: auto;
+}
+
+.sceneryspot-header .img {
+  width: 100%;
+  height: 300rpx;
+  border-radius: 16rpx;
+}
+
+.sceneryspot-container {
+  margin-top: 12rpx;
+  margin-bottom: 32rpx;
+  position: relative;
+}
+
+.sceneryspot-name {
+  padding: 6rpx 12rpx;
+  font-size: 1.125rem;
+}
+
+.serviceItem {
+  display: flex;
+  margin-bottom: 24rpx;
+}
+
+.serviceItem-left {
+  margin-right: 12rpx;
+}
+
+.serviceItem-left .img {
+  height: 200rpx;
+  width: 200rpx;
+  border-radius: 32rpx;
+}
+
+.serviceItem-right {
+  width: 100%;
+  padding: 12rpx;
+  border-bottom: 1rpx solid rgb(240, 240, 240);
+}
+
+.title-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.title-right-text {
+  font-size: small;
+  color: #bbb;
+}
+
+.serviceItem-right .expense {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  font-size: small;
+  color: #e0620d;
+}
+
+.address {
+  margin-top: 16rpx;
+  width: 80%;
+  font-size: small;
+  color: #bbb;
+  overflow-wrap: anywhere;
+}
+
+.wxapp {
+  height: 40rpx;
+  width: 40rpx;
+}

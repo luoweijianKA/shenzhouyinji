@@ -1,0 +1,46 @@
+<wxs src="../../common/tools.wxs" module="tools" />
+<view wx:if="{{goHome}}" class="go-back">
+  <t-icon prefix="wr" name="home" size="40rpx" bind:click="goHome" />
+</view>
+<view wx:else="" class="go-back">
+  <t-icon name="chevron-left" size="56rpx" bind:click="goBack" />
+</view>
+<view class="tweet-container" wx:if="{{tweet}}">
+  <view class="tweet-context">
+    <view class="swiper-wrap">
+      <t-swiper wx:if="{{tweet.content.images.length > 0}}" current="{{current}}" autoplay="{{autoplay}}" duration="{{duration}}" interval="{{interval}}" navigation="{{navigation}}">
+        <t-swiper-item wx:for="{{tweet.content.images}}" wx:for-item="value" wx:key="index">
+          <image src="{{tools.resource(value)}}" class="img" mode="aspectFit"></image>
+        </t-swiper-item>
+      </t-swiper>
+    </view>
+    <view class="tweet-text">
+      <view>{{tweet.content.text}}</view>
+      <view class="tweet-time">{{tools.timeFormat(tweet.create_time)}}</view>
+    </view>
+  </view>
+  <view class="tweet-action">
+    <view class="action-item">
+      <t-icon prefix="wr" name="location" size="36rpx" />
+      <text>{{tweet.region}}</text>
+    </view>
+    <view class="action-list">
+      <!-- <view class="action-item noTap">
+        <t-icon prefix="wr" name="share" size="36rpx" />
+        <text>({{tweet.share_count}})</text>
+      </view> -->
+      <view class="action-item noTap">
+        <t-icon prefix="wr" name="preview" size="36rpx" />
+        <text>({{tweet.view_count}})</text>
+      </view>
+      <view wx:if="{{!tweet.isself}}" class="action-item{{tweet.hasLike ? ' like' : ''}}" bindtap="tapLike">
+        <t-icon prefix="wr" name="thumb_up" size="36rpx" />
+        <text>({{tweet.like_count}})</text>
+      </view>
+      <view wx:else="" class="action-item noTap">
+        <t-icon prefix="wr" name="thumb_up" size="36rpx" />
+        <text>({{tweet.like_count}})</text>
+      </view>
+    </view>
+  </view>
+</view>

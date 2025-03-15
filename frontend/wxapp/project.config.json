@@ -1,0 +1,25 @@
+{
+  "appid": "wx2b36c7777353cd2e",
+  "compileType": "miniprogram",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "ignoreUploadUnusedFiles": false,
+    "packNpmRelationList": []
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}

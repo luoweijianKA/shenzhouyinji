@@ -1,0 +1,23 @@
+<!-- <view class="page-header">
+  <view class="page-header-left">
+  </view>
+  <view class="page-header-right" bind:tap="clearAllMessage">
+    <t-icon class="header-icon" name="clear" size="36rpx" />
+    <text class="header-text">清除未读</text>
+  </view>
+</view> -->
+<view class="dividing"></view>
+<view class="conversation-container" wx:for="{{conversations}}" wx:key="index">
+  <view class="swap" wx:if="{{swaps[item.participant]}}">
+    <view class="swap-badges">
+      <image src="{{swaps[item.participant].badges[0].images}}" class="swap-badge" mode="widthFix"></image>
+      <image src="/assets/icons/jc.png" class="swap-icon" mode="widthFix"></image>
+      <image src="{{swaps[item.participant].badges[1].images}}" class="swap-badge" mode="widthFix"></image>
+    </view>
+  </view>
+  <t-cell title="{{item.user_name}}" note="{{item.note}}" align="middle" hover bordered data-participant="{{item.participant}}" data-from="{{item.from}}" data-title="{{item.user_name}}" bindtap="tapConversation">
+    <t-badge dot="{{item.has_new}}" offset="{{[4, 8]}}" class="badge-wrapper" slot="left-icon">
+      <image src="{{item.user_avatar}}" class="avatar" mode="widthFix"></image>
+    </t-badge>
+  </t-cell>
+</view>

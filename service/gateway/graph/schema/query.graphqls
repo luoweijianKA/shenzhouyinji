@@ -1,0 +1,323 @@
+# go run github.com/99designs/gqlgen
+
+scalar Map
+
+type Query {
+  serverTime: Int!
+
+  admins: [User!]! @auth @hasRole
+
+  # account service
+  account(id: String!): Account @auth
+  accounts(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    search: String
+  ): AccountConnection @auth @hasRole
+  profile(user_id: String!): Profile @auth
+  claimCode(user_id: String!): ClaimCode @auth
+
+  # sceneryspot service
+  sceneryspot(id: String!): Sceneryspot
+  sceneryspots: [Sceneryspot]
+  sceneryspotsByIDs(ids: [String!]!): [Sceneryspot]
+
+  serviceItem(id: String!): ServiceItem
+  serviceItems(sceneryspot_id: String!): [ServiceItem]
+  serviceItemsWithCategory(
+    sceneryspot_id: String!
+    category_id: String!
+  ): [ServiceItem]
+
+  stamp(id: String!): Stamp @auth
+  stamps(sceneryspot_id: String!): [Stamp] @auth
+  userStamp(user_id: ID!, event_id: ID!, sceneryspot_id: ID!): UserStamp @auth
+  userStampByUserID(id: String!): [UserStamp] @auth
+  userStampByStampID(id: String!): [UserStamp] @auth
+
+  userShare(user_id: ID!, event_id: ID!, sceneryspot_id: ID!): Tweet @auth
+  userStampPointsRecord(
+    input: NewUserStampPointsRecord!
+  ): [UserStampPointsRecord] @auth
+
+  # management service
+  configs: Map @auth
+
+  category(id: String!): Category
+  categoryByName(name: String!): Category
+  categoriesByParentID(id: String!): [Category]
+  topCategories: [Category]
+
+  tag(id: String!): Tag
+  tagByCategory(category: String!): [Tag]
+
+  tweet(id: String!): Tweet @auth
+  tweets(user_id: String!): [Tweet] @auth
+
+  newestTweet(
+    event_id: String!
+    sceneryspot_id: String!
+    count: Int!
+  ): [TweetWithAccount] @auth
+
+  newestTweetByPagination(
+    event_id: String!
+    sceneryspot_id: String!
+    pageIndex: Int!
+    pageSize: Int!
+  ): TweetConnection @auth
+
+  followers(user_id: String!): [Followers] @auth
+  following(user_id: String!): [Following] @auth
+
+  tweetLikeRecords(tweet_id: String!): [TweetLikeRecord] @auth
+  tweetViewRecords(tweet_id: String!): [TweetViewRecord] @auth
+  tweetShareRecords(tweet_id: String!): [TweetShareRecord] @auth
+
+  tweetLikers(tweet_id: String!): [TweetUserRef] @auth
+  tweetSharers(tweet_id: String!): [TweetUserRef] @auth
+  tweetViewers(tweet_id: String!): [TweetUserRef] @auth
+  tweetUserActionState(tweet_id: String!): [TweetUserActionState] @auth
+
+  userRecordByUserId(id: String!, action: String!): [UserRrcord] @auth
+  userRecordByTweetUserId(id: String!, action: String!): [UserRrcord] @auth
+
+  # event service
+  event(id: String!): Event
+  events: [Event]
+  eventSceneryspots(event_id: String!): [EventSceneryspot]
+
+  badge(id: String!): Badge @auth
+  badges(event_id: String!): [Badge] @auth
+  userBadges(user_id: String!): [UserBadge] @auth
+
+  userBadgeSwap(id: String!): UserBadgeSwap @auth
+  userBadgeSwapByPreviousID(id: String!): UserBadgeSwap @auth
+  userBadgeSwapByFrom(id: String!): [UserBadgeSwap] @auth
+  userBadgeSwapByTo(id: String!): [UserBadgeSwap] @auth
+
+  passportSet(id: String!): PassportSet @auth
+  passportSetByName(name: String!): PassportSet @auth
+  passportSets(event_id: String!): [PassportSet] @auth
+
+  passport(id: String!): Passport @auth
+  passportByCode(code: String!): Passport @auth
+  passports(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    eventId: ID!
+    code: String
+  ): PassportConnection @auth @hasRole
+  passportSearch(input: PassportSearchInput!): [PassportSearchResult!]
+    @auth
+    @hasRole
+
+  userPassport(id: String!): UserPassport @auth
+  userPassportByPassportCode(passport_code: String!): UserPassport @auth
+  userPassportByUserID(user_id: String!): [UserPassport] @auth
+  userPassportByGuardianName(guardian_name: String!): [UserPassport] @auth
+  pickupCodeInfo(id: String!): PickupCodeRes @auth
+
+  camp(id: String!): Camp @auth
+  camps(event_id: String!): [Camp] @auth
+
+  honour(id: String!): Honour @auth
+  honours(camp_id: String!): [Honour] @auth
+  eventHonours(event_id: String!): [Honour] @auth
+
+  userCamp(id: String!): UserCamp @auth
+  userCamps(camp_id: String!): [UserCamp] @auth
+
+  # message service
+  notification(id: String!): Notification @auth
+  notifications: [Notification]
+
+  userNotifications(user_id: String!): [UserNotification] @auth
+
+  conversation(id: String!): Conversation @auth
+  conversationByParticipant(participant: String!, from: String): [Conversation]
+    @auth
+  userConversations(user_id: String!): [Conversation] @auth
+
+  userUnreadMessage(user_id: String!): UserUnreadMessage @auth
+  userLikedRecords(user_id: String!): [UserLikeRecord] @auth
+  userLikesRecords(user_id: String!): [UserLikeRecord] @auth
+
+  # task service
+  trek(id: String!): Trek @auth
+  treks(sceneryspot_id: String!, event_id: String): [Trek] @auth
+
+  geocaching(id: String!): Geocaching @auth
+  geocachings(sceneryspot_id: String!, event_id: String): [Geocaching] @auth
+
+  screenshot(id: String!): Screenshot @auth
+  screenshots(sceneryspot_id: String!, event_id: String): [Screenshot] @auth
+
+  puzzle(id: String!): Puzzle @auth
+  puzzles(sceneryspot_id: String!, event_id: String): [Puzzle] @auth
+
+  questionBank(id: String!): QuestionBank @auth
+  questionBanks(sceneryspot_id: String!, event_id: String): [QuestionBank] @auth
+
+  question(id: String!): Question @auth
+  questions(sceneryspot_id: String!, event_id: String): [Question] @auth
+
+  userTask(id: String!): UserTask @auth
+  userTasks(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    event_id: String!
+    sceneryspot_id: String
+    category_id: String
+  ): UserTaskConnection @auth @hasRole
+  userTaskByUserID(user_id: String!): [UserTask] @auth
+  userTaskByTaskID(task_id: String!): [UserTask] @auth
+
+  # passport service
+  eventPassport(eventId: ID!, userId: ID!, phone: String!): EventPassport
+  passportStocks: [PassportStock!]
+  passportStock(eventId: String!): PassportStock!
+  issuedUserPassports(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    filter: UserPassportFilter
+  ): UserPassportConnection @auth @hasRole
+  usedUserPassports(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    filter: UserPassportFilter
+  ): UserPassportConnection @auth @hasRole
+  inactiveUserPassports(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    filter: UserPassportFilter
+  ): UserPassportConnection @auth @hasRole
+
+  eventUsers(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    event_id: String!
+    camps: [String!]
+    sceneryspots: [String!]
+  ): EventUserConnection
+
+  eventTasks(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    event_id: String!
+    camps: [String!]
+    sceneryspots: [String!]
+  ): EventTaskConnection
+
+  tasks(
+    user_id: ID!
+    event_id: ID!
+    camp_id: ID!
+    sceneryspot_id: ID!
+  ): [Task!]!
+
+  temporaryTasks(user_id: ID!, event_id: ID!, camp_id: ID!): [Task!]!
+
+  task(
+    id: ID!
+    category_id: ID!
+    user_id: ID!
+    event_id: ID!
+    camp_id: ID
+    sceneryspot_id: ID
+  ): Task!
+
+  campRanks(first: Int, eventId: String!): [CampRank]!
+  userRanks(first: Int, eventId: String!): [UserRank]!
+
+  userEvents(userId: String!, eventId: String, status: Int): [UserEvent!]
+  userSceneryspots(userId: String!): [Sceneryspot!]
+
+  userPhoneNumber(userId: String!, code: String!): PhoneInfo
+  userIndivIdentity(
+    userId: String!
+    name: String!
+    idNumber: String!
+    phoneNumber: String!
+    email: String!
+  ): IndivIdentity
+  userIdentityAuthDetail(flowId: String!): Map!
+
+  photos(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    status: Int!
+    eventId: ID
+    sceneryspots: [ID!]
+  ): PhotoConnection
+
+  auditings(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    filter: AuditingFilter
+  ): AuditingConnection @auth @hasRole
+
+  userSwap(id: ID!): UserSwap
+  userSwaps(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    filter: UserSwapFilter
+  ): UserSwapConnection
+
+  eventSettings(id: ID!): Map!
+
+  eventAwards(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    eventId: ID
+    sceneryspotId: ID
+    code: String
+  ): EventAwardConnection @auth @hasRole
+
+  userEventAward(input: EventAwardInput!): EventAward @auth
+
+  claimPassports(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    userId: ID
+    eventId: ID
+  ): ClaimPassportConnection @auth
+
+  userPoints(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    userId: ID!
+    eventId: ID
+    timestamp: Int
+  ): UserPointsConnection @auth
+
+  weRunData(encryptedData: String!, iv: String!): Map @auth
+}

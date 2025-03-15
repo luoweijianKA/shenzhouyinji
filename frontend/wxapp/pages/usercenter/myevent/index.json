@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "我的活动",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+  },
+  "enablePullDownRefresh": true
+}

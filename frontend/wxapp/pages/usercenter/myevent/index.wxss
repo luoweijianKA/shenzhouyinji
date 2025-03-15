@@ -1,0 +1,124 @@
+page {
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 180rpx);
+  background-color: rgb(0, 0, 0, 0.035);
+  padding: 24rpx;
+}
+
+.page-header,
+.page-container {
+  background: #fff;
+  display: grid;
+  gap: 16rpx;
+  padding: 24rpx;
+  height: auto;
+}
+
+.page-header {
+  margin: -24rpx -24rpx 0 -24rpx;
+}
+
+.page-container {
+  margin: 24rpx 0;
+  border-radius: 20rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.list {
+  margin: 0;
+  position: relative;
+  width: 100%;
+}
+
+.list .list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 24rpx 0;
+  border-width: 0px 0px thin;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.list .list-item:last-child {
+  border: 0;
+}
+
+.list .list-item .label {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.user-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16rpx;
+}
+
+.user-name {
+  font-size: large;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #333;
+}
+
+.event {
+  height: auto;
+  padding: 0;
+}
+
+.event-content {
+  padding: 24rpx;
+}
+
+.event-content:first-of-type {
+  margin-top: 0;
+}
+
+.event-header .img {
+  width: 100%;
+  height: 300rpx;
+  position: relative;
+  border-top-left-radius: 20rpx;
+  border-top-right-radius: 20rpx;
+}
+
+.event-header .event-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-top: -52px;
+  padding: 24rpx;
+  background-color: rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+.event-header .event-header-title {
+  color: #fff;
+}
+
+.event-header .event-header-action {
+  font-size: small;
+  display: flex;
+  justify-content: flex-end;
+}

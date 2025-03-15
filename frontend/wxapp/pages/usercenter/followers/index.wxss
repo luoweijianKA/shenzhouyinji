@@ -1,0 +1,43 @@
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 8rpx;
+}
+
+.tips {
+  display: grid;
+  padding-top: 120rpx;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.t-swipe-cell-demo-btn-wrapper {
+  height: 100%;
+}
+
+.t-swipe-cell-demo-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 188rpx !important;
+  height: 100%;
+  text-align: center;
+  color: white;
+}
+
+.t-swipe-cell-demo-btn.delete-btn {
+  background-color: #e34d59;
+}
+
+.t-swipe-cell-demo-btn.edit-btn {
+  background-color: #ed7b2f;
+}
+
+.t-swipe-cell-demo-btn.favor-btn {
+  background-color: #0052d9;
+}
+
+.t-swipe-cell {
+  margin-bottom: 5rpx;
+}

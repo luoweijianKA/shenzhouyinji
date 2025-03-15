@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "彩蛋任务",
+  "usingComponents": {
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "实施任务",
+  "usingComponents": {
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "drawer": "../../../components/drawer/index"
+  }
+}

@@ -1,0 +1,11 @@
+go 1.19
+
+use (
+	./account
+	./event
+	./gateway
+	./management
+	./message
+	./sceneryspot
+	./task
+)

@@ -1,0 +1,9 @@
+<view class="page-container">
+  <view class="cell-box">
+    <t-cell-group>
+      <t-cell wx:for="{{events}}" wx:key="index" title="{{item.name}}" arrow="{{!item.icon}}" data-value="{{item.id}}" bordered="{{false}}" bind:click="onClickCell" t-class="t-cell-padding" t-class-note="order-group-note" t-class-left="order-group__left">
+        <t-icon size="48rpx" slot="note" />
+      </t-cell>
+    </t-cell-group>
+  </view>
+</view>

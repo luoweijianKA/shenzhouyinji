@@ -1,0 +1,32 @@
+<wxs src="../../common/tools.wxs" module="tools" />
+<map class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" show-compass="ture" enable-3D="ture" enable-overlooking="ture" enable-rotate="ture" enable-zoom="ture" enable-scroll="ture" markers="{{markers}}" show-location="true" bindmarkertap='onMap' bindcallouttap='onMap'>
+  <view style="width:40%">
+    <SearchBar id="SearchBar" addflag="true"></SearchBar>
+  </view>
+</map>
+<view class="page-container" wx:if="{{serviceItem}}">
+  <view class="service-item">
+    <view class="service-item-header" wx:if="{{serviceItem.images && serviceItem.images.length > 0}}">
+      <video class="video" src="{{tools.getImageByStr(serviceItem.images,',')}}" autoplay="false" mode="scaleToFill" wx:if="{{serviceItem.isVideo}}"></video>
+      <image src="{{tools.getImageByStr(serviceItem.images,',')}}" class="img" mode="scaleToFill" wx:else=""></image>
+    </view>
+    <view class="service-item-content">
+      <view class="name">
+        {{serviceItem.name}}
+      </view>
+      <view class="address">
+        <view>{{serviceItem.address}}
+        </view>
+        <view bindtap="onMap">
+          距离约：{{distance}} km
+          <image src="/assets/icons/daohang.png" class="navigation" mode="scaleToFill"></image>
+        </view>
+      </view>
+      <view class="expense">
+        人均：{{serviceItem.expense_instruction}}
+        <image wx:if="{{serviceItem.wxappid.length > 0}}" src="/assets/icons/miniprogram.png" class="wxapp" mode="scaleToFill" bindtap="goMiniProgram" data-value="{{serviceItem.wxappid}}"></image>
+      </view>
+      <view class="introduction">{{serviceItem.introduction}}</view>
+    </view>
+  </view>
+</view>

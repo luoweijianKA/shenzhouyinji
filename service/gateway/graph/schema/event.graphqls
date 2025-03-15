@@ -1,0 +1,543 @@
+type Event {
+  id: ID!
+  code: String!
+  name: String!
+  start_time: Int!
+  end_time: Int!
+  introduction: String
+  images: String
+  step: String
+  status: Int!
+  create_time: Int
+  enable_award: Boolean!
+  scenerySpots: [EventSceneryspot]
+  category_id: String
+}
+
+input NewEvent {
+  code: String!
+  name: String!
+  start_time: Int!
+  end_time: Int!
+  introduction: String
+  images: String
+  step: String
+  status: Int!
+  enable_award: Boolean
+  category_id: String
+}
+
+input UpdateEvent {
+  id: ID!
+  code: String
+  name: String
+  start_time: Int
+  end_time: Int
+  introduction: String
+  images: String
+  step: String
+  status: Int
+  enable_award: Boolean
+  category_id: String
+}
+
+type EventSceneryspot {
+  event_id: String!
+  scenery_spot_id: String!
+}
+
+input InputEventSceneryspot {
+  event_id: String!
+  scenery_spot_id: String!
+}
+
+type Badge {
+  id: ID!
+  event_id: String!
+  name: String!
+  images: String
+}
+
+input NewBadge {
+  event_id: String!
+  name: String!
+  images: String
+}
+
+input UpdateBadge {
+  id: ID!
+  name: String
+  images: String
+}
+
+type UserBadge {
+  user_id: ID!
+  badge_id: String!
+  status: Int!
+}
+
+input InputUserBadge {
+  user_id: ID!
+  badge_id: String!
+  status: Int!
+}
+
+type UserBadgeSwap {
+  id: ID!
+  badge_id: String!
+  from: String!
+  to: String
+  previous_id: String
+  city: String
+  content: String
+  status: Int!
+  create_time: Int!
+}
+
+input NewUserBadgeSwap {
+  badge_id: String!
+  from: String!
+  to: String
+  previous_id: String
+  city: String
+  content: String
+  status: Int!
+  create_time: Int!
+}
+
+input UpdateUserBadgeSwap {
+  id: ID!
+  to: String
+  city: String
+  content: String
+  status: Int!
+}
+
+type PassportSet {
+  id: ID!
+  event_id: String!
+  name: String!
+  status: Int!
+  quantity: Int!
+  issued: Int!
+}
+
+input NewPassportSet {
+  event_id: String!
+  name: String!
+  status: Int!
+  quantity: Int!
+  issued: Int!
+}
+
+input UpdatePassportSet {
+  id: ID!
+  name: String
+  status: Int
+  quantity: Int
+  issued: Int
+}
+
+type Passport {
+  id: ID!
+  passport_set_id: String!
+  event_id: ID!
+  code: String!
+  status: Int!
+  event_passport: EventPassport
+  user: Account
+}
+
+type PassportEdge {
+  cursor: ID!
+  node: Passport
+}
+
+type PassportConnection {
+  totalCount: Int!
+  edges: [PassportEdge!]!
+  pageInfo: PageInfo!
+}
+
+input NewPassport {
+  passport_set_id: String!
+  code: String!
+  status: Int!
+}
+
+input NewPassports {
+  passport_set_id: String!
+  passport_code: [String]
+}
+
+input UpdatePassport {
+  id: ID!
+  code: String
+  status: Int
+}
+
+type UserPassport {
+  id: ID!
+  user_id: String!
+  event_id: String!
+  camp_id: String
+  passport_code: String
+  real_name: String
+  nric: String
+  phone: String
+  gender: String
+  profession: String
+  authentication: Boolean
+  guardian_name: String
+  guardian_nric: String
+  guardian_phone: String
+  claim_code: String
+  claim_by: String
+  claim_time: Int!
+  status: Int!
+  event: Event
+  camp: Camp
+  create_time: Int!
+}
+
+type PickupCodeRes {
+  user_id: String!
+  real_name: String!
+  nric: String!
+  phone: String!
+  authentication: Boolean!
+  status: Int!
+}
+
+input NewUserPassport {
+  user_id: String!
+  event_id: String!
+  passport_code: String
+  real_name: String
+  nric: String
+  phone: String
+  gender: String
+  profession: String
+  claim_code: String
+  authentication: Boolean
+  guardian_name: String
+  guardian_nric: String
+  guardian_phone: String
+  claim_time: Int!
+  status: Int!
+}
+
+input PickupUserPassport {
+  user_id: String!
+  event_id: String!
+  real_name: String
+  nric: String!
+  phone: String!
+  gender: String!
+  profession: String!
+  age: Int!
+}
+
+input UpdateGuardianInfo {
+  id: String!
+  guardian_name: String!
+  guardian_nric: String!
+  guardian_phone: String!
+}
+
+input VerifyUserPassport {
+  id: String!
+  verify: Boolean!
+}
+
+input ActivateUserPassport {
+  user_id: String!
+  event_id: String!
+  passport_code: String!
+}
+
+input UpdateUserPassport {
+  id: ID!
+  user_id: String
+  event_id: String
+  passport_code: String
+  camp_id: String
+  status: Int
+}
+
+type Camp {
+  id: ID!
+  event_id: String!
+  name: String!
+  images: String
+  introduction: String
+  points: Int!
+  status: Int!
+  category_id: String
+}
+
+input NewCamp {
+  event_id: String!
+  name: String!
+  images: String
+  introduction: String
+  points: Int!
+  status: Int!
+  category_id: String
+}
+
+input UpdateCamp {
+  id: ID!
+  name: String
+  images: String
+  introduction: String
+  points: Int
+  status: Int
+  category_id: String
+}
+
+type Honour {
+  id: ID!
+  camp_id: String!
+  camp_name: String!
+  name: String!
+  images: String
+  min_points: Int!
+  max_points: Int!
+  status: Int!
+}
+
+input NewHonour {
+  camp_id: String!
+  name: String!
+  images: String
+  min_points: Int!
+  max_points: Int!
+  status: Int!
+}
+
+input UpdateHonour {
+  id: ID!
+  name: String
+  images: String
+  min_points: Int
+  max_points: Int
+  status: Int
+}
+
+type UserCamp {
+  id: String!
+  user_id: String!
+  camp_id: String!
+  honour: String
+  points: Int!
+  stamp_count: Int!
+  status: Int!
+  create_time: Int!
+}
+
+input NewUserCamp {
+  user_id: String!
+  camp_id: String!
+  honour: String
+  points: Int!
+  status: Int!
+  create_time: Int!
+  event_id: String!
+  passport_id: String!
+}
+
+input UpdateUserCamp {
+  user_id: String!
+  camp_id: String!
+  points: Int
+  stamp_count: Int
+  status: Int
+}
+
+type EventUser {
+  id: ID!
+  user_id: String!
+  user_name: String!
+  user_wechat: String!
+  camp_id: String!
+  camp_name: String!
+  points: Int!
+  trips: Int!
+  city: String!
+  email: String!
+  phone: String!
+}
+
+type EventUserEdge {
+  cursor: ID!
+  node: EventUser
+}
+
+type EventUserConnection {
+  totalCount: Int!
+  edges: [EventUserEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EventTask {
+  id: ID!
+  user_id: String!
+  user_name: String!
+  user_wechat: String!
+  camp_id: String!
+  camp_name: String!
+  task_id: String!
+  category_id: String!
+  points: Int!
+  result: String!
+  status: Int!
+  audit: String
+  create_time: Int!
+  task: Task
+}
+
+type EventTaskEdge {
+  cursor: ID!
+  node: EventTask
+}
+
+type EventTaskConnection {
+  totalCount: Int!
+  edges: [EventTaskEdge!]!
+  pageInfo: PageInfo!
+}
+
+interface Rank {
+  rank: Int!
+  id: String!
+  name: String!
+  points: Int!
+}
+
+type CampRank implements Rank {
+  rank: Int!
+  id: String!
+  name: String!
+  points: Int!
+  logo: String!
+  user_count: Int!
+}
+
+type UserRank implements Rank {
+  rank: Int!
+  id: String!
+  name: String!
+  points: Int!
+  trip_count: Int!
+  honour_id: String!
+  honour_name: String!
+  camp_id: String!
+  camp_name: String!
+}
+
+type UserEvent {
+  id: String!
+  name: String!
+  images: String!
+  start_time: Int!
+  end_time: Int!
+  status: Int!
+  passport_code: String!
+  camp_id: String!
+  camp_name: String!
+  camp_points: Int!
+  camp_ranking: Int!
+  user_points: Int!
+  user_ranking: Int!
+  user_honour: String!
+}
+
+type UserSwap {
+  id: ID!
+  userId: ID!
+  userName: String!
+  userAvatar: String!
+  badges: [Badge!]
+  city: String
+  content: [Map!]
+  status: Int!
+  createTime: Int!
+  expiredTime: Int!
+  messages: [Map!]
+}
+
+type UserSwapEdge {
+  cursor: ID!
+  node: UserSwap
+}
+
+type UserSwapConnection {
+  totalCount: Int!
+  edges: [UserSwapEdge!]!
+  pageInfo: PageInfo!
+}
+
+input UserSwapFilter {
+  id: String
+  userId: String
+  eventId: String
+  city: String
+  status: Int
+}
+
+input NewUserSwap {
+  userId: ID!
+  eventId: ID!
+  badges: [String!]
+  city: String!
+}
+
+input UserSwapInput {
+  id: ID!
+  status: Int!
+}
+
+input NewUserPoints {
+  userId: ID!
+  eventId: ID!
+  campId: ID!
+  points: Int!
+}
+
+type EventAward {
+  id: ID!
+  eventId: ID
+  sceneryspotId: ID
+  code: String!
+  createTime: Int!
+  userId: ID
+  userName: String
+  userAvatar: String
+  location: String
+  awardTime: Int
+}
+
+type EventAwardEdge {
+  cursor: ID!
+  node: EventAward
+}
+
+type EventAwardConnection {
+  totalCount: Int!
+  edges: [EventAwardEdge!]!
+  pageInfo: PageInfo!
+}
+
+input NewEventAwardUploadFile {
+  eventId: ID
+  sceneryspotId: ID
+  file: String!
+}
+
+input EventAwardInput {
+  userId: ID!
+  eventId: ID!
+  sceneryspotId: String!
+  location: String!
+}

@@ -1,0 +1,46 @@
+<wxs src="../../common/tools.wxs" module="tools" />
+<map class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" show-compass="ture" enable-3D="ture" enable-overlooking="ture" enable-rotate="ture" enable-zoom="ture" enable-scroll="ture" markers="{{markers}}" show-location="true" bindmarkertap='onMap' bindcallouttap='onMap'>
+</map>
+<view class="page-container" wx:for="{{serviceItems}}" wx:key="index">
+  <view class="service-item">
+    <view class="service-item-header" wx:if="{{item.images && item.images.length > 0}}">
+      <image src="{{tools.resource(item.images)}}" class="img" mode="scaleToFill"></image>
+    </view>
+    <view class="service-item-content">
+      <view class="name">{{item.name}}</view>
+      <view class="address">
+        <view>{{item.address}}</view>
+        <view>
+          距离我约：{{distance}} km
+          <image src="/assets/icons/daohang.png" class="navigation" mode="scaleToFill" bindtap="onMap"></image>
+        </view>
+      </view>
+      <view class="introduction">{{item.introduction}}</view>
+    </view>
+  </view>
+</view>
+<view class="action-container">
+  <button class="button" bindtap="onStamp">盖章启动码</button>
+</view>
+
+<drawer id="drawer" frameTitle="关闭" wx:if="{{stamp}}">
+  <view class="card">
+    <view class="card-header">{{stamp.title}}</view>
+    <view class="card-content">
+      <canvas class="qrcode" id="qr" type="2d" style="height: 500rpx;width: 500rpx;" bindtap="onCode"></canvas>
+    </view>
+    <view class="card-content-text">{{time}}</view>
+  </view>
+</drawer>
+
+<view hidden="{{!openRule}}" class="rule-container">
+  <view class="rule">
+    <view class='rule-content'>
+      <view class="title">打卡演示</view>
+      <video id="rule-video" src="{{tools.resource(markerShowMedia)}}" autoplay='true'></video>
+      <view class="rule-action">
+        <t-icon name="close" slot="close-icon" bindtap='onCloseRule' />
+      </view>
+    </view>
+  </view>
+</view>

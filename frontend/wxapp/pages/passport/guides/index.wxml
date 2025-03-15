@@ -1,0 +1,3 @@
+<view class="page-container">
+  <web-view wx:if="{{src}}" src="{{src}}"></web-view>
+</view>

@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "发放护照",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-cell-group": "tdesign-miniprogram/cell-group/cell-group",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
+}

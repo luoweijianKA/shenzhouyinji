@@ -1,0 +1,33 @@
+.tips {
+  display: grid;
+  padding-top: 120rpx;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  margin: 24rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  border-radius: 16rpx;
+  background-color: rgba(204, 204, 204, 0.2);
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 8rpx;
+}
+
+.text {
+  margin-left: 24rpx;
+  margin-bottom: 12rpx;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.datetime {
+  margin-left: 24rpx;
+  font-size: x-small;
+  color: #bbb;
+}

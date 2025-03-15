@@ -1,0 +1,29 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<map class="map-container" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" polygons="{{polygons}}" markers="{{markers}}" show-compass="ture" enable-3D="ture" enable-overlooking="ture" enable-rotate="ture" enable-zoom="ture" enable-scroll="ture" show-location="true">
+</map>
+<view class="page-container">
+  <view class="card">
+    <view class="card-header">
+      <view class="subtitle">{{geocaching.name}}</view>
+      <view class="caption">距离我约：{{distance}} km</view>
+    </view>
+  </view>
+</view>
+<view class="page-action">
+  <button class="button start" bindtap="onGeocaching">扫码寻宝</button>
+</view>
+
+<drawer id="geocaching" frameTitle="关闭" bindClose="onClose" wx:if="{{task}}">
+  <view class="card geocaching">
+    <view class="card-header">{{task.name}}</view>
+    <view class="card-content geocaching-media" wx:if="{{tools.isImg(task.images)}}">
+      <image src="{{tools.resource(task.images)}}" class="img" mode="widthFix"></image>
+    </view>
+    <view class="card-content geocaching-media" wx:if="{{!tools.isImg(task.images)}}">
+      <video class="video" wx:if="{{task.images && task.images.length > 0}}" src="{{tools.resource(task.images)}}" autoplay="{{autoplay}}"></video>
+    </view>
+    <view class="card-content">
+      <text class="text">{{geocaching.introduction}}</text>
+    </view>
+  </view>
+</drawer>

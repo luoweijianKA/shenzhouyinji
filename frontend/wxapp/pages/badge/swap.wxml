@@ -1,0 +1,48 @@
+<view class="page-header user-container" wx:if="{{user}}">
+  <view class="user">
+    <t-avatar t-class="avatar" mode="aspectFill" image="{{user.avatar || defaultUserAvatar}}" />
+    <view class="subtitle">{{user.name || '微信用户'}}</view>
+  </view>
+</view>
+
+<view class="page-container" wx:if="{{swap}}">
+  <view class="card">
+    <view class="card-header">
+      <view class="title">交易信息</view>
+    </view>
+    <view class="card-content">
+      <view class="list">
+        <view class="list-item swap" wx:if="{{swap}}">
+          <view class="swap-badges">
+            <image src="{{swap.badges[0].images}}" class="swap-badge" mode="widthFix"></image>
+            <image src="/assets/icons/jc.png" class="swap-icon" mode="widthFix"></image>
+            <image src="{{swap.badges[1].images}}" class="swap-badge" mode="widthFix"></image>
+          </view>
+          <view class="swap-content">
+            <view>
+              <view class="caption">昵称</view>
+              <view>{{swap.userName}}</view>
+            </view>
+            <view>
+              <view class="caption">城市</view>
+              <view>{{swap.city[1]}}, {{swap.city[2]}}</view>
+            </view>
+            <view>
+              <view class="caption">时间</view>
+              <view class="done">{{swap.expiresIn}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <form class="form" bindsubmit="bindSubmit">
+        <view class="form-control">
+          <textarea class="form-input" placeholder="请输入您的交易信息" rows="4" name="content"></textarea>
+          <view class="form-help-text">200字内</view>
+        </view>
+        <view class="form-action">
+          <button form-type="submit" class="button">发送信息 </button>
+        </view>
+      </form>
+    </view>
+  </view>
+</view>

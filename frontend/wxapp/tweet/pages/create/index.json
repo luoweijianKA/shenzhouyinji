@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "发布印迹",
+  "usingComponents": {
+    "t-icon": "../../../miniprogram_npm/tdesign-miniprogram/icon/icon",
+    "t-textarea": "../../../miniprogram_npm/tdesign-miniprogram/textarea/textarea",
+    "t-popup": "../../../miniprogram_npm/tdesign-miniprogram/popup/popup",
+    "t-overlay": "tdesign-miniprogram/overlay/overlay",
+    "t-loading": "tdesign-miniprogram/loading/loading"
+  }
+}

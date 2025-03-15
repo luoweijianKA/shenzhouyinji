@@ -1,0 +1,31 @@
+<wxs src="../../common/tools.wxs" module="tools" />
+<view class="page-container">
+  <view class="sceneryspot">
+    <view class="sceneryspot-header">
+      <image src="{{tools.getImageByStr(sceneryspot.images,',')}}" class="img" mode="scaleToFill"></image>
+    </view>
+    <view class="sceneryspot-container">
+      <view class="sceneryspot-name">{{sceneryspot.name}}</view>
+    </view>
+  </view>
+  <view wx:if="{{serviceItems.length > 0}}">
+    <view class="serviceItem" wx:for="{{serviceItems}}" wx:key="index">
+      <view class="serviceItem-left">
+        <image src="{{tools.getImageByStr(item.images,',')}}" class="img" mode="scaleToFill"></image>
+      </view>
+      <view class="serviceItem-right">
+        <view class="title-container">
+          <view class="title">
+            {{item.name}}
+          </view>
+          <view class="title-right-text" data-value="{{item}}" bindtap="goMap">详情</view>
+        </view>
+        <view class="address">{{item.address}}</view>
+        <view class="expense">
+          人均：{{item.expense_instruction}}
+          <image wx:if="{{item.wxappid.length > 0}}" src="/assets/icons/miniprogram.png" class="wxapp" mode="scaleToFill" bindtap="goMiniProgram" data-value="{{item.wxappid}}"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

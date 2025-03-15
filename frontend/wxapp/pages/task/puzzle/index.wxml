@@ -1,0 +1,20 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view class="page-container">
+  <view class="card">
+    <view class="card-header">
+      <view class="title">{{name}}</view>
+    </view>
+    <view class="card-content">{{introduction}}</view>
+  </view>
+</view>
+<view class="page-container puzzle">
+  <movable-area wx:if="{{puzzles.length > 0}}" style="width:100vw;height:{{puzzles.length / 3 * puzzles[0].height + 16}}px;">
+    <movable-view style="width:{{item.width}}px;height:{{item.height}}px;z-index:{{index==moveId?2:1}}" wx:for="{{puzzles}}" wx:key="index" x="{{item.x}}" y="{{item.y}}" direction="all" disabled="{{!started}}" bindchange="moveStatus" bindtouchend='moveEnd' data-moveid="{{index}}">
+      <image src="{{tools.resource(item.src)}}" class="img" mode="widthFix"></image>
+    </movable-view>
+  </movable-area>
+</view>
+<view class="page-action">
+  <button class="button start" hidden="{{started}}" bindtap="bindStart">开始拼图</button>
+  <button class="button end" hidden="{{!started}}" bindtap="bindEnd">完成拼图 ({{countdown}})</button>
+</view>

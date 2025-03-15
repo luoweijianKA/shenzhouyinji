@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "徽章交换",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-switch": "tdesign-miniprogram/switch/switch"
+  },
+  "enablePullDownRefresh": true
+}

@@ -1,0 +1,74 @@
+<view class="navbar" style="height: {{navbarHeight + 10}}rpx;margin-top: {{navbarHeight + 4}}rpx;">
+  <view class="navbar-warp" style="margin-top: {{menuHeight}};">
+    <t-icon name="home" size="40rpx" class="navbar-icon" bind:tap="goHome" />
+    <view class="navbar-title" style="width: {{navberWidth*2}}rpx;">徽章交换</view>
+  </view>
+</view>
+
+<view style="padding: 24rpx; background-color: rgb(0, 0, 0, 0.035);">
+  <view class="page-header event">
+    <view class="event-header">
+      <view class="title">
+        <image src="/assets/logo.jpg" class="img" mode="heightFix"></image>
+        <image src="{{event.logo}}" class="img" mode="heightFix"></image>
+      </view>
+      <view class="action" bindtap="bindEventChange">
+        切换活动
+        <t-icon name="chevron-right" size="36rpx" />
+      </view>
+    </view>
+  </view>
+  <view class="page-container search">
+    <view class="search-box">
+      <t-icon name="search" size="40rpx" />
+      <view wx:if="{{search}}" bindtap="bindSearch">{{search.name}}</view>
+      <view wx:if="{{!search}}" bindtap="bindSearch" class="placeholder">徽章编号</view>
+    </view>
+    <view class="search-action">
+      <picker mode="region" bindchange="bindRegionChange" value="{{region}}">
+        <view class="picker">
+          当前选择：{{region[1] === '' ? '全部' : region[1]}}
+        </view>
+      </picker>
+    </view>
+
+  </view>
+  <view class="page-container badge">
+    <image src="{{badgeBannerUrl}}" class="img" mode="widthFix"></image>
+  </view>
+  <view class="page-container swap-list">
+    <view class="card">
+      <view class="card-header">
+        <view class="title">{{region[1]}}交换列表</view>
+      </view>
+      <view class="card-content">
+        <view class="list">
+          <view class="list-item swap" wx:for="{{swaps}}" wx:key="index" data-value="{{item}}" bindtap="bindSwap">
+            <view class="swap-badges">
+              <image src="{{item.badges[0].images}}" class="swap-badge" mode="widthFix"></image>
+              <image src="/assets/icons/jc.png" class="swap-icon" mode="widthFix"></image>
+              <image src="{{item.badges[1].images}}" class="swap-badge" mode="widthFix"></image>
+            </view>
+            <view class="swap-content">
+              <view>
+                <view class="caption">昵称</view>
+                <view>{{item.userName}}</view>
+              </view>
+              <view>
+                <view class="caption">城市</view>
+                <view>{{item.city[1]}}, {{item.city[2]}}</view>
+              </view>
+              <view>
+                <view class="caption">时间</view>
+                <view class="done">{{item.expiresIn}}</view>
+              </view>
+              <view>
+                <t-icon name="chevron-right" size="36rpx" />
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

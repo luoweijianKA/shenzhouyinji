@@ -1,0 +1,53 @@
+version: '1'
+services:
+  gateway:
+    image: shenzhouyinji/gateway:latest
+    container_name: shenzhouyinji-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      MONGO_URI: mongodb+srv://mongo/?retryWrites=true&w=majority
+    depends_on:
+      - mongo
+  account:
+    image: shenzhouyinji/accountservice:latest
+    container_name: shenzhouyinji-accountservicess
+    restart: unless-stopped
+    environment:
+      MYSQL_DATASOURCENAME: root:p@ssw0rd!@tcp(127.0.0.1:3306)/shenzhouyinji
+  event:
+    image: shenzhouyinji/eventservice:latest
+    container_name: shenzhouyinji-eventservice
+    restart: unless-stopped
+    environment:
+      MYSQL_DATASOURCENAME: root:p@ssw0rd!@tcp(127.0.0.1:3306)/shenzhouyinji
+  management:
+    image: shenzhouyinji/managementservice:latest
+    container_name: shenzhouyinji-managementservice
+    restart: unless-stopped
+    environment:
+      MYSQL_DATASOURCENAME: root:p@ssw0rd!@tcp(127.0.0.1:3306)/shenzhouyinji
+  message:
+    image: shenzhouyinji/messageservice:latest
+    container_name: shenzhouyinji-messageservice
+    restart: unless-stopped
+    environment:
+      MYSQL_DATASOURCENAME: root:p@ssw0rd!@tcp(127.0.0.1:3306)/shenzhouyinji
+  sceneryspot:
+    image: shenzhouyinji/sceneryspotservice:latest
+    container_name: shenzhouyinji-sceneryspotservice
+    restart: unless-stopped
+    environment:
+      MYSQL_DATASOURCENAME: root:p@ssw0rd!@tcp(127.0.0.1:3306)/shenzhouyinji
+  task:
+    image: shenzhouyinji/taskservice:latest
+    container_name: shenzhouyinji-taskservice
+    restart: unless-stopped
+    environment:
+      MYSQL_DATASOURCENAME: root:p@ssw0rd!@tcp(127.0.0.1:3306)/shenzhouyinji
+  mongo:
+    image: mongo
+    container_name: shenzhouyinji-mongo
+    restart: unless-stopped
+    volumes:
+      - "./data/db:/data/db"

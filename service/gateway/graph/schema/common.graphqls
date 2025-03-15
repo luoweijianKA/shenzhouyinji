@@ -1,0 +1,31 @@
+directive @hasRole on FIELD_DEFINITION
+directive @root on FIELD_DEFINITION
+directive @auth on FIELD_DEFINITION
+directive @auditing(code: AuditingCode!) on ARGUMENT_DEFINITION
+
+enum AuditingCode {
+  LOGIN
+  CONFIGURATION
+  RESTORE
+}
+
+type Result {
+  succed: Boolean
+  message: String
+}
+
+type Id {
+  id: ID!
+}
+
+type PageInfo {
+  startCursor: ID!
+  endCursor: ID!
+  hasPreviousPage: Boolean
+  hasNextPage: Boolean
+}
+
+type PhoneInfo {
+  phoneNumber: String!
+  countryCode: String!
+}

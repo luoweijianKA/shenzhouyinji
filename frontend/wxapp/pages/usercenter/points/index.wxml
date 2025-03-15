@@ -1,0 +1,40 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view class="page-header event">
+  <view class="event-header">
+    <view class="title">
+      <image src="/assets/logo.jpg" class="img" mode="heightFix"></image>
+      <image src="{{tools.resource(event.images[0])}}" class="img" mode="heightFix"></image>
+    </view>
+    <view class="action" bindtap="onSelectEvent">
+      切换活动
+      <t-icon name="chevron-right" size="36rpx" />
+    </view>
+  </view>
+</view>
+
+<view class="page-container" wx:if="{{event}}">
+  <view class="list points">
+    <view class="list-item">
+      <view>{{event.camp_points}}</view>
+      <view class="label">阵营积分</view>
+    </view>
+    <view class="list-item">
+      <view>{{event.camp_ranking}}</view>
+      <view class="label">阵营排名</view>
+    </view>
+    <view class="list-item">
+      <view>{{event.user_points}}</view>
+      <view class="label">我的积分</view>
+    </view>
+    <view class="list-item">
+      <view>{{event.user_ranking}}</view>
+      <view class="label">活动排名</view>
+    </view>
+  </view>
+</view>
+<view class="page-container" wx:if="{{points && points.length > 0}}">
+  <view class="container-title">
+    <text>积分明细</text>
+  </view>
+  <t-cell wx:for="{{ points }}" wx:key="index" title="{{item.content}}" description="{{item.createTime}}" note="{{item.op + ' ' + item.points}}" />
+</view>

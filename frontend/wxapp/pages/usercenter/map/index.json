@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "印迹地图",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-swiper": "tdesign-miniprogram/swiper/swiper",
+    "t-swiper-item": "tdesign-miniprogram/swiper/swiper-item",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+  },
+  "enablePullDownRefresh": true
+}

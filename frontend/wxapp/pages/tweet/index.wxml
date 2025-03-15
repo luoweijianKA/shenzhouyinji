@@ -1,0 +1,175 @@
+<wxs src="/utils/strings.wxs" module="strings" />
+<view style="text-align: center" wx:if="{{pageLoading}}">
+  <t-loading theme="circular" size="40rpx" loading t-class-indicator="t-class-indicator">
+    <span slot="text" class="loading-text">加载中...</span>
+  </t-loading>
+</view>
+<wxs src="../../common/tools.wxs" module="tools" />
+
+<view class="page-header">
+  <view>
+    <t-badge count="{{total}}" offset="{{ [2, -3] }}" max-count="99" class="wrapper" bindtap="tapChat">
+      <t-icon name="notification" size="24" ariaLabel="消息" />
+    </t-badge>
+  </view>
+  <view class="swiper-wrap">
+    <t-swiper wx:if="{{notifySrcs.length > 0}}" current="{{current}}" autoplay="{{autoplay}}" duration="{{duration}}" interval="{{interval}}" navigation="{{navigation}}">
+      <t-swiper-item wx:for="{{notifySrcs}}" wx:key="index">
+        <t-cell id="{{index}}" title="{{tools.substr(item.name, 10)}}" description="{{tools.substr(item.content, 15)}}" note="查看" t-class-left="t-class-left" bindtap="messageDetail">
+        </t-cell>
+      </t-swiper-item>
+    </t-swiper>
+  </view>
+</view>
+<view class="page-container event">
+  <view class="event-header">
+    <view class="title">
+      <image src="/assets/logo.jpg" class="img" mode="heightFix"></image>
+      <image src="{{event.logo}}" class="img" mode="heightFix"></image>
+    </view>
+    <view class="action" bindtap="onSelectEvent">
+      切换活动
+      <t-icon name="chevron-right" size="36rpx" />
+    </view>
+  </view>
+</view>
+
+<view class="page-container scenicyspot" wx:if="{{sceneryspot}}">
+  <view class="scenicyspot-summary">
+    <image src="https://static.shenzhouyinji.cn{{sceneryspot.images}}" class="img" mode="scaleToFill"></image>
+    <view class="summary-container">
+      <view class="summary-title">{{sceneryspot.name}}</view>
+      <view class="summary-footer" bindtap="onSelectSceneryspot">
+        点击切换盖章点
+        <t-icon name="chevron-right" size="36rpx" />
+      </view>
+    </view>
+  </view>
+  <view class="scenicyspot-content">
+    <image src="{{event.banner}}" class="img" mode="widthFix"></image>
+  </view>
+</view>
+
+<view class="page-container task-wrapper">
+  <button wx:if="{{phoneNumber.length <= 0}}" class="task active" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+    授权手机号码
+  </button>
+
+  <view wx:if="{{menus[1] && !passport}}" class="{{!passport && !!phoneNumber ? 'task active' : 'task disabled'}}" data-disabled="{{!!passport}}" data-url="/pages/passport/index" bindtap="onNav">实名领取</view>
+
+  <view wx:if="{{menus[1] && !!passport}}" class="{{passport.code.length === 0 && !!phoneNumber ? 'task active' : 'task disabled'}}" data-disabled="{{passport.code.length > 0}}" data-url="/pages/passport/takecode/index?id={{passport.id}}&title={{event.name}}" bindtap="onNav">实名领取</view>
+
+  <view wx:if="{{menus[2]}}" class="{{!passport.activated && !!phoneNumber ? 'task active' : 'task disabled'}}" bindtap="onActivatePassport">
+    激活绑定
+  </view>
+  <view wx:if="{{menus[3]}}" class="{{passport && passport.userId === userId && passport.code.length > 0 && !passport.camp ? 'task active' : 'task'}}" bindtap="onSelectCamp">选择阵营</view>
+  <view wx:if="{{menus[4]}}" class="{{!completedTask && passport && passport.camp ? 'task active' : 'task'}}" data-disabled="{{completedTask || !(passport && passport.camp)}}" data-url="/pages/task/index" bindtap="onNav">{{'实施任务'}}</view>
+  <view wx:if="{{menus[5]}}" class="{{!shared && passport && passport.camp ? 'task active' : 'task'}}" data-disabled="{{shared || !(passport && passport.camp)}}" data-url="/tweet/pages/create/index" bindtap="onNav">印迹分享</view>
+  <view wx:if="{{menus[6]}}" class="{{(stamped === false) ? 'task active' : 'task'}}" data-url="/pages/clock/index" data-disabled="{{stamped !== false}}" bindtap="onNav">打卡盖章</view>
+  <view wx:if="{{menus[7]}}" class="{{stamped ? 'task active' : 'task'}}" data-disabled="{{!stamped}}" bindtap="onAward">奖励领取</view>
+</view>
+
+<t-popup visible="{{visibleActivatePassport}}" bind:visible-change="onActivatePassportChange" placement="bottom">
+  <view class="popup-content">
+    <view class="list">
+      <view class="list-item">
+        <view class="label">护照编号</view>
+        <view>{{activatePassport.code}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所属活动</view>
+        <view>{{activatePassport.event_name}}</view>
+      </view>
+    </view>
+  </view>
+  <view class="popup-action">
+    <button class="button" bindtap="onActivatePassportSubmit">确定激活</button>
+  </view>
+</t-popup>
+<t-popup visible="{{openCampModal}}" bind:visible-change="onCampVisibleChange" placement="bottom" wx:if="{{passport}}">
+  <view class="popup-content">
+    <view class="list">
+      <view class="list-item">
+        <view class="label">护照编号</view>
+        <view>{{passport.code}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所属活动</view>
+        <view>{{event.name}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">姓名</view>
+        <view>{{passport.name}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">身份证号</view>
+        <view>{{passport.nric}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">手机号码</view>
+        <view>{{passport.phone}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">性别</view>
+        <view>{{passport.gender}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">职业</view>
+        <view>{{passport.profession}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所在阵营</view>
+        <view class="stack" bindtap="onSelectCampChange">
+          <text>{{ selectedCamp ? selectedCamp.name : '选择阵营' }}</text>
+          <t-icon name="chevron-right" size="40rpx" />
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="popup-action">
+    <button disabled="{{!selectedCamp}}" class="button" bindtap="onSubmitCamp">确定阵营</button>
+  </view>
+</t-popup>
+<t-popup visible="{{openCampList}}" bind:visible-change="onCampListVisibleChange" placement="bottom">
+  <view class="popup-content">
+    <view class="list camp-list">
+      <view class="list-item" wx:for="{{camps}}" wx:key="index" bindtap="onChangeCamp" data-value="{{index}}">
+        <view>
+          <view class="title">{{item.name}}</view>
+          <view class="label">{{item.introduction}}</view>
+        </view>
+        <view class="stack">
+          <t-icon name="chevron-right" size="40rpx" />
+        </view>
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<drawer id="award" frameTitle="关闭" wx:if="{{award}}">
+  <view class="card award">
+    <view class="card-header">奖励领取码</view>
+    <view class="card-content">
+    </view>
+    <view class="card-content-text code">{{award.code}}</view>
+  </view>
+</drawer>
+
+<scroll-view scroll-y="true" style="height:100vh;" class="modal-box" hidden="{{!open}}">
+  <view class="modal-body">
+    <view class="modal-content">
+      <image src="{{event.alert}}" class="img" mode="widthFix"></image>
+    </view>
+    <view class="modal-action">
+      <button wx:if="{{phoneNumber && phoneNumber.length > 0}}" style="opacity: {{opacity}};background-color: transparent;border: solid 1px #fff;color:#fff;" class="submit" bindtap="onKnow">
+        我知道了({{counttime}})
+      </button>
+      <button wx:else style="opacity: {{opacity}};background-color: transparent;border: solid 1px #fff;color:#fff;" class="submit" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+        我知道了({{counttime}})
+      </button>
+      <view style="margin: auto;text-align: center;font-size: 14px;height:20px;margin-top: 8px;">
+        <checkbox data-value="{{event.id}}" bindtap="onRememberMe" class="wx-checkbox-input" />下次不再显示
+      </view>
+    </view>
+  </view>
+</scroll-view>

@@ -1,0 +1,194 @@
+syntax = "proto3";
+
+package shenzhouyinji;
+option go_package = "./proto;shenzhouyinji";
+
+service SceneryspotService {
+    rpc CreateStamp(Stamp) returns (SsKeyword) {}
+    rpc UpdateStamp(Stamp) returns (SsUpdateRes) {}
+    rpc GetStamp(SsKeyword) returns (Stamp) {}
+    rpc GetStampsBySceneryspotID(SsKeyword) returns (StampsRes){}
+
+    rpc CreateUserStamp(UserStamp) returns (UserStampsRes) {}
+    rpc UpdateUserStamp(UserStamp) returns (UserStampsRes) {}
+    rpc GetUserStampByUserID(SsKeyword) returns (UserStampsRes) {}
+    rpc GetUserStampByStampID(SsKeyword) returns (UserStampsRes) {}
+
+    rpc CreateServiceItem(ServiceItem) returns (SsKeyword) {}
+    rpc UpdateServiceItem(ServiceItem) returns (SsUpdateRes) {}
+    rpc GetServiceItem(SsKeyword) returns (ServiceItem) {}
+    rpc GetServiceItemsBySceneryspotID(SsKeyword) returns (ServiceItemsRes){}
+    rpc GetServiceItemsByCategory(SsKeywordByCategory) returns (ServiceItemsRes){}
+
+    rpc CreateSceneryspot(Sceneryspot) returns (SsKeyword){}
+    rpc UpdateSceneryspot(Sceneryspot) returns (SsUpdateRes) {}
+    rpc GetSceneryspot(SsKeyword) returns (Sceneryspot) {}
+    rpc GetSceneryspots(SsEmptyReq) returns (SceneryspotsRes) {}
+    rpc GetSceneryspotsByIDs(SsKeywords) returns (SceneryspotsRes) {}
+
+    rpc CreateUserSceneryspot(UserSceneryspot) returns (UserSceneryspotResponse) {}
+    rpc GetUserSceneryspots(UserSceneryspotRequest) returns (UserSceneryspotResponse) {}
+
+    rpc GetUserStamp(UserStampRequest) returns (UserStampsRes) {}
+    rpc UpdateUserStampRecord(UserStampRecordReq) returns (SsUpdateRes){}
+    
+    rpc GetUserStampPointsRecord(UserStampPointsRecordReq) returns (UserStampPointsRecordRes){}
+
+}
+
+message Sceneryspot {
+    string id = 1;
+    string name = 2;
+    string address = 3;
+    int32 points = 4;
+    string images = 5;
+    string coordinate = 6;
+    string electric_fence = 7;
+    string introduction = 8;
+    string category_id = 9;
+    string position_tolerance = 10;
+    string passport_link = 11;
+    string health_code_link = 12;
+    int32 status = 13;
+    int32 create_time = 14;
+    string code = 15;
+    bool enable_award = 16;
+}
+
+message ServiceItem {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string name = 3;
+    string category_id = 4;
+    string address = 5;
+    string images = 6;
+    string coordinate = 7;
+    string wxappid = 8;
+    int32 display_order = 9;
+    string introduction = 10;
+    string expense_instruction = 11;
+    int32 status = 12;
+}
+
+message Stamp {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string name = 3;
+    string address = 4;
+    string coordinate = 5;
+    string code = 6;
+    string images = 7;
+    int32 status = 8;
+    int32 create_time = 9;
+}
+
+message UserStamp {
+    string user_id = 1;
+    string event_id = 2;
+    string sceneryspot_id = 3;
+    string code = 4;
+    string location = 5;
+    int32 status = 6;
+    int32 create_time = 7;
+    int32 like_count = 8;
+    int32 share_count = 9;
+    int32 view_count = 10;
+}
+
+message SsKeywordByCategory {
+    string sceneryspotID = 1;
+    string categoryID = 2;
+}
+
+message SsKeyword {
+    string value = 1;
+}
+
+message SsKeywords {
+    repeated string value = 1;
+}
+
+message SsEmptyReq {}
+
+message SsUpdateRes {
+    bool value = 1;
+}
+
+message SceneryspotsRes {
+    repeated Sceneryspot data = 1;
+}
+
+message ServiceItemsRes {
+    repeated ServiceItem data = 1;
+}
+
+message StampsRes {
+    repeated Stamp data = 1;
+}
+
+message UserStampsRes {
+    repeated UserStamp data = 1;
+}
+
+message UserSceneryspot {
+    string user_id = 1;
+    string event_id = 2;
+    string scenery_spot_id = 3;
+    int32 create_time = 4;
+}
+
+message UserSceneryspotRequest {
+    string user_id = 1;
+    string event_id = 2;
+    string sceneryspot_id = 3;
+}
+
+message UserSceneryspotResponse {
+    repeated Sceneryspot data = 1;
+}
+
+message UserStampRequest {
+    string user_id = 1;
+    string event_id = 2;
+    string sceneryspot_id = 3;
+}
+
+message UserStampRecord {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    string sceneryspot_id = 4;
+    string action_user_id = 5;
+    string action_type = 6;
+    int32 time = 7;
+}
+
+message UserStampRecordReq {
+    string user_id = 1;
+    string event_id = 2;
+    string sceneryspot_id = 3;
+    string action_user_id = 4;
+    string action_type = 5;
+}
+
+message UserStampPointsRecord {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    string sceneryspot_id = 4;
+    string action_user_id = 5;
+    int32 like = 6;
+    int32 share = 7;
+    int32 view = 8;
+}
+
+message UserStampPointsRecordReq {
+    string user_id = 1;
+    string event_id = 2;
+    string sceneryspot_id = 3;
+    string action_user_id = 4;
+}
+
+message UserStampPointsRecordRes {
+    repeated UserStampPointsRecord data = 1;
+}

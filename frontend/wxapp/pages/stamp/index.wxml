@@ -1,0 +1,15 @@
+<view class="page-container">
+  <view class="card">
+    <view class="card-header">
+      <view class="card-header-title">{{title}}</view>
+      <view>{{caption}}</view>
+    </view>
+    <view class="card-content">
+      <canvas class="qrcode" id="qr" type="2d" style="height: 500rpx;width: 500rpx;" bindtap="onCode"></canvas>
+    </view>
+    <view class="card-content-text">{{time}}</view>
+    <view class="card-action">
+      <button class="button" bindtap="onStamp">已完成盖章</button>
+    </view>
+  </view>
+</view>

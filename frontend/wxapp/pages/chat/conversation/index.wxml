@@ -1,0 +1,10 @@
+<view wx:for="{{conversations}}" wx:key="index" class="conversation-container {{item.align_content}}">
+  <t-cell title="{{item.title}}" description="{{item.content}}" align="top" bordered="{{false}}">
+    <view class="avatar-wrapper" slot="{{item.align_content + '-icon'}}">
+      <image src="{{item.user_avatar}}" class="avatar" mode="widthFix"></image>
+    </view>
+  </t-cell>
+</view>
+<view class="conversation-box" wx:if="{{allowReply}}">
+  <t-input class="form-control" maxlength="200" type="text" placeholder="输入消息" bind:enter="onMessage" value="{{content}}" />
+</view>

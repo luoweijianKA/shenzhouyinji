@@ -1,0 +1,224 @@
+type Sceneryspot {
+  id: ID!
+  code: String!
+  name: String!
+  address: String
+  points: Int
+  images: String
+  coordinate: String
+  electric_fence: String
+  introduction: String
+  category_id: String
+  position_tolerance: String
+  passport_link: String
+  health_code_link: String
+  status: Int
+  create_time: Int
+  enable_award: Boolean!
+}
+
+type ServiceItem {
+  id: ID!
+  sceneryspot_id: String!
+  name: String!
+  category_id: String
+  address: String
+  images: String
+  wxappid: String
+  coordinate: String
+  display_order: Int!
+  introduction: String
+  expense_instruction: String
+  status: Int
+}
+
+type Stamp {
+  id: ID!
+  sceneryspot_id: String!
+  name: String!
+  address: String
+  coordinate: String
+  code: String
+  images: String
+  status: Int
+  create_time: Int
+}
+
+input NewSceneryspot {
+  code: String!
+  name: String!
+  address: String
+  points: Int
+  images: String
+  coordinate: String
+  electric_fence: String
+  introduction: String
+  category_id: String
+  position_tolerance: String
+  passport_link: String
+  health_code_link: String
+  status: Int
+  enable_award: Boolean
+}
+
+input UpdateSceneryspot {
+  id: ID!
+  code: String
+  name: String
+  address: String
+  points: Int
+  images: String
+  coordinate: String
+  electric_fence: String
+  introduction: String
+  category_id: String
+  position_tolerance: String
+  passport_link: String
+  health_code_link: String
+  status: Int
+  enable_award: Boolean
+}
+
+input NewServiceItem {
+  sceneryspot_id: String!
+  name: String!
+  category_id: String
+  address: String
+  images: String
+  coordinate: String
+  wxappid: String
+  display_order: Int
+  introduction: String
+  expense_instruction: String
+  status: Int
+}
+
+input UpdateServiceItem {
+  id: ID!
+  name: String
+  category_id: String
+  address: String
+  images: String
+  coordinate: String
+  wxappid: String
+  display_order: Int
+  introduction: String
+  expense_instruction: String
+  status: Int
+}
+
+input NewStamp {
+  sceneryspot_id: String!
+  name: String!
+  address: String
+  coordinate: String
+  code: String
+  images: String
+  status: Int
+}
+
+input UpdateStamp {
+  id: ID!
+  name: String
+  address: String
+  coordinate: String
+  code: String
+  images: String
+  status: Int
+}
+
+type UserStamp {
+  user_id: ID!
+  event_id: ID!
+  sceneryspot_id: ID!
+  sceneryspot_name: String
+  sceneryspot_address: String
+  sceneryspot_images: String
+  sceneryspot_coordinate: String
+  code: String
+  location: String
+  status: Int!
+  create_time: Int!
+  like_count: Int!
+  view_count: Int!
+  share_count: Int!
+}
+
+input NewUserStamp {
+  user_id: ID!
+  event_id: ID!
+  sceneryspot_id: ID!
+  code: String!
+  location: String!
+}
+
+input UserStampInput {
+  user_id: ID!
+  event_id: ID!
+  sceneryspot_id: ID!
+  status: Int!
+}
+
+type Photo {
+  id: ID!
+  author: String!
+  avatar: String!
+  pics: [String!]
+  content: String!
+  timestamp: Int!
+  location: String
+  region: String
+  sceneryspot: Sceneryspot
+}
+
+type PhotoEdge {
+  cursor: ID!
+  node: Photo
+}
+
+type PhotoConnection {
+  totalCount: Int!
+  edges: [PhotoEdge!]!
+  pageInfo: PageInfo!
+}
+
+input NewPhotoStatus {
+  id: ID!
+  status: Int!
+}
+
+input NewUserSceneryspot {
+  user_id: ID!
+  event_id: ID!
+  sceneryspot_id: ID!
+}
+
+input NewUserStampRecord {
+  user_id: String!
+  event_id: String!
+  sceneryspot_id: String!
+  action_user_id: String!
+  action_type: String!
+}
+
+type UserStampPointsRecord {
+  id: String!
+  user_id: String!
+  user_name: String!
+  user_avatar: String!
+  event_id: String!
+  sceneryspot_id: String!
+  action_user_id: String!
+  action_user_name: String!
+  action_user_avatar: String!
+  like: Int!
+  share: Int!
+  view: Int!
+}
+
+input NewUserStampPointsRecord {
+  user_id: String!
+  event_id: String!
+  sceneryspot_id: String!
+  action_user_id: String!
+}

@@ -1,0 +1,16 @@
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar-wrapper,
+.badge-wrapper {
+  margin: 0 !important;
+}
+
+.t-badge,
+.t-badge__content {
+  margin-right: 0 !important;
+}

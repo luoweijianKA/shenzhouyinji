@@ -1,0 +1,27 @@
+<view class="user-container">
+  <view class="user">
+    <view class="user-center-card__header__name">
+      <view class="caption">答题任务</view>
+      <view class="subtitle">{{question.name}}</view>
+    </view>
+  </view>
+</view>
+<view class="page-container">
+  <view class="card">
+    <view class="card-content">
+      <view class="list">
+        <checkbox-group bindchange="onResultChange">
+          <view class="list-item" wx:for="{{question.answers}}" wx:key="index" wx:for-item="answer">
+            <view class="label">{{answer.value}}</view>
+            <view>
+              <checkbox value="{{index}}" checked="{{answer.checked}}" />
+            </view>
+          </view>
+        </checkbox-group>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="action-container">
+  <button disabled="{{!done}}" class="button" bindtap="onSubmit">提交</button>
+</view>

@@ -1,0 +1,402 @@
+type Trek {
+  id: ID!
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  step: Int!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input NewTrek {
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  step: Int!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input UpdateTrek {
+  id: ID!
+  name: String
+  step: Int
+  points: Int
+  images: String
+  introduction: String
+  start_time: Int
+  end_time: Int
+  necessary: Boolean
+  status: Int
+  electric_fence: String
+}
+
+type Geocaching {
+  id: ID!
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input NewGeocaching {
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input UpdateGeocaching {
+  id: ID!
+  name: String
+  points: Int
+  images: String
+  introduction: String
+  start_time: Int
+  end_time: Int
+  necessary: Boolean
+  status: Int
+  electric_fence: String
+}
+
+type Screenshot {
+  id: ID!
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input NewScreenshot {
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input UpdateScreenshot {
+  id: ID!
+  name: String
+  points: Int
+  images: String
+  introduction: String
+  start_time: Int
+  end_time: Int
+  necessary: Boolean
+  status: Int
+  electric_fence: String
+}
+
+type Puzzle {
+  id: ID!
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  countdown: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input NewPuzzle {
+  event_id: String
+  sceneryspot_id: String!
+  name: String!
+  points: Int!
+  images: String!
+  introduction: String
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  status: Int!
+  countdown: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input UpdatePuzzle {
+  id: ID!
+  name: String
+  points: Int
+  images: String
+  introduction: String
+  start_time: Int
+  end_time: Int
+  necessary: Boolean
+  status: Int
+  countdown: Int
+  electric_fence: String
+}
+
+type QuestionBank {
+  id: ID!
+  event_id: String
+  sceneryspot_id: String!
+  question: String!
+  options: String!
+  answer: String!
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  points: Int!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input NewQuestionBank {
+  event_id: String
+  sceneryspot_id: String!
+  question: String!
+  options: String!
+  answer: String!
+  start_time: Int!
+  end_time: Int!
+  necessary: Boolean!
+  points: Int!
+  status: Int!
+  electric_fence: String
+}
+
+input UpdateQuestionBank {
+  id: ID!
+  question: String
+  options: String
+  answer: String
+  start_time: Int
+  end_time: Int
+  necessary: Boolean
+  points: Int
+  status: Int
+  electric_fence: String
+}
+
+type Question {
+  id: ID!
+  event_id: String
+  sceneryspot_id: String!
+  questions: String!
+  start_time: Int!
+  end_time: Int!
+  points: Int!
+  status: Int!
+  create_time: Int!
+  electric_fence: String
+}
+
+input NewQuestion {
+  event_id: String
+  sceneryspot_id: String!
+  questions: String!
+  start_time: Int!
+  end_time: Int!
+  points: Int!
+  status: Int!
+  electric_fence: String
+}
+
+input UpdateQuestion {
+  id: ID!
+  questions: String
+  start_time: Int
+  end_time: Int
+  points: Int
+  status: Int
+  electric_fence: String
+}
+
+type UserTask {
+  id: ID!
+  user_id: String!
+  event_id: String!
+  camp_id: String!
+  sceneryspot_id: String!
+  task_id: String!
+  task_category: String!
+  result: String!
+  points: Int!
+  status: Int!
+  audit: String
+  create_time: Int!
+  user: Account!
+  task: Task!
+}
+
+type UserTaskEdge {
+  cursor: ID!
+  node: UserTask
+}
+
+type UserTaskConnection {
+  totalCount: Int!
+  edges: [UserTaskEdge!]!
+  pageInfo: PageInfo!
+}
+
+input NewUserTask {
+  user_id: String!
+  event_id: String!
+  camp_id: String!
+  sceneryspot_id: String!
+  task_id: String!
+  task_category: String!
+  result: String!
+  points: Int!
+}
+
+input UpdateUserTask {
+  id: ID!
+  result: String
+  points: Int
+  status: Int
+  audit: String
+}
+
+interface Task {
+  id: String!
+  name: String!
+  category_id: String!
+  category_name: String!
+  points: Int!
+  optional: Boolean!
+  status: Int!
+  timestamp: Int!
+  redone: Boolean
+  completed: Boolean
+  electric_fence: String
+}
+
+type TrekTask implements Task {
+  id: String!
+  name: String!
+  category_id: String!
+  category_name: String!
+  points: Int!
+  optional: Boolean!
+  status: Int!
+  timestamp: Int!
+  redone: Boolean
+  completed: Boolean
+  step: Int!
+  images: String!
+  introduction: String!
+  electric_fence: String
+}
+
+type QuestionTask implements Task {
+  id: String!
+  name: String!
+  category_id: String!
+  category_name: String!
+  points: Int!
+  optional: Boolean!
+  status: Int!
+  redone: Boolean
+  completed: Boolean
+  timestamp: Int!
+  options: [String!]
+  electric_fence: String
+}
+
+type GeocachingTask implements Task {
+  id: String!
+  name: String!
+  category_id: String!
+  category_name: String!
+  points: Int!
+  optional: Boolean!
+  status: Int!
+  timestamp: Int!
+  redone: Boolean
+  completed: Boolean
+  images: String!
+  introduction: String!
+  electric_fence: String
+}
+
+type ScreenshotTask implements Task {
+  id: String!
+  name: String!
+  category_id: String!
+  category_name: String!
+  points: Int!
+  optional: Boolean!
+  status: Int!
+  timestamp: Int!
+  redone: Boolean
+  completed: Boolean
+  images: String!
+  introduction: String!
+  electric_fence: String
+}
+
+type PuzzleTask implements Task {
+  id: String!
+  name: String!
+  category_id: String!
+  category_name: String!
+  points: Int!
+  optional: Boolean!
+  status: Int!
+  timestamp: Int!
+  redone: Boolean
+  completed: Boolean
+  level: Int!
+  countdown: Int!
+  puzzles: [String!]
+  images: String!
+  introduction: String!
+  electric_fence: String
+}

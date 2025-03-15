@@ -1,0 +1,94 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view class="go-back">
+  <t-icon name="chevron-left" size="64rpx" bind:click="goBack" />
+</view>
+
+<view class="user-card">
+  <view class="ucc-header">
+    <image wx:if="{{userInfo.wechat_avatar}}" src="{{resourceUrl}}{{userInfo.wechat_avatar}}" class="ucc-header-avatar" mode="widthFix"></image>
+    <image wx:else src="{{avatarUrl}}" class="ucc-header-avatar" mode="aspectFit"></image>
+    <view class="ucc-header-name">{{userInfo.wechat_name || '微信用户'}}</view>
+    <view class="ucc-header-photo">
+      <!-- <t-icon class="icon" name="photo" size="40rpx" bindtap="createTweet"></t-icon> -->
+    </view>
+  </view>
+</view>
+
+<view class=".tweet-info-container">
+  <view class="tweet-info">
+    <view class="tweet-info-group">
+      <view class="tweet-info-cell">
+        <view class="tweet-icon">
+          <t-icon name="image" size="48rpx" />
+        </view>
+        <view>{{tweets.length}}</view>
+      </view>
+
+      <view class="tweet-info-cell" bind:tap="goRecord">
+        <view class="tweet-icon">
+          <t-icon prefix="wr" name="preview" size="48rpx" />
+        </view>
+        <view>{{totalView}}</view>
+      </view>
+
+      <!-- <view class="tweet-info-cell" bind:tap="goRecord">
+        <view class="tweet-icon">
+          <t-icon prefix="wr" name="share" size="48rpx" />
+        </view>
+        <view>{{totalShare}}</view>
+      </view> -->
+
+      <view class="tweet-info-cell" bind:tap="goRecord">
+        <view class="tweet-icon">
+          <t-icon prefix="wr" name="thumb_up" size="48rpx" />
+        </view>
+        <view>{{totalLike}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="tweet-list-container" wx:if="{{tweets.length > 0}}">
+  <view class="tweet-container" wx:for="{{tweets}}" wx:key="index">
+    <view class="tweet-context" data-value="{{item.id}}" bindtap="goDetail">
+      <view class="swiper-wrap">
+        <t-swiper wx:if="{{item.content.images.length > 0}}" current="{{current}}" autoplay="{{autoplay}}" duration="{{duration}}" interval="{{interval}}" navigation="{{navigation}}">
+          <t-swiper-item wx:for="{{item.content.images}}" wx:for-item="image" wx:key="index">
+            <image src="{{resourceUrl}}{{image}}" class="img" style="background-image: url({{backgroundImage}});background-size: cover;" mode="aspectFit"></image>
+          </t-swiper-item>
+        </t-swiper>
+      </view>
+    </view>
+    <view class="tweet-text">{{item.content.text}}</view>
+    <view class="tweet-time">{{tools.timeFormat(item.create_time)}}</view>
+    <view class="tweet-footer">
+      <view class="tweet-footer-left">
+        <!-- <view class="tweet-icon-group">
+          <view class="tweet-icon">
+            <t-icon prefix="wr" name="share" size="36rpx" />
+          </view>
+          <view class="tweet-icon-text">{{item.share_count}}</view>
+        </view> -->
+        <view class="tweet-icon-group">
+          <view class="tweet-icon">
+            <t-icon prefix="wr" name="preview" size="36rpx" />
+          </view>
+          <view class="tweet-icon-text">{{item.view_count}}</view>
+        </view>
+        <view class="tweet-icon-group">
+          <view class="tweet-icon">
+            <t-icon prefix="wr" name="thumb_up" size="36rpx" />
+          </view>
+          <view class="tweet-icon-text">{{item.like_count}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="tweet-list-container" wx:else="">
+  <view class="noTweet">
+    <image class="noTweet-img" src="../../../assets/locationMap.png" mode="widthFix"></image>
+    <view class="noTweet-text">您还没有发布任何相片，马上发布一张吧</view>
+  </view>
+</view>

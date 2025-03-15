@@ -1,0 +1,28 @@
+{
+  "name": "szyj-wxapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --cache --fix --ext .js",
+    "check": "node config/eslintCheck.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run check"
+    }
+  },
+  "lint-staged": {
+    "*.{js, ts}": "eslint --cache --fix",
+    "*.{js,ts,css,less}": "prettier --write"
+  },
+  "dependencies": {
+    "dayjs": "^1.9.3",
+    "miniprogram-barrage": "^1.1.1",
+    "tdesign-miniprogram": "^0.24.0",
+    "tslib": "^1.11.1"
+  }
+}

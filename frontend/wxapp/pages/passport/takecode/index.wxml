@@ -1,0 +1,8 @@
+<view class="page-container" style="background-image: url({{backgroundImage}});background-size: cover;">
+  <view class="event">
+    <view class="name">{{title}}</view>
+  </view>
+  <view class="time">{{time}}</view>
+  <canvas class="qrcode" id="qr" type="2d" style="height: 500rpx;width: 500rpx;"></canvas>
+  <view class="title">领取码</view>
+</view>

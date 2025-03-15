@@ -1,0 +1,13 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view wx:if="{{likeRecords.length > 0}}">
+  <view wx:for="{{likeRecords}}" wx:key="item">
+    <view class="card">
+      <image src="{{resourceUrl}}{{item.like_avatar}}" class="avatar" mode="widthFix"></image>
+      <view class="card-right">
+        <view class="text">{{item.liker_name}} 点赞了你的印迹。</view>
+        <view class="datetime">{{tools.timeFormat2(item.like_time)}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="tips" wx:else="">暂无消息</view>

@@ -1,0 +1,18 @@
+scalar Upload
+
+type File {
+  id: Int!
+  name: String!
+  content: String!
+  contentType: String!
+  rawURI: String!
+  previewURI: String
+}
+
+input UploadFile {
+  file: Upload!
+  tag: String
+
+  "if preview == true, represents for uploading a file will be generate a preview image."
+  preview: Boolean!
+}

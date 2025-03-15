@@ -1,0 +1,1 @@
+docker run -d --network [network] --name nginx -p 443:443 -p 80:80 -v /home/nginx/html:/usr/share/nginx/html -v /home/nginx/nginx.conf:/etc/nginx/nginx.conf -v /home/nginx/conf.d:/etc/nginx/conf.d -v /home/nginx/logs:/var/log/nginx -v /home/nginx/ssl:/etc/nginx/ssl --privileged=true nginx

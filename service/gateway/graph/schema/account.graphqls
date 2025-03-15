@@ -1,0 +1,172 @@
+enum Role {
+  USER
+  ADMIN
+  OPERATOR
+  ROOT
+}
+
+type User {
+  id: ID!
+  loginId: String!
+  status: Int!
+  createTime: Int!
+}
+
+type Account {
+  id: ID!
+  loginId: String!
+  wechat: String
+  wechat_name: String
+  wechat_avatar: String
+  role: Role!
+  scopes: [String!]
+  status: Int!
+  create_time: Int!
+  profile: Profile
+  follow: Int!
+  like: Int!
+  joinedEvents: [UserEvent!]
+}
+
+type AccountEdge {
+  cursor: ID!
+  node: Account
+}
+
+type AccountConnection {
+  totalCount: Int!
+  edges: [AccountEdge!]!
+  pageInfo: PageInfo!
+}
+
+type Profile {
+  id: ID!
+  name: String
+  gender: String
+  age: Int
+  birthday: Int
+  email: String
+  phone: String
+  city: String
+  tags: String
+  nric: String
+  authentication: Boolean
+  profession: String
+  guardian_name: String
+  guardian_nric: String
+  guardian_phone: String
+  create_time: Int!
+}
+
+type ClaimCode {
+  id: ID!
+  user_id: String!
+  code: String!
+  status: Int!
+  create_time: Int!
+}
+
+type Login {
+  id: ID!
+  loginId: String!
+  role: Role!
+  status: Int!
+  accessToken: String!
+}
+
+type RefreshToken {
+  token: String!
+}
+
+input NewRefreshToken {
+  token: String!
+}
+
+input NewLogin {
+  loginId: String!
+  password: String!
+  timestamp: Int!
+}
+
+input NewAccount {
+  loginId: String!
+  password: String!
+  role: Role!
+}
+
+input UpdateAccount {
+  id: ID!
+  password: String
+  wechat_name: String
+  wechat_avatar: String
+  status: Int
+  role: Role
+  scopes: [String!]
+}
+
+input SetAccountRole {
+  id: ID!
+  role: Role!
+  scopes: [String!]
+}
+
+input UpdateProfile {
+  id: ID!
+  name: String
+  gender: String
+  email: String
+  phone: String
+  city: String
+  tags: String
+  nric: String
+  authentication: Boolean
+  profession: String
+  guardian_name: String
+  guardian_nric: String
+  guardian_phone: String
+}
+
+input UpdatePassword {
+  id: ID!
+  oldPassword: String!
+  newPassword: String!
+}
+
+input NewClaimCode {
+  user_id: String!
+  code: String!
+  status: Int!
+}
+
+input UpdateClaimCode {
+  id: ID!
+  code: String!
+  status: Int!
+}
+
+type IndivIdentity {
+  accountId: String!
+  flowId: String!
+  shortLink: String!
+  url: String!
+}
+
+type UserPoints {
+  id: ID!
+  userId: ID!
+  content: String!
+  op: String!
+  points: Int!
+  createTime: Int!
+}
+
+type UserPointsEdge {
+  cursor: ID!
+  node: UserPoints
+}
+
+type UserPointsConnection {
+  totalCount: Int!
+  edges: [UserPointsEdge!]!
+  pageInfo: PageInfo!
+}

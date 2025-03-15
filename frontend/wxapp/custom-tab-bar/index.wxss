@@ -1,0 +1,18 @@
+.custom-tab-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.custom-tab-bar-wrapper .text {
+  font-size: 20rpx;
+}
+
+.custom-icon {
+  height: 48rpx;
+  width: 48rpx;
+}
+
+.wrapper {
+  margin-right: 48px;
+}

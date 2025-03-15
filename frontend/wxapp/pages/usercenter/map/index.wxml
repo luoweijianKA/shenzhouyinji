@@ -1,0 +1,74 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+
+<view class="navbar" style="height: {{navbarHeight + 10}}rpx;margin-top: {{navbarHeight + 4}}rpx;">
+  <view class="navbar-warp" style="margin-top: {{menuHeight}};">
+    <view wx:if="{{goHome}}" class="navbar-icon">
+      <t-icon prefix="wr" name="home" size="40rpx" bind:click="goHome" />
+    </view>
+    <view wx:else="" class="navbar-icon">
+      <t-icon name="chevron-left" size="56rpx" bind:click="goBack" />
+    </view>
+    <view class="navbar-title" style="width: {{navberWidth*2}}rpx;">印迹地图</view>
+  </view>
+</view>
+
+<view class="page-header user-container" wx:if="{{user}}">
+  <view class="user">
+    <t-avatar t-class="avatar" mode="aspectFill" image="{{user.avatar || defaultUserAvatar}}" />
+    <view class="subtitle">{{user.name || '微信用户'}}</view>
+  </view>
+  <view class="stamp">
+    <view class="title">{{userStamp.length || 0}}</view>
+    <view class="caption">印迹打卡</view>
+  </view>
+  <view class="stamp">
+    <view class="title">{{totalShare}}</view>
+    <view class="caption">被分享</view>
+  </view>
+  <view class="stamp">
+    <view class="title">{{totalLike}}</view>
+    <view class="caption">被点赞</view>
+  </view>
+</view>
+
+<view class="swiper-wrap" style="width: {{windowWidth * 2 - platformWidth}}rpx;">
+  <t-swiper wx:if="{{userStamp.length > 0}}" current="0" autoplay="{{autoplay}}" navigation="{{navigation}}">
+    <t-swiper-item wx:for="{{userStamp}}" wx:key="index">
+      <view class="card">
+        <view class="image-wrap">
+          <image src="{{tools.resource(item.sceneryspot_images)}}" class="image" mode="aspectFit"></image>
+        </view>
+        <view class="card-content" data-value="{{item.sceneryspot_id}}">
+          <view class="text">{{item.sceneryspot_name}}</view>
+          <view class="address">{{item.sceneryspot_address}}</view>
+          <view class="action-list">
+            <!-- <view class="action-item">
+              <t-button theme="primary" size="large" variant="text" custom-dataset="{{item}}">
+                <t-icon prefix="wr" name="share" size="36rpx" class="tap" />
+              </t-button>
+              <view class="action-item-text">{{item.share_count}}</view>
+            </view> -->
+            <view wx:if="{{!item.isself}}" class="action-item">
+              <t-button theme="primary" size="large" variant="text" custom-dataset="{{item}}" bindtap="tapLike">
+                <t-icon prefix="wr" name="thumb_up" size="36rpx" class="{{item.hasLike ? 'like' : 'tap'}}" />
+              </t-button>
+              <view class="action-item-text">{{item.like_count}}</view>
+            </view>
+            <view wx:else="" class="action-item">
+              <t-button theme="primary" size="large" variant="text">
+                <t-icon prefix="wr" name="thumb_up" size="36rpx" class="tap" />
+              </t-button>
+              <view class="action-item-text">{{item.like_count}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </t-swiper-item>
+  </t-swiper>
+</view>
+
+<map class="map-container" longitude="{{longitude}}" latitude="{{latitude}}" scale="{{scale}}" show-compass="ture" enable-3D="ture" enable-overlooking="ture" enable-rotate="ture" enable-zoom="ture" enable-scroll="ture" markers="{{markers}}" show-location="true" bindmarkertap='bindMap' bindcallouttap='bindMap' area-paths="{{paths}}">
+  <view style="width:40%">
+    <SearchBar id="SearchBar" addflag="true"></SearchBar>
+  </view>
+</map>

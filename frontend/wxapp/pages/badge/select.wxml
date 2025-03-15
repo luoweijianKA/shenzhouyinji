@@ -1,0 +1,11 @@
+<view class="list">
+  <view class="list-item badge" wx:for="{{badges}}" wx:key="index" data-index="{{index}}" bindtap="bindChange">
+    <view class="row">
+      <image wx:if="{{item.images && item.images.length > 0}}" src="{{item.images}}" class="img" mode="widthFix"></image>
+      <view>{{item.name}}</view>
+    </view>
+    <view>
+      <t-icon wx:if="{{value === item.id}}" name="check" size="36rpx" />
+    </view>
+  </view>
+</view>

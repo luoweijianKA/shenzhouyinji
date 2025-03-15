@@ -1,0 +1,16 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+
+<view class="page-container">
+  <view class="event">
+    <view class="event-header" wx:if="{{event.banner}}">
+      <image src="{{event.banner}}" class="img" mode="heightFix"></image>
+    </view>
+
+    <view class="event-container">
+      <view class="title">{{event.name}}</view>
+      <view class="datetime">开始时间：{{tools.timeFormat(event.start_time)}}</view>
+      <view class="introduction">{{event.introduction}}</view>
+    </view>
+
+  </view>
+</view>

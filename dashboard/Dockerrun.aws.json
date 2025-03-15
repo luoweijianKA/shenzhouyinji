@@ -1,0 +1,27 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "nginx",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "80"
+    }
+  ],
+  "Volumes": [
+    {
+      "HostDirectory": "/var/app/current/build",
+      "ContainerDirectory": "/usr/share/nginx/html"
+    },
+    {
+      "HostDirectory": "/var/app/current/nginx/conf.d",
+      "ContainerDirectory": "/etc/nginx/conf.d"
+    },
+    {
+      "HostDirectory": "/var/app/current/nginx/nginx.conf",
+      "ContainerDirectory": "/etc/nginx/nginx.conf"
+    }
+  ],
+  "Logging": "/var/log/nginx"
+}

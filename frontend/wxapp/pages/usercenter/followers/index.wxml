@@ -1,0 +1,14 @@
+<view wx:if="{{followers.length > 0}}">
+  <view wx:for="{{followers}}" wx:key="item">
+    <t-swipe-cell>
+      <t-cell title="{{item.nickname}}" hover>
+        <view class="avatar" slot="left-icon">
+          <image wx:if="{{item.avatar}}" src="{{resourceUrl}}{{item.avatar}}" class="avatar" mode="widthFix"></image>
+          <image wx:else src="{{avatarUrl}}" class="avatar" mode="widthFix"></image>
+        </view>
+      </t-cell>
+      <view slot="right" class="t-swipe-cell-demo-btn delete-btn" bind:tap="removeMyFollowers" data-value="{{item.follower}}">移除粉丝</view>
+    </t-swipe-cell>
+  </view>
+</view>
+<view class="tips" wx:else="">粉丝列表</view>

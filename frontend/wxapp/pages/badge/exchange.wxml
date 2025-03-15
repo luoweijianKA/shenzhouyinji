@@ -1,0 +1,86 @@
+<view class="page-header user-container" wx:if="{{user}}">
+  <view class="user">
+    <t-avatar t-class="avatar" mode="aspectFill" image="{{user.avatar || defaultUserAvatar}}" />
+    <view class="subtitle">{{user.name || '微信用户'}}</view>
+  </view>
+</view>
+<view class="page-container">
+  <view class="card">
+    <view class="card-header">
+      <view class="title">交换信息</view>
+    </view>
+    <view class="card-content">
+      <view class="list swap">
+        <view class="list-item">
+          <view>出</view>
+          <view class="swap-badges" data-index="0" data-value="{{badges[0] ? badges[0].id : ''}}" bindtap="bindBadge">
+            <image wx:if="{{badges[0]}}" src="{{badges[0].images}}" class="swap-badge" mode="widthFix"></image>
+            <view wx:if="{{!badges[0]}}" class="caption">选择徽章</view>
+            <t-icon name="chevron-right" size="36rpx" />
+          </view>
+        </view>
+        <view class="list-item">
+          <view>入</view>
+          <view class="swap-badges" data-index="1" data-value="{{badges[1] ? badges[1].id : ''}}" bindtap="bindBadge">
+            <image wx:if="{{badges[1]}}" src="{{badges[1].images}}" class="swap-badge" mode="widthFix"></image>
+            <view wx:if="{{!badges[1]}}" class="caption">选择徽章</view>
+            <t-icon name="chevron-right" size="36rpx" />
+          </view>
+        </view>
+        <view class="list-item">
+          <view>区域</view>
+          <view>
+            <picker mode="region" bindchange="bindRegionChange" value="{{region}}">
+              <view class="picker row">
+                <view wx:if="{{region.length > 0}}">{{region[1]}}</view>
+                <view wx:if="{{region.length === 0}}" class="caption">选择区域</view>
+                <t-icon name="chevron-right" size="36rpx" />
+              </view>
+            </picker>
+
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="card-action">
+      <button class="button" bindtap="bindSubmit">发布交换信息</button>
+    </view>
+  </view>
+</view>
+<view class="title">交换历史</view>
+<view class="page-container" wx:for="{{swaps}}" wx:key="index" data-value="{{item}}" bindtap="bindSwap">
+  <view class="card">
+    <view class="card-header-actions">
+      <t-switch bindchange="handleSwapChange" data-index="{{index}}" value="{{item.status == 1}}" slot="note" slot="note" />
+    </view>
+    <view class="card-content swap">
+      <view class="swap-badges">
+        <image src="{{item.badges[0].images}}" class="swap-badge" mode="widthFix"></image>
+        <image src="/assets/icons/jc.png" class="swap-icon" mode="widthFix"></image>
+        <image src="{{item.badges[1].images}}" class="swap-badge" mode="widthFix"></image>
+      </view>
+      <view class="swap-content">
+        <view>
+          <view class="caption">昵称</view>
+          <view>{{item.userName}}</view>
+        </view>
+        <view>
+          <view class="caption">城市</view>
+          <view>{{item.city[1]}}, {{item.city[2]}}</view>
+        </view>
+        <view wx:if="{{item.status == 1}}">
+          <view class="caption">时间</view>
+          <view class="done">{{item.expiresIn}}</view>
+        </view>
+        <view wx:if="{{item.status == 2}}">
+          <view class="caption">状态</view>
+          <view class="done">{{"禁用"}}</view>
+        </view>
+        <view wx:if="{{item.status == 3}}">
+          <view class="caption">状态</view>
+          <view class="done">{{"已下架"}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

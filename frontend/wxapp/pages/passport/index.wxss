@@ -1,0 +1,136 @@
+page {
+  box-sizing: border-box;
+}
+
+.page-container {
+  padding: 0;
+}
+
+.passport {
+  width: 100%;
+}
+
+.event {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.event>.logo {
+  display: block;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  object-fit: cover;
+  height: 250rpx;
+  margin: 0 auto;
+}
+
+.event>.name {
+  padding: 1rem;
+  font-weight: 500;
+  font-size: x-large;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.form {
+  display: grid;
+  gap: 0.5rem;
+  padding: 24px;
+}
+
+.form .placeholder {
+  color: rgba(0, 0, 0, 0.54) !important;
+}
+
+.form .form-control {
+  border-radius: 20rpx;
+  background-color: rgba(0, 0, 0, 0.12);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.4375em;
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: rgb(90 114 123 / 11%) 0px 7px 30px 0px;
+  padding: 24rpx;
+}
+
+.form .form-control.phone-number {
+  border: 0 !important;
+  text-align: left;
+}
+
+.form .form-control.phone-number.placeholder {
+  color: red !important;
+}
+
+.form .form-action {
+  margin-top: 1rem;
+  background-color: #2dc5c6;
+  width: 100%;
+  border: 0;
+  border-radius: 46rpx;
+  color: #fff;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 48rpx;
+}
+
+.popup-content-text {
+  padding: 24rpx 0;
+  font-size: large;
+}
+
+.popup-action {
+  background-color: #fff;
+  padding: 48rpx 48rpx 96rpx 48rpx;
+
+}
+
+.popup-action>.button {
+  background-color: rgb(0, 206, 195);
+  width: 100%;
+  border: 0;
+  border-radius: 48rpx;
+  color: #fff;
+}
+
+.list {
+  margin: 0;
+  position: relative;
+  width: 100%;
+}
+
+.list .list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 24rpx 0;
+  border-width: 0px 0px thin;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0.12);
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.list .list-item:last-child {
+  border: 0;
+}
+
+.list .list-item .label {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.note {
+  padding: 0 48rpx;
+  color: red;
+  font-size: small;
+}

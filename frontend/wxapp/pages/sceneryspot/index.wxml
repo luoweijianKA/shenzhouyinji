@@ -1,0 +1,13 @@
+<view class="page-container">
+  <block wx:for="{{sceneryspots}}" wx:key="index">
+    <view class="scenicyspot" data-value="{{index}}" bindtap="onChange">
+      <image src="https://static.shenzhouyinji.cn{{item.images}}" class="img" mode="scaleToFill"></image>
+      <view class="scenicyspot-content">
+        <view class="name">{{item.name}}</view>
+        <view class="introduction">
+          {{item.introduction}}
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

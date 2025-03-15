@@ -1,0 +1,95 @@
+.tabs {
+  margin-bottom: 32rpx;
+}
+
+.content {
+  padding-top: 36rpx;
+  margin-bottom: 36rpx;
+}
+
+.button-group {
+  margin: 0 32rpx;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32rpx;
+}
+
+.tips {
+  display: grid;
+  padding-top: 120rpx;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  margin: 36rpx;
+  padding: 24rpx;
+  display: flex;
+  align-items: center;
+  border-radius: 16rpx;
+  background-color: rgba(204, 204, 204, 0.2);
+}
+
+.avatar-wrap {
+  display: grid;
+  justify-content: center;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 48rpx;
+}
+
+.card-content {
+  width: 100%;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.text {
+  margin-left: 24rpx;
+  margin-bottom: 12rpx;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.datetime {
+  margin-left: 24rpx;
+  font-size: x-small;
+  color: #bbb;
+}
+
+.icon {
+  color: #4286F3;
+}
+
+.hide {
+  display: none
+}
+
+.show {
+  display: "";
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 144rpx;
+  color: #bbb;
+}
+
+.noRecord {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 144rpx;
+  color: #bbb;
+}
+
+.noMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36rpx;
+  color: #bbb;
+}

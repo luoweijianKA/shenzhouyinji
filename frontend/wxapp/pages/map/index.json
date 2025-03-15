@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "景区导航",
+  "usingComponents": {
+    "t-loading": "tdesign-miniprogram/loading/loading"
+  }
+}

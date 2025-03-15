@@ -1,0 +1,137 @@
+type EventPassport {
+  id: ID!
+  code: String!
+  userId: ID
+  userCampId: ID
+  eventId: ID!
+  name: String!
+  nric: String!
+  phone: String!
+  gender: String
+  profession: String
+  claimCode: String
+  claimBy: ID
+  claimTime: Int!
+  guardianName: String
+  guardianNric: String
+  guardianPhone: String
+  status: Int!
+  camp: UserCamp
+}
+
+type PassportStock {
+  eventId: String!
+  eventName: String!
+  total: Int!
+  issuedCount: Int!
+  usedCount: Int!
+  availableCount: Int!
+}
+
+enum UserPassportFilterType {
+  NAME
+  IDCARD
+  PHONE
+}
+
+type UserPassportEdge {
+  cursor: ID!
+  node: UserPassport
+}
+
+type UserPassportConnection {
+  totalCount: Int!
+  edges: [UserPassportEdge!]!
+  pageInfo: PageInfo!
+}
+
+input Guardian {
+  name: String!
+  nric: String!
+  phone: String!
+}
+
+input NewPassportStock {
+  eventId: String!
+  file: String!
+  description: String
+}
+
+input PassportInput {
+  eventId: String!
+  codes: [String!]
+}
+
+input UserPassportFilter {
+  type: UserPassportFilterType!
+  search: String!
+}
+
+input NewUserEventPassport {
+  userId: String
+  eventId: String!
+  passportCode: String
+  realName: String!
+  nric: String!
+  phone: String!
+  gender: String
+  profession: String
+  guardian: Guardian
+}
+
+input NewActivateUserEventPassport {
+  id: String!
+  userId: String!
+  eventId: String!
+  passportCode: String!
+}
+
+type ClaimPassport {
+  id: String!
+  userId: String!
+  userName: String!
+  userAvatar: String!
+  eventId: String!
+  passportCode: String!
+  claimBy: String!
+  claimTime: Int!
+  status: Int!
+}
+
+type ClaimPassportEdge {
+  cursor: ID!
+  node: ClaimPassport
+}
+
+type ClaimPassportConnection {
+  totalCount: Int!
+  edges: [ClaimPassportEdge!]!
+  pageInfo: PageInfo!
+}
+
+enum PassportSearch {
+  CODE
+  NAME
+  NRIC
+  PHONE
+  GUARDIAN_NAME
+  GUARDIAN_NRIC
+  GUARDIAN_PHONE
+}
+
+type PassportSearchResult {
+  id: String!
+  code: String!
+  event: Event!
+  name: String
+  nric: String
+  phone: String
+  guardianName: String
+  guardianNric: String
+  guardianPhone: String
+}
+
+input PassportSearchInput {
+  search: PassportSearch!
+  value: String!
+}

@@ -1,0 +1,180 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<t-tabs defaultValue="{{0}}" bind:change="onTabsChange" t-class="tabs" sticky="{{true}}">
+
+  <t-tab-panel label="点赞" value="0" style="{{tabPanelstyle}}">
+    <view class="content">
+      <view class="button-group">
+        <t-button theme="{{hideMyLikeRecords ? 'light' : 'primary'}}" block size="small" bind:tap="myLikes">我点赞的</t-button>
+        <t-button theme="{{hideLikeMyRecords ? 'light' : 'primary'}}" block size="small" bind:tap="likeMy">点赞我的</t-button>
+      </view>
+
+      <view wx:if="{{loading}}" class="loading">
+        加载中...
+      </view>
+
+      <view wx:if="{{noRecord}}" class="noRecord">
+        当前没有记录
+      </view>
+
+      <view wx:if="{{myLikeRecords.length > 0}}" class="{{hideMyLikeRecords ? 'hide' : 'show'}}">
+        <view wx:for="{{myLikeRecords}}" wx:key="index">
+          <view class="card">
+            <view class="avatar-wrap">
+              <image src="{{item.user_avatar}}" class="avatar" mode="aspectFit"></image>
+            </view>
+            <view class="card-content">
+              <view class="text">点赞了 {{item.tweet_user_name}} 的印迹。</view>
+              <view class="datetime">{{tools.timeFormat(item.time)}}</view>
+            </view>
+            <view class="icon" data-value="{{item.tweet_id}}" bind:tap="goTweet">
+              <t-icon prefix="wr" name="open_in_new" size="48rpx" />
+            </view>
+          </view>
+        </view>
+
+        <view class="noMore">
+          没有更多了
+        </view>
+      </view>
+
+      <view wx:if="{{likeMyRecords.length > 0}}" class="{{hideLikeMyRecords ? 'hide' : 'show'}}">
+        <view wx:for="{{likeMyRecords}}" wx:key="index">
+          <view class="card">
+            <view class="avatar-wrap">
+              <image src="{{item.user_avatar}}" class="avatar" mode="aspectFit"></image>
+            </view>
+            <view class="card-content">
+              <view class="text">{{item.user_name}} 点赞了我的印迹。</view>
+              <view class="datetime">{{tools.timeFormat(item.time)}}</view>
+            </view>
+            <view class="icon" data-value="{{item.tweet_id}}" bind:tap="goTweet">
+              <t-icon prefix="wr" name="open_in_new" size="48rpx" />
+            </view>
+          </view>
+        </view>
+
+        <view class="noMore">
+          没有更多了
+        </view>
+      </view>
+
+    </view>
+  </t-tab-panel>
+
+  <t-tab-panel label="分享" value="1" style="{{tabPanelstyle}}">
+    <view class="content">
+      <view class="button-group">
+        <t-button theme="{{hideMyShareRecords ? 'light' : 'primary'}}" block size="small" bind:tap="myShares">我分享的</t-button>
+        <t-button theme="{{hideShareMyRecords ? 'light' : 'primary'}}" block size="small" bind:tap="shareMy">分享我的</t-button>
+      </view>
+
+      <view wx:if="{{loading}}" class="loading">
+        加载中...
+      </view>
+
+      <view wx:if="{{noRecord}}" class="noRecord">
+        当前没有记录
+      </view>
+
+      <view wx:if="{{myShareRecords.length > 0}}" class="{{hideMyShareRecords ? 'hide' : 'show'}}">
+        <view wx:for="{{myShareRecords}}" wx:key="index">
+          <view class="card">
+            <view class="avatar-wrap">
+              <image src="{{item.user_avatar}}" class="avatar" mode="aspectFit"></image>
+            </view>
+            <view class="card-content">
+              <view class="text">分享了 {{item.tweet_user_name}} 的印迹。</view>
+              <view class="datetime">{{tools.timeFormat(item.time)}}</view>
+            </view>
+            <view class="icon" data-value="{{item.tweet_id}}" bind:tap="goTweet">
+              <t-icon prefix="wr" name="open_in_new" size="48rpx" />
+            </view>
+          </view>
+        </view>
+
+        <view class="noMore">
+          没有更多了
+        </view>
+      </view>
+
+      <view wx:if="{{shareMyRecords.length > 0}}" class="{{hideShareMyRecords ? 'hide' : 'show'}}">
+        <view wx:for="{{shareMyRecords}}" wx:key="index">
+          <view class="card">
+            <view class="avatar-wrap">
+              <image src="{{item.user_avatar}}" class="avatar" mode="aspectFit"></image>
+            </view>
+            <view class="card-content">
+              <view class="text">{{item.user_name}} 分享了我的印迹。</view>
+              <view class="datetime">{{tools.timeFormat(item.time)}}</view>
+            </view>
+            <view class="icon" data-value="{{item.tweet_id}}" bind:tap="goTweet">
+              <t-icon prefix="wr" name="open_in_new" size="48rpx" />
+            </view>
+          </view>
+        </view>
+
+        <view class="noMore">
+          没有更多了
+        </view>
+      </view>
+    </view>
+  </t-tab-panel>
+
+  <t-tab-panel label="查看" value="2" style="{{tabPanelstyle}}">
+    <view class="content">
+      <view class="button-group">
+        <t-button theme="{{hideMyViewRecords ? 'light' : 'primary'}}" block size="small" bind:tap="myView">我看过的</t-button>
+        <t-button theme="{{hideViewMyRecords ? 'light' : 'primary'}}" block size="small" bind:tap="viewMy">看过我的</t-button>
+      </view>
+
+      <view wx:if="{{loading}}" class="loading">
+        加载中...
+      </view>
+
+      <view wx:if="{{noRecord}}" class="noRecord">
+        当前没有记录
+      </view>
+
+      <view wx:if="{{myViewRecords.length > 0}}" class="{{hideMyViewRecords ? 'hide' : 'show'}}">
+        <view wx:for="{{myViewRecords}}" wx:key="index">
+          <view class="card">
+            <view class="avatar-wrap">
+              <image src="{{item.user_avatar}}" class="avatar" mode="aspectFit"></image>
+            </view>
+            <view class="card-content">
+              <view class="text">查看了 {{item.tweet_user_name}} 的印迹。</view>
+              <view class="datetime">{{tools.timeFormat(item.time)}}</view>
+            </view>
+            <view class="icon" data-value="{{item.tweet_id}}" bind:tap="goTweet">
+              <t-icon prefix="wr" name="open_in_new" size="48rpx" />
+            </view>
+          </view>
+        </view>
+        <view class="noMore">
+          没有更多了
+        </view>
+      </view>
+
+      <view wx:if="{{viewMyRecords.length > 0}}" class="{{hideViewMyRecords ? 'hide' : 'show'}}">
+        <view wx:for="{{viewMyRecords}}" wx:key="index">
+          <view class="card">
+            <view class="avatar-wrap">
+              <image src="{{item.user_avatar}}" class="avatar" mode="aspectFit"></image>
+            </view>
+            <view class="card-content">
+              <view class="text">{{item.user_name}} 查看了我的印迹。</view>
+              <view class="datetime">{{tools.timeFormat(item.time)}}</view>
+            </view>
+            <view class="icon" data-value="{{item.tweet_id}}" bind:tap="goTweet">
+              <t-icon prefix="wr" name="open_in_new" size="48rpx" />
+            </view>
+          </view>
+        </view>
+
+        <view class="noMore">
+          没有更多了
+        </view>
+      </view>
+    </view>
+  </t-tab-panel>
+</t-tabs>

@@ -1,0 +1,32 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+
+<view class="page-container">
+  <view class="event">
+    <view class="event-header">
+      <view class="title">进行的活动</view>
+    </view>
+
+    <block wx:for="{{categories}}" wx:key="id">
+      <view class="category">
+        <view wx:if="{{item.events.length > 0}}">
+          <view class="category-header" bind:tap="onExpandCategory" data-value="{{index}}" data-expand="{{item.expand}}">
+            <text>{{item.name}}</text>
+            <t-icon name="{{item.expand ? 'chevron-down' : 'chevron-up'}}" size="48rpx" slot="note" />
+          </view>
+          <block wx:if="{{item.expand}}">
+            <view class="event-container" wx:for="{{item.events}}" wx:key="index" wx:for-item="event">
+              <image src="{{tools.getImageByStrWithPosition(event.images,',', 1)}}" class="img" mode="scaleToFill"></image>
+              <view class="summary-container">
+                <view class="summary-title">{{event.name}}</view>
+                <view id="{{event.id}}" class="summary-footer" bindtap="eventDetail">详情 >></view>
+              </view>
+              <view class="join-event-container">
+                <view id="{{event.id}}" class="join-event-text" bindtap="joinEvent">进入活动</view>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

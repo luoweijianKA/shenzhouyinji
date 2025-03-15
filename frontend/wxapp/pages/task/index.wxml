@@ -1,0 +1,108 @@
+<view class="user-container" wx:if="{{user}}">
+  <view class="user">
+    <t-avatar t-class="avatar" mode="aspectFill" class="user-center-card__header__avatar" image="{{user.avatar || defaultUserAvatar}}" />
+    <view class="user-center-card__header__name">
+      <view class="subtitle">{{user.name || '微信用户'}}</view>
+      <view class="caption">荣誉：{{user.label}}</view>
+    </view>
+  </view>
+  <view class="caption">{{time}}</view>
+</view>
+
+<view class="page-container scenicyspot" wx:if="{{sceneryspot}}">
+  <view class="scenicyspot-content">
+    <view class="scenicyspot-summary">
+      <image src="https://static.shenzhouyinji.cn{{sceneryspot.images}}" class="img" mode="scaleToFill"></image>
+      <view class="summary-container">
+        <view class="summary-title">{{sceneryspot.name}}</view>
+        <view class="summary-footer" bindtap="onSelectSceneryspot">
+          切换景区
+          <t-icon name="chevron-right" size="36rpx" />
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="scenicyspot-content" wx:if="{{user}}">
+    <view class="list">
+      <view class="list-item">
+        <view class="label">护照编号</view>
+        <view>{{user.passportCode}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所属活动</view>
+        <view>{{user.eventName}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所在阵营</view>
+        <view>{{user.campName}}</view>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="page-container">
+  <view class="card">
+    <view class="card-header">
+      <view class="title">已接任务</view>
+    </view>
+    <view class="card-content">
+      <view class="list">
+        <view class="list-item task" wx:for="{{tasks}}" wx:key="index" data-value="{{item}}" bindtap="onTask">
+          <view class="subtitle">{{item.name}}</view>
+          <view class="task-content">
+            <view>
+              <view class="caption">类型</view>
+              <view>{{item.category_name}}</view>
+            </view>
+            <view>
+              <view class="caption">分值</view>
+              <view>{{item.points}}</view>
+            </view>
+            <view class="row" wx:if="{{!item.completed}}">
+              <view>待处理</view>
+              <t-icon name="chevron-right" size="36rpx" />
+            </view>
+            <view class="completed" wx:if="{{item.completed}}">
+              <view class="caption">{{item.completedTime}}</view>
+              <view class="done">已完成</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+<view class="page-container" wx:if="{{optionalTasks.length > 0}}">
+  <view class="card">
+    <view class="card-header">
+      <view class="title">
+        <view>可选任务</view>
+        <view class="caption text-red">非所属阵营任务个人加50%积分，阵营不加分</view>
+      </view>
+    </view>
+    <view class="card-content">
+      <view class="list">
+        <view class="list-item task" wx:for="{{optionalTasks}}" wx:key="index" data-value="{{item}}" bindtap="onTask">
+          <view class="subtitle">{{item.name}}</view>
+          <view class="task-content">
+            <view>
+              <view class="caption">类型</view>
+              <view>{{item.category_name}}</view>
+            </view>
+            <view>
+              <view class="caption">分值</view>
+              <view>{{item.points}}</view>
+            </view>
+            <view class="row" wx:if="{{!item.completed}}">
+              <view>待处理</view>
+              <t-icon name="chevron-right" size="36rpx" />
+            </view>
+            <view class="completed" wx:if="{{item.completed}}">
+              <view class="caption">{{item.completedTime}}</view>
+              <view class="done">已完成</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

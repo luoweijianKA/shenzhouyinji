@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "我关注的",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
+}

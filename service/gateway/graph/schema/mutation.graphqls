@@ -1,0 +1,175 @@
+# go run github.com/99designs/gqlgen
+
+type Mutation {
+  # account service
+  logout: Int
+  login(input: NewLogin! @auditing(code: LOGIN)): Login!
+  loginWithWechat(code: String!): Login!
+  refreshToken(input: NewRefreshToken!): Login! @auth
+
+  createAccount(input: NewAccount!): Id! @auth @root
+  updateAccount(input: UpdateAccount!): Result! @auth
+  updateProfile(input: UpdateProfile!): Result! @auth
+  updatePassword(input: UpdatePassword!): Result! @auth
+  setAccountRole(input: SetAccountRole!): Result! @auth
+  deleteAccount(id: ID!): Account @auth @root
+
+  createClaimCode(input: NewClaimCode!): Id! @auth @hasRole
+  updateClaimCode(input: UpdateClaimCode!): Result! @auth
+
+  # sceneryspot service
+  createSceneryspot(input: NewSceneryspot!): Id! @auth @hasRole
+  updateSceneryspot(input: UpdateSceneryspot!): Result! @auth @hasRole
+
+  createServiceItem(input: NewServiceItem!): Id! @auth @hasRole
+  updateServiceItem(input: UpdateServiceItem!): Result! @auth @hasRole
+
+  createStamp(input: NewStamp!): Id! @auth @hasRole
+  updateStamp(input: UpdateStamp!): Result! @auth @hasRole
+
+  createUserStamp(input: NewUserStamp!): UserStamp! @auth
+  updateUserStamp(input: UserStampInput!): UserStamp! @auth
+
+  updateUserStampRecord(input: NewUserStampRecord!): Result! @auth
+
+  # management service
+  createCategory(input: NewCategory!): Id! @auth @hasRole
+  updateCategory(input: UpdateCategory!): Result! @auth @hasRole
+
+  createTag(input: NewTag!): Id! @auth @hasRole
+  updateTag(input: UpdateTag!): Result! @auth @hasRole
+
+  updateConfigs(input: Map! @auditing(code: CONFIGURATION)): Map! @auth @hasRole
+
+  # event service
+  createEvent(input: NewEvent!): Id! @auth @hasRole
+  updateEvent(input: UpdateEvent!): Result! @auth @hasRole
+
+  createEventScenerySpots(input: InputEventSceneryspot!): EventSceneryspot!
+    @auth
+    @hasRole
+  removeEventScenerySpots(input: InputEventSceneryspot!): Result! @auth @hasRole
+
+  createBadge(input: NewBadge!): Id! @auth @hasRole
+  updateBadge(input: UpdateBadge!): Result! @auth @hasRole
+  deleteBadge(input: [ID!]): [Badge!] @auth @hasRole
+
+  createUserBadge(input: InputUserBadge!): UserBadge! @auth
+  updateUserBadge(input: InputUserBadge!): Result! @auth
+  removeUserBadge(input: InputUserBadge!): Result! @auth
+
+  createUserBadgeSwap(input: NewUserBadgeSwap!): Id! @auth
+  updateUserBadgeSwap(input: UpdateUserBadgeSwap!): Result! @auth
+
+  createPassportSet(input: NewPassportSet!): Id! @auth @hasRole
+  updatePassportSet(input: UpdatePassportSet!): Result! @auth @hasRole
+
+  createPassport(input: NewPassport!): Id! @auth @hasRole
+  updatePassport(input: UpdatePassport!): Result! @auth @hasRole
+  importPassports(input: NewPassports!): Result! @auth @hasRole
+
+  createUserPassport(input: NewUserPassport!): Id! @auth
+  updateUserPassport(input: UpdateUserPassport!): Result! @auth @hasRole
+  removeUserPassport(id: String!): Result! @auth
+
+  pickupUserPassport(input: PickupUserPassport!): Id! @auth
+  updateGuardianInfo(input: UpdateGuardianInfo!): Result! @auth
+  verifyUserPassport(input: VerifyUserPassport!): Result! @auth
+  activateUserPassport(input: ActivateUserPassport!): Result! @auth
+
+  createCamp(input: NewCamp!): Id! @auth @hasRole
+  updateCamp(input: UpdateCamp!): Result! @auth @hasRole
+
+  createHonour(input: NewHonour!): Id! @auth @hasRole
+  updateHonour(input: UpdateHonour!): Result! @auth @hasRole
+
+  createUserCamp(input: NewUserCamp!): Id! @auth
+  updateUserCamp(input: UpdateUserCamp!): Result! @auth @hasRole
+
+  # message service
+  createNotification(input: NewNotification!): Id! @auth @hasRole
+  updateNotification(input: NotificationInput!): Notification @auth @hasRole
+  deleteNotification(input: [ID!]): [ID!] @auth @hasRole
+
+  updateUserNotification(input: UpdateUserNotification!): Result! @auth
+
+  createConversation(input: NewConversation!): Conversation! @auth
+  updateConversation(input: UpdateConversation!): Result! @auth
+
+  createTweet(input: NewTweet!): Id! @auth
+  updateTweet(input: UpdateTweet!): Result! @auth
+
+  likeTweet(tweetId: String!, userId: String!): Result! @auth
+  unlikeTweet(tweetId: String!, userId: String!): Result! @auth
+
+  viewTweet(tweet_id: String!, user_id: String!): Result! @auth
+  shareTweet(tweet_id: String!, user_id: String!): Result! @auth
+
+  createFollowers(input: InputFollowers!): Result! @auth
+  removeFollowers(input: InputFollowers!): Result! @auth
+
+  createFollowing(input: InputFollowing!): Result! @auth
+  removeFollowing(input: InputFollowing!): Result! @auth
+
+  clearUserUnreadMessage(userId: String!, type: String!): Result! @auth
+
+  # task service
+  createTrek(input: NewTrek!): Id! @auth @hasRole
+  updateTrek(input: UpdateTrek!): Result! @auth @hasRole
+
+  createGeocaching(input: NewGeocaching!): Id! @auth @hasRole
+  updateGeocaching(input: UpdateGeocaching!): Result! @auth @hasRole
+
+  createScreenshot(input: NewScreenshot!): Id! @auth @hasRole
+  updateScreenshot(input: UpdateScreenshot!): Result! @auth @hasRole
+
+  createPuzzle(input: NewPuzzle!): Id! @auth @hasRole
+  updatePuzzle(input: UpdatePuzzle!): Result! @auth @hasRole
+
+  createQuestionBank(input: NewQuestionBank!): Id! @auth @hasRole
+  updateQuestionBank(input: UpdateQuestionBank!): Result! @auth @hasRole
+
+  createQuestion(input: NewQuestion!): Id! @auth @hasRole
+  updateQuestion(input: UpdateQuestion!): Result! @auth @hasRole
+
+  createUserTask(input: NewUserTask!): UserTask @auth
+  completeUserTask(input: NewUserTask): UserTask @auth
+  updateUserTask(input: UpdateUserTask!): Result! @auth @hasRole
+
+  # upload
+  uploadFiles(files: [Upload!]!): [File!]!
+  uploadWithPayload(payload: [UploadFile!]!): [File!]!
+
+  # passport stock
+  addPassportStock(input: NewPassportStock!): Result!
+  deletePassport(input: [ID!]): [Passport!]
+  checkUserEventPassport(input: NewUserEventPassport): Result!
+  createUserEventPassport(input: NewUserEventPassport): ID
+  activateUserEventPassport(input: NewActivateUserEventPassport): ID
+
+  # photo
+  updatePhotoStatus(input: NewPhotoStatus!): ID
+  removePhotos: Result! @auth @hasRole
+
+  # export data
+  export(export: Export!): Result! @auth @root
+  exportEventUsers(event_id: String!, camps: [String!]): Result! @auth @hasRole
+
+  # restore data
+  restore(restore: Restore!, input: [ID!]): Result! @auth @root
+  restoreUser(userId: ID!, input: [ID!]): Result! @auth @root
+
+  createUserSceneryspot(input: NewUserSceneryspot): Sceneryspot @auth
+
+  createUserSwap(input: NewUserSwap!): UserSwap @auth
+  updateUserSwap(input: UserSwapInput!): UserSwap @auth
+  sendUserSwap(id: ID!, userId: ID!, content: String!): UserSwap @auth
+
+  updateEventSettings(id: ID!, settings: Map!): Map! @auth @hasRole
+  updateEventUserPoints(input: NewUserPoints!): EventUser! @auth @hasRole
+
+  createEventAwards(input: NewEventAwardUploadFile!): [EventAward!]
+    @auth
+    @hasRole
+  deleteEventAward(input: [ID!]): [EventAward!] @auth @hasRole
+}

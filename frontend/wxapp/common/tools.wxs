@@ -1,0 +1,102 @@
+var resource = function (uri) {
+  return 'https://static.shenzhouyinji.cn' + uri
+}
+
+module.exports.resource = resource
+
+var substr = function (val, len) {
+  if (val.length > len) {
+    return val.substring(0, len) + "...";
+  } else {
+    return val;
+  }
+}
+
+module.exports.substr = substr;
+
+var getImageByStr = function (val, char) {
+  var defaultImageUrl = "../../assets/blackboardImage.png";
+  if (typeof (val) != "undefined") {
+    var charIndex = val.indexOf(char);
+    if (charIndex > 0) {
+      var url = val.substring(0, charIndex).replace(',', '');
+      if (url != "") {
+        defaultImageUrl = "https://static.shenzhouyinji.cn" + url;
+      }
+    } else {
+      var url = val.replace(',,,,', '');
+      if (url != "") {
+        defaultImageUrl = "https://static.shenzhouyinji.cn" + url;
+      }
+    }
+  }
+
+  return defaultImageUrl;
+}
+
+module.exports.getImageByStr = getImageByStr;
+
+var getImageByStrWithPosition = function (val, char, position = 0) {
+  var defaultImageUrl = "../../assets/blackboardImage.png";
+  if (typeof (val) != "undefined") {
+    var items = val.split(char)
+    if (items.length > position) {
+      var name = items[position];
+      if (name != "") {
+        url = "https://static.shenzhouyinji.cn" + name;
+      }
+    }
+  }
+
+  return url;
+}
+
+module.exports.getImageByStrWithPosition = getImageByStrWithPosition;
+
+var timeFormat = function (timestamp) {
+  var time = getDate(parseInt(timestamp) * 1000);
+  var y = time.getFullYear();
+  var m = time.getMonth() + 1;
+  var d = time.getDate();
+
+  var timeStr = y + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d);
+  return timeStr;
+}
+
+module.exports.timeFormat = timeFormat;
+
+var timeFormat = function (timestamp) {
+  var time = getDate(parseInt(timestamp) * 1000);
+  var y = time.getFullYear();
+  var m = time.getMonth() + 1;
+  var d = time.getDate();
+
+  var timeStr = y + "-" + (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d);
+  return timeStr;
+}
+
+module.exports.timeFormat = timeFormat;
+
+var timeFormat2 = function (timestamp) {
+  var time = getDate(parseInt(timestamp) * 1000);
+  var y = time.getFullYear();
+  var m = time.getMonth() + 1;
+  var d = time.getDate();
+  var h = time.getHours();
+  var ms = time.getMinutes();
+
+  var timeStr = (m < 10 ? "0" + m : m) + "-" + (d < 10 ? "0" + d : d) + " " + (h < 10 ? "0" + h : h) + ":" + (ms < 10 ? "0" + ms : ms);
+  return timeStr;
+}
+
+module.exports.timeFormat2 = timeFormat2;
+
+var isImg = function (name) {
+  if (!name || name.length == 0) {
+    return false
+  }
+  var ext = name.substring(name.indexOf('.'))
+  return ['.jpg', '.jpge', '.gif', '.png'].indexOf(ext) > -1
+}
+
+module.exports.isImg = isImg

@@ -1,0 +1,52 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view class="page-header user-container" wx:if="{{user}}">
+  <view class="user">
+    <t-avatar t-class="avatar" mode="aspectFill" image="{{user.avatar || defaultUserAvatar}}" />
+    <view class="subtitle">{{user.name || '微信用户'}}</view>
+  </view>
+</view>
+
+<view class="page-container event" wx:for="{{events}}" wx:key="index">
+  <view class="event-header">
+    <image src="{{tools.resource(item.banner)}}" class="img" mode="scaleToFill"></image>
+    <view class="event-header-content">
+      <view class="event-header-title">{{item.name}}</view>
+      <view class="event-header-action" id="{{item.id}}" bindtap="bindDetails">
+        活动详情
+        <t-icon name="chevron-right" size="36rpx" />
+      </view>
+    </view>
+  </view>
+  <view class="event-content">
+    <view class="list">
+      <view class="list-item">
+        <view class="label">活动时间</view>
+        <view>{{item.start_time}} - {{item.end_time}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">所在阵营</view>
+        <view>{{item.camp_name}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">阵营积分</view>
+        <view>{{item.camp_points}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">阵营排名</view>
+        <view>{{item.camp_ranking}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">我的积分</view>
+        <view>{{item.user_points}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">活动排名</view>
+        <view>{{item.user_ranking}}</view>
+      </view>
+      <view class="list-item">
+        <view class="label">我的荣誉</view>
+        <view>{{item.user_honour}}</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,1 @@
+下载安装 TablePlus，安装插件 Diagram Generator

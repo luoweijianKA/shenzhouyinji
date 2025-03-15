@@ -1,0 +1,60 @@
+<map class="map-container" longitude="{{longitude}}" latitude="{{latitude}}" scale="{{scale}}" show-compass="ture" enable-3D="ture" enable-overlooking="ture" enable-rotate="ture" enable-zoom="ture" enable-scroll="ture" markers="{{markers}}" polygons="{{polygon}}" show-location="true" show-location="true" bindmarkertap='onMap' bindcallouttap='onMap'>
+  <view style="width:40%">
+    <view class='tit_seabox'>
+      <view class="tit_seabox_bar tit_seabox_add tit_start_search">
+        <icon type='search' size="40rpx"></icon>
+        <input type="text" bindinput="onSearchChange" bindconfirm="onSearchConfirm" bindblur="onSearchCancel" confirm-type='search' value='{{search}}' placeholder='关键字...' />
+        <icon bindtap='activity_clear' wx:if="{{searchflag}}" type='clear' size="28rpx"></icon>
+      </view>
+    </view>
+  </view>
+</map>
+
+<view class="fdDH">
+  <block wx:for="{{categories}}" wx:key="id">
+    <block wx:if="{{item.disabled}}">
+      <view class="DHit">
+        <image src="/assets/icons/{{item.id}}-disabled.png" class="DHimg"></image>
+      </view>
+      <view class="DHwz">{{item.name}}</view>
+    </block>
+    <block wx:else>
+      <view class="DHit" data-tab="{{item.id}}" bindtap="onTabChange">
+        <image src="/assets/icons/{{item.id}}.png" class="DHimg"></image>
+      </view>
+      <view class="DHwz" data-tab="{{item.id}}" bindtap="onTabChange">{{item.name}}</view>
+    </block>
+    <view wx:if="{{index==6}}" style="height: 10;">
+      <view class="line"></view>
+    </view>
+  </block>
+</view>
+
+<view class="fd">
+  <view class="location" bindtap="onLocation">
+    <image src="/assets/icons/location.png" class="img" mode="widthFix"></image>
+  </view>
+  <block>
+    <view>
+      <scroll-view class="scroll-view_H" scroll-x="true" style="width: 100%">
+        <block wx:for="{{result}}" wx:key="index" wx:for-item="nav">
+          <view class="scroll-view-item_H">
+            <view class="fdyuan" data-value="{{nav}}" bindtap="onNav">
+              <view class="itimg">
+                <image src="https://static.shenzhouyinji.cn/{{nav.images}}" class="img"></image>
+              </view>
+              <view class="itwz">
+                <view class="itbt">{{nav.name}}</view>
+                <view class="itms">地址：{{nav.address}}</view>
+                <view class="itsf">
+                  <view>人均消费：{{nav.expense_instruction}}</view>
+                  <image class="nav" src="/assets/icons/daohang.png"></image>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+  </block>
+</view>

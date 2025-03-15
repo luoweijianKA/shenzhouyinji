@@ -1,0 +1,704 @@
+syntax = "proto3";
+
+package shenzhouyinji;
+option go_package = "./proto;shenzhouyinji";
+
+service EventService {
+    rpc CreateEvent(Event) returns (EsKeyword) {}
+    rpc UpdateEvent(Event) returns (EsUpdateRes) {}
+    rpc GetEvent(EsKeyword) returns (Event) {}
+    rpc GetEvents(EsEmptyReq) returns (EventsRes) {}
+
+    rpc CreateEventScenerySpots(EventScenerySpots) returns (EventScenerySpots) {}
+    rpc RemoveEventScenerySpots(EventScenerySpots) returns (EsUpdateRes) {}
+    rpc GetEventScenerySpots(EsKeyword) returns (EventScenerySpotsRes) {}
+
+    rpc CreateBadge(Badge) returns (EsKeyword) {}
+    rpc UpdateBadge(Badge) returns (EsUpdateRes) {}
+    rpc DeleteBadge(Badge) returns (BadgesRes) {}
+    rpc GetBadge(EsKeyword) returns (Badge) {}
+    rpc GetBadgesByEventID(EsKeyword) returns (BadgesRes) {}
+
+    rpc CreateUserBadge(UserBadge) returns (UserBadge) {}
+    rpc UpdateUserBadge(UserBadge) returns (EsUpdateRes) {}
+    rpc RemoveUserBadge(UserBadge) returns (EsUpdateRes) {}
+    rpc GetUserBadgeByUserID(EsKeyword) returns (UserBadgesRes){}
+
+    rpc CreateUserBadgeSwap(UserBadgeSwap) returns (EsKeyword) {}
+    rpc UpdateUserBadgeSwap(UserBadgeSwap) returns (EsUpdateRes) {}
+    rpc GetUserBadgeSwap(EsKeyword) returns (UserBadgeSwap) {}
+    rpc GetUserBadgeSwapByPreviousID(EsKeyword) returns (UserBadgeSwap) {}
+    rpc GetUserBadgeSwapByFrom(EsKeyword) returns (UserBadgeSwapsRes) {}
+    rpc GetUserBadgeSwapByTo(EsKeyword) returns (UserBadgeSwapsRes) {}
+
+    rpc CreatePassportSet(PassportSet) returns (EsKeyword) {}
+    rpc UpdatePassportSet(PassportSet) returns (EsUpdateRes) {}
+    rpc GetPassportSet(EsKeyword) returns (PassportSet) {}
+    rpc GetPassportSetByName(EsKeyword) returns (PassportSet) {}
+    rpc GetPassportSetByEventID(EsKeyword) returns (PassportSetsRes) {}
+
+    rpc CreatePassport(Passport) returns (EsKeyword) {}
+    rpc UpdatePassport(Passport) returns (EsUpdateRes) {}
+    rpc GetPassport(EsKeyword) returns (Passport) {}
+    rpc GetPassportByCode(EsKeyword) returns (Passport) {}
+    rpc GetPassportByPassportSetID(EsKeyword) returns (PassportsRes) {}
+    rpc GetPassports(PassportRequest) returns (PassportsRes) {}
+    rpc DeletePassport(DeletePassportRequest) returns (PassportsRes) {}
+    rpc SearchPassports(SearchPassportRequest) returns (SearchPassportResponse) {}
+
+    rpc CreateUserPassport(UserPassport) returns (EsKeyword) {}
+    rpc UpdateUserPassport(UserPassport) returns (EsUpdateRes) {}
+    rpc GetUserPassport(UserPassport) returns (UserPassport) {}
+    rpc GetUserPassportByUserID(EsKeyword) returns (UserPassportsRes) {}
+    rpc GetUserPassportByPassportID(EsKeyword) returns (UserPassport) {}
+    rpc GetUserPassportByGuardianName(EsKeyword) returns (UserPassportsRes) {}
+
+    rpc RemoveUserPassport(EsKeyword) returns (EsUpdateRes) {}
+    rpc PickupUserPassport(PickupPassportReq) returns (EsKeyword) {}
+    rpc UpdateGuardianInfo(GuardianInfoReq) returns (EsUpdateRes) {}
+    rpc VerifyUserPassport(VerifyPassportReq) returns (EsUpdateRes) {}
+    rpc GetPickupCodeInfo(EsKeyword) returns (PickupCodeRes) {}
+    rpc ActivateUserPassport(ActivatePassportReq) returns (EsUpdateRes) {}
+
+    rpc CreateCamp(Camp) returns (EsKeyword) {}
+    rpc UpdateCamp(Camp) returns (EsUpdateRes) {}
+    rpc GetCamp(EsKeyword) returns (Camp) {}
+    rpc GetCampByEventID(EsKeyword) returns (CampsRes) {}
+    rpc GetCampWithUser(CampWithUserRequest) returns (CampsRes) {}
+
+    rpc CreateHonour(Honour) returns (EsKeyword) {}
+    rpc UpdateHonour(Honour) returns (EsUpdateRes) {}
+    rpc GetHonour(EsKeyword) returns (Honour) {}
+    rpc GetHonourByCampID(EsKeyword) returns (HonoursRes) {}
+
+    rpc CreateUserCamp(UserCamp) returns (EsKeyword) {}
+    rpc UpdateUserCamp(UserCamp) returns (EsUpdateRes) {}
+    rpc GetUserCamp(EsKeyword) returns (UserCamp) {}
+    rpc GetUserCampByCampID(EsKeyword) returns (UserCampsRes) {}
+
+    rpc GetPassportStocks(PassportStocksRequest) returns (PassportStocksResponse) {}
+    rpc GetIssuedUserPassports(UserPassportRequest) returns (UserPassportsRes) {}
+    rpc GetUsedUserPassports(UserPassportRequest) returns (UserPassportsRes) {}
+    rpc GetInactiveUserPassports(UserPassportRequest) returns (UserPassportsRes) {}
+    rpc GetUserEventPassport(UserEventPassportRequest) returns (UserEventPassportResponse) {}
+    rpc CheckUserEventPassport(UserPassport) returns (UserEventPassportResponse) {}
+    rpc CreateUserEventPassport(UserPassport) returns (CreateUserEventPassportResponse) {}
+    rpc ActivateUserEventPassport(ActivateUserEventPassportRequest) returns (ActivateUserEventPassportResponse) {}
+    rpc GetClaimEventPassports(ActivateUserEventPassportRequest) returns (ActivateUserEventPassportResponse) {}
+
+    rpc GetEventUsers(EventUserRequest) returns (EventUserResponse) {}
+    rpc UpdateEventUserPoints(EventUserPoints) returns (EventUserPointsResponse) {}
+    rpc IncrementEventUserPoints(EventUserPoints) returns (EventUserPointsResponse) {}
+    rpc GetEventTasks(EventTaskRequest) returns (EventTaskResponse) {}
+
+    rpc GetCampRanks(CampRankRequest) returns (CampRankResponse) {}
+    rpc GetUserRanks(UserRankRequest) returns (UserRankResponse) {}
+
+    rpc GetUserEvents(UserEventRequest) returns (UserEventResponse) {}
+    
+    rpc GetUserSwaps(UserSwapRequest) returns (UserSwapResponse) {}
+    rpc CreateUserSwap(CreateUserSwapRequest) returns (UserSwapResponse) {}
+    rpc UpdateUserSwap(UpdateUserSwapRequest) returns (UserSwapResponse) {}
+
+    rpc GetEventSettings(EventSettingsRequest) returns (EventSettingsResponse) {}
+    rpc UpdateEventSettings(UpdateEventSettingsRequest) returns (EventSettingsResponse) {}
+
+    rpc CreateEventAward(CreateEventAwardRequest) returns (EventAwardResponse) {}
+    rpc GetEventAwards(EventAwardRequest) returns (EventAwardResponse) {}
+    rpc UpdateEventAward(EventAward) returns (EventAwardResponse) {}
+    rpc DeleteEventAward(DeleteEventAwardRequest) returns (EventAwardResponse) {}
+    rpc GetNewEventAwards(NewEventAwardRequest) returns (EventAwardResponse) {}
+    rpc GetUserEventAwards(UserEventAwardRequest) returns (EventAwardResponse) {}
+
+    rpc UnbindUserPassport(EsKeyword) returns (UserPassportsRes) {}
+    rpc DeleteUserPassport(EsKeyword) returns (UserPassportsRes) {}
+
+    rpc UpdateUserStampCount(UserStampCountRequest) returns (UserStampCountResponse) {}
+    rpc IncrementUserStampCount(UserStampCountRequest) returns (UserStampCountResponse) {}
+
+
+    rpc GetExportPassports(ExportPassportRequest) returns (ExportPassportResponse) {}
+}
+
+message Event {
+    string id = 1;
+    string name = 2;
+    int32 start_time = 3;
+    int32 end_time = 4;
+    string introduction = 5;
+    string images = 6;
+    string step = 7;
+    int32 status = 8;
+    int32 create_time = 9;
+    string code = 10;
+    bool enable_award = 11;
+    string category_id = 12;
+}
+
+message EventScenerySpots {
+    string event_id = 1;
+    string scenery_spot_id = 2;
+}
+
+message Badge {
+    string id = 1;
+    string event_id = 2;
+    string name = 3;
+    string images = 4;
+}
+
+message UserBadge {
+    string user_id = 1;
+    string badge_id = 2;
+    int32 status = 3;
+}
+
+message UserBadgeSwap {
+    string id = 1;
+    string badge_id = 2;
+    string from = 3;
+    string to = 4;
+    string previous_id = 5;
+    string city = 6;
+    string content = 7;
+    int32 status = 8;
+    int32 create_time = 9;
+}
+
+message PassportSet {
+    string id = 1;
+    string event_id = 2;
+    string name = 3;
+    int32 status = 4;
+    int32 quantity = 5;
+    int32 issued = 6;
+}
+
+message Passport {
+    string id = 1;
+    string passport_set_id = 2;
+    string code = 3;
+    int32 status = 4;
+}
+
+message UserPassport {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    string passport_code = 4;
+    string real_name = 5;
+    string nric = 6;
+    string phone = 7;
+    string gender = 8;
+    string profession = 9;
+    string claim_code = 10;
+    bool authentication = 11;
+    string guardian_name = 12;
+    string guardian_nric = 13;
+    string guardian_phone = 15;
+    string claim_by = 16;
+    int32 claim_time = 17;
+    int32 status = 18;
+    string user_camp_id = 19;
+    int32 create_time = 20;
+}
+
+message Camp {
+    string id = 1;
+    string event_id = 2;
+    string name = 3;
+    string images = 4;
+    string introduction = 5;
+    int32 points = 6;
+    int32 status = 7;
+    string category_id = 8;
+}
+
+message Honour {
+    string id = 1;
+    string camp_id = 2;
+    string name = 3;
+    string images = 4;
+    int32 min_points = 5;
+    int32 max_points = 6;
+    int32 status = 7;
+}
+
+message UserCamp {
+    string id = 1;
+    string user_id = 2;
+    string camp_id = 3;
+    string event_id = 4;
+    string passport_id = 5;
+    string honour = 6;
+    int32 points = 7;
+    int32 stamp_count = 8;
+    int32 status = 9;
+    int32 create_time = 10;
+}
+
+message EsEmptyReq {
+}
+
+message EsKeyword {
+    string value = 1;
+}
+
+message EsUpdateRes {
+    bool value = 1;
+}
+
+message EventsRes {
+   repeated Event data = 1;
+}
+
+message HonoursRes {
+   repeated Honour data = 1;
+}
+
+message EventScenerySpotsRes {
+   repeated EventScenerySpots data = 1;
+}
+
+message CampWithUserRequest {
+    string user_id = 1;
+    string event_id = 2;
+}
+
+message CampsRes {
+   repeated Camp data = 1;
+}
+
+message UserCampsRes {
+    repeated UserCamp data = 1;
+}
+
+message BadgesRes {
+   repeated Badge data = 1;
+}
+
+message UserBadgesRes {
+    repeated UserBadge data = 1;
+}
+
+message UserBadgeSwapsRes {
+    repeated UserBadgeSwap data = 1;
+}
+
+message UserPassportsRes {
+    repeated UserPassport data = 1;
+}
+
+message PassportRequest {
+    string event_id = 1;
+    string code = 2;
+    int32 offset = 3;
+    int32 limit = 4;
+}
+
+message PassportResult {
+    string id = 1;
+    string event_id = 2;
+    string code = 3;
+    string real_name = 4;
+    string nric = 5;
+    string phone = 6;
+    string guardian_name = 7;
+    string guardian_nric = 8;
+    string guardian_phone = 9;
+}
+
+message SearchPassportRequest {
+    string search = 1;
+    string value = 2;
+    int32 limit = 3;
+}
+
+message SearchPassportResponse {
+    repeated PassportResult data = 1;
+}
+
+message DeletePassportRequest {
+    repeated string values = 2;
+}
+
+message PassportsRes {
+   repeated Passport data = 1;
+}
+
+message PassportSetsRes {
+   repeated PassportSet data = 1;
+}
+
+message PickupPassportReq {
+    string user_id = 1;
+    string event_id = 2;
+    string real_name = 3;
+    string nric = 4;
+    string phone = 5;
+    string gender = 6;
+    string profession = 7;
+    int32 age = 8;
+}
+
+message GuardianInfoReq { 
+    string id = 1;
+    string guardian_name = 2;
+    string guardian_nric = 3;
+    string guardian_phone = 4;
+}
+
+message VerifyPassportReq {
+    string id = 1;
+    bool verify = 2;
+}
+
+message PickupCodeRes {
+    string user_id = 1;
+    string real_name = 2;
+    string nric = 3;
+    string phone = 4;
+    bool authentication = 5;
+    int32 status = 6;
+}
+
+message ActivatePassportReq {
+    string user_id = 1;
+    string event_id = 2;
+    string passport_code = 3;
+}
+
+message UserEventPassportRequest {
+    string userID = 1;
+    string eventID = 2;
+    string phone = 3;
+}
+
+message UserEventPassportResponse {
+   repeated UserPassport data = 1;
+}
+
+message PassportStock {
+    string eventID = 1;
+    string eventName = 2;
+    int32 total = 3;
+    int32 issuedCount = 4;
+    int32 usedCount = 5;
+    int32 availableCount = 6;
+}
+
+message PassportStocksRequest { }
+
+message PassportStocksResponse {
+    repeated PassportStock data = 1;
+}
+
+message UserPassportRequest {
+    string name = 1;
+    string nric = 2;
+    string phone = 3;
+}
+
+message CreateUserEventPassportResponse {
+    string id = 1;
+    int32 status = 2;
+}
+
+message UserEventPassport {
+    string id = 1;
+    string user_id= 2;
+    string event_id = 3;
+    string passport_code = 4;
+    string claim_by = 5;
+    int32 claim_time = 6;
+    int32 status = 7;
+}
+
+message ActivateUserEventPassportRequest {
+    string id = 1;
+    string user_id = 2;
+    string evnet_id = 3;
+    string passport_code = 4;
+    string claim_by = 5;
+    int32 claim_time = 6;
+}
+
+message ActivateUserEventPassportResponse {
+    repeated UserEventPassport data = 1;
+}
+
+message EventUser {
+    string id = 1;
+    string event_id = 2;
+    string user_id = 3;
+    string user_name = 4;
+    string user_wechat = 5;
+    string camp_id = 6;
+    string camp_name = 7;
+    int32 points = 8;
+    int32 stamp_count = 9;
+    string city = 10;
+    string email = 11;
+    string phone = 12;
+}
+
+message EventUserRequest {
+    string event_id = 1;
+    repeated string camps = 2;
+    repeated string sceneryppots = 3;
+}
+
+message EventUserResponse {
+    repeated EventUser data = 1;
+}
+
+message EventUserPoints {
+    string user_id = 1;
+    string event_id = 2;
+    int32 points = 3;
+    string camp_id = 4;
+    int32 camp_points = 5;
+}
+
+message EventUserPointsResponse {
+    EventUser data = 1;
+}
+
+message EventTask {
+    string id = 1;
+    string user_id = 2;
+    string user_name = 3;
+    string user_wechat = 4;
+    string camp_id = 5;
+    string camp_name = 6;
+    string task_id = 7;
+    string task_category = 8;
+    int32 points = 9;
+    string result = 10;
+    int32 status = 11;
+    string audit = 12;
+    int32 create_time = 13;
+}
+
+message EventTaskRequest {
+    string event_id = 1;
+    repeated string camps = 2;
+    repeated string sceneryppots = 3;
+}
+
+message EventTaskResponse {
+    repeated EventTask data = 1;
+}
+
+message CampRank {
+    string id = 1;
+    string name = 2;
+    string images = 3;
+    int32 user_count = 4;
+    int32 points = 5;
+}
+
+message CampRankRequest {
+     string event_id = 1;
+}
+
+message CampRankResponse {
+   repeated CampRank data = 1;
+}
+
+message UserRank {
+    string id = 1;
+    string name = 2;
+    int32 trip_count = 3;
+    string honour_id = 4;
+    string honour_name = 5;
+    string camp_id = 6;
+    string camp_name = 7;
+    int32 points = 8;
+}
+
+
+message UserRankRequest {
+    string event_id = 1;
+}
+
+message UserRankResponse {
+    repeated UserRank data = 1;
+}
+
+message UserEvent {
+  string id = 1;
+  string name = 2;
+  string images = 3;
+  int32 start_time = 4;
+  int32 end_time = 5;
+  int32 status = 6;
+  string passport_code = 7;
+  string camp_id = 8;
+  string camp_name = 9;
+  int32 camp_points = 10;
+  int32 camp_ranking = 11;
+  int32 user_points = 12;
+  int32 user_ranking = 13;
+  string user_honour = 14;
+}
+
+message UserEventRequest {
+    string user_id = 1;
+    string event_id = 2;
+    int32 status = 3;
+}
+
+message UserEventResponse {
+    repeated UserEvent data = 1;
+}
+
+message UserSwap {
+    string id = 1;
+    string city = 2;
+    int32 status = 3;
+    int32 create_time = 4;
+    string user_id = 5;
+    string user_name = 6;
+    string user_avatar = 7;
+    string in_badge_id = 8;
+    string in_badge_name = 9;
+    string in_badge_images = 10;
+    string out_badge_id = 11;
+    string out_badge_name = 12;
+    string out_badge_images = 13;
+    int32 expired_time = 14;
+    string content = 15;
+}
+
+message UserSwapRequest {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    int32 status = 4;
+    string city = 5;
+}
+
+message UserSwapResponse {
+    repeated UserSwap data = 1;
+}
+
+message CreateUserSwapRequest {
+    string id = 1; 
+    string in_badge = 2;
+    string out_badge = 3;
+    string from = 4;
+    string to = 5;
+    string event_id = 6; 
+    string previous_id = 7; 
+    string city = 8; 
+    string content = 9;
+    int32 status = 10; 
+    int32 create_time = 11;
+    int32 expired_time = 12;
+}
+
+message UpdateUserSwapRequest {
+    string id = 1; 
+    int32 status = 2; 
+    int32 expired_time = 3;
+}
+
+message UserSwapStatusRequest {
+    string id = 1; 
+    int32 status = 2; 
+}
+
+message EventSettings {
+    repeated string menus = 1;
+    repeated string mark_backgrouds = 2;
+}
+
+message EventSettingsRequest {
+    string id = 1;
+}
+
+message UpdateEventSettingsRequest {
+    string id = 1;
+    EventSettings data = 2;
+}
+
+message EventSettingsResponse{
+    EventSettings data = 1;
+}
+
+message EventAward {
+    string id = 1;
+    string event_id = 2;
+    string code = 3;
+    int32 create_time = 4;
+    string user_id = 5;
+    string sceneryspot_id = 6;
+    string location = 7;
+    int32 award_time = 8;
+}
+
+message EventAwardRequest {
+    string event_id = 1;
+    string user_id = 2;
+    string sceneryspot_id = 3;
+    string code = 4;
+}
+
+message EventAwardResponse {
+    repeated EventAward data = 1;
+}
+
+message CreateEventAwardRequest {
+    string event_id = 1;
+    string sceneryspot_id = 2;
+    repeated string codes = 3;
+}
+
+message DeleteEventAwardRequest {
+    repeated string values = 1;
+}
+
+message NewEventAwardRequest {
+    string event_id = 1;
+    string sceneryspot_id = 2;
+    int32 count = 3;
+}
+
+message UserEventAwardRequest {
+    string user_id = 1;
+    string event_id = 2;
+    string sceneryspot_id = 3;
+    string location = 4;
+}
+
+message UserStampCountRequest {
+    string user_id = 1;
+    string event_id = 2;
+    int32 value = 3;
+}
+
+message UserStampCountResponse{
+    int32 data = 1;
+}
+
+message ExportPassport {
+    string code = 1;
+    int32 status = 2;
+    string real_name = 3;
+    string nric = 4;
+    string phone = 5;
+    string gender = 6;
+    string profession = 7;
+    string guardian_name = 8;
+    string guardian_nric = 9;
+    string guardian_phone = 10;
+    string claim_by = 11;
+    int32 claim_time = 12;
+}
+
+message ExportPassportRequest { }
+
+message ExportPassportResponse{
+     repeated ExportPassport data = 1;
+}

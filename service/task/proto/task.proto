@@ -1,0 +1,215 @@
+syntax = "proto3";
+
+package shenzhouyinji;
+option go_package = "./proto;shenzhouyinji";
+
+service TaskService {
+    rpc CreateTrek(Trek) returns (TsKeyword) {}
+    rpc UpdateTrek(Trek) returns (TsRes) {}
+    rpc GetTrek(TsKeyword) returns (Trek) {}
+    rpc GetTrekBySceneryspotID(TsKeyword) returns (TreksRes) {}
+    rpc GetTreks(TaskRequest) returns (TreksRes) {}
+
+    rpc CreateGeocaching(Geocaching) returns (TsKeyword) {}
+    rpc UpdateGeocaching(Geocaching) returns (TsRes) {}
+    rpc GetGeocaching(TsKeyword) returns (Geocaching) {}
+    rpc GetGeocachingBySceneryspotID(TsKeyword) returns (GeocachingsRes) {}
+    rpc GetGeocachings(TaskRequest) returns (GeocachingsRes) {}
+
+    rpc CreateScreenshot(Screenshot) returns (TsKeyword) {}
+    rpc UpdateScreenshot(Screenshot) returns (TsRes) {}
+    rpc GetScreenshot(TsKeyword) returns (Screenshot) {}
+    rpc GetScreenshotBySceneryspotID(TsKeyword) returns (ScreenshotsRes) {}
+    rpc GetScreenshots(TaskRequest) returns (ScreenshotsRes) {}
+
+    rpc CreatePuzzle(Puzzle) returns (TsKeyword) {}
+    rpc UpdatePuzzle(Puzzle) returns (TsRes) {}
+    rpc GetPuzzle(TsKeyword) returns (Puzzle) {}
+    rpc GetPuzzleBySceneryspotID(TsKeyword) returns (PuzzlesRes) {}
+    rpc GetPuzzles(TaskRequest) returns (PuzzlesRes) {}
+
+    rpc CreateQuestionBank(QuestionBank) returns (TsKeyword) {}
+    rpc UpdateQuestionBank(QuestionBank) returns (TsRes) {}
+    rpc GetQuestionBank(TsKeyword) returns (QuestionBank) {}
+    rpc GetQuestionBankBySceneryspotID(TsKeyword) returns (QuestionBanksRes) {}
+    rpc GetQuestions(TaskRequest) returns (QuestionBanksRes) {}
+
+    rpc CreateQuestion(Question) returns (TsKeyword) {}
+    rpc UpdateQuestion(Question) returns (TsRes) {}
+    rpc GetQuestion(TsKeyword) returns (Question) {}
+    rpc GetQuestionBySceneryspotID(TsKeyword) returns (QuestionsRes) {}
+
+    rpc CreateUserTask(UserTask) returns (UserTasksResponse) {}
+    rpc UpdateUserTask(UserTask) returns (TsRes) {}
+    rpc GetUserTask(TsKeyword) returns (UserTask) {}
+    rpc GetUserTaskByUserID(TsKeyword) returns (UserTasksRes) {}
+    rpc GetUserTaskByTaskID(TsKeyword) returns (UserTasksRes) {}
+    rpc GetUserTasks(UserTaskRequest) returns (UserTasksResponse) {}
+}
+
+message Trek {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string name = 3;
+    int32 step = 4;
+    int32 points = 5;
+    string images = 6;
+    string introduction = 7;
+    int32 start_time = 8;
+    int32 end_time = 9;
+    bool necessary = 10;
+    int32 status = 11;
+    int32 create_time = 12;
+    string event_id = 13;
+    string electric_fence = 14;
+}
+
+message Geocaching {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string name = 3;
+    int32 points = 4;
+    string images = 5;
+    string introduction = 6;
+    int32 start_time = 7;
+    int32 end_time = 8;
+    bool necessary = 9;
+    int32 status = 10;
+    int32 create_time = 11;
+    string event_id = 12;
+    string electric_fence = 13;
+}
+
+message Screenshot {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string name = 3;
+    int32 points = 4;
+    string images = 5;
+    string introduction = 6;
+    int32 start_time = 7;
+    int32 end_time = 8;
+    bool necessary = 9;
+    int32 status = 10;
+    int32 create_time = 11;
+    string event_id = 12;
+    string electric_fence = 13;
+}
+
+message Puzzle {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string name = 3;
+    int32 countdown = 4;
+    int32 points = 5;
+    string images = 6;
+    string introduction = 7;
+    int32 start_time = 8;
+    int32 end_time = 9;
+    bool necessary = 10;
+    int32 status = 11;
+    int32 create_time = 12;
+    string event_id = 13;
+    string electric_fence = 14;
+}
+
+message QuestionBank {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string question = 3;
+    string options = 4;
+    string answer = 5;
+    int32 points = 6;
+    int32 start_time = 7;
+    int32 end_time = 8;
+    bool necessary = 9;
+    int32 status = 10;
+    int32 create_time = 11;
+    string event_id = 12;
+    string electric_fence = 13;
+}
+
+message Question {
+    string id = 1;
+    string sceneryspot_id = 2;
+    string questions = 3;
+    int32 start_time = 4;
+    int32 end_time = 5;
+    int32 points = 6;
+    int32 status = 7;
+    int32 create_time = 8;
+    string event_id = 9;
+    string electric_fence = 10;
+}
+
+message UserTask {
+    string id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    string camp_id = 4;
+    string sceneryspot_id = 5;
+    string task_id = 6;
+    string task_category = 7;
+    string result = 8;
+    int32 points = 9;
+    int32 status = 10;
+    string audit = 11;
+    int32 create_time = 12;
+}
+
+message TsKeyword {
+    string value = 1;
+}
+
+message TsEmptyReq {}
+
+message TsRes {
+    bool value = 1;
+}
+
+message TreksRes {
+    repeated Trek data = 1;
+}
+
+message GeocachingsRes {
+    repeated Geocaching data = 1;
+}
+
+message ScreenshotsRes {
+    repeated Screenshot data = 1;
+}
+
+message PuzzlesRes {
+    repeated Puzzle data = 1;
+}
+
+message QuestionBanksRes {
+    repeated QuestionBank data = 1;
+}
+
+message QuestionsRes {
+    repeated Question data = 1;
+}
+
+message UserTasksRes {
+    repeated UserTask data = 1;
+}
+
+message UserTaskRequest {
+    string user_id = 1;
+    string event_id = 2;
+    string camp_id = 3;
+    repeated string sceneryspots = 4;
+    string category_id = 5;
+}
+
+message UserTasksResponse {
+    repeated UserTask data = 1;
+}
+
+message TaskRequest {
+    string event_id = 1;
+    repeated string sceneryspots = 2;
+    bool necessary = 3;
+    int32 status = 4;
+}

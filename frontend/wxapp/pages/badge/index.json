@@ -1,0 +1,15 @@
+{
+  "navigationBarTitleText": "徽章交换",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-loading": "tdesign-miniprogram/loading/loading",
+    "t-swiper": "tdesign-miniprogram/swiper/swiper",
+    "t-swiper-item": "tdesign-miniprogram/swiper/swiper-item",
+    "t-swiper-nav": "tdesign-miniprogram/swiper/swiper-nav",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-popup": "tdesign-miniprogram/popup/popup"
+  },
+  "enablePullDownRefresh": true
+}

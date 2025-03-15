@@ -1,0 +1,9 @@
+var substr = function (val, len) {
+  if (val.length > len) {
+    return val.substring(0, len) + "...";
+  } else {
+    return val;
+  }
+}
+
+module.exports.substr = substr;

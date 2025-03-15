@@ -1,0 +1,158 @@
+page {
+  box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 180rpx);
+  background-color: white;
+}
+
+.navbar {
+  width: 100%;
+  padding-top: 14rpx;
+}
+
+.navbar-warp {
+  display: flex;
+  padding-top: 14rpx;
+}
+
+.navbar-icon {
+  margin-left: 24rpx;
+}
+
+.navbar-title {
+  font-size: smaller;
+  text-align: center;
+  padding-left: 22rpx;
+}
+
+.user-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #FFFFFF;
+  padding: 24rpx;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16rpx;
+}
+
+.stamp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stamp .title {
+  font-size: large;
+  font-weight: 700;
+  text-align: center;
+}
+
+.stamp .caption {
+  font-size: small;
+  color: rgba(0, 0, 0, 0.54);
+  text-align: center;
+}
+
+.map-container {
+  width: 100%;
+  height: 100vh;
+}
+
+.swiper-wrap {
+  z-index: 999;
+  position: fixed;
+  padding-bottom: 12rpx;
+  bottom: 56rpx;
+  margin: 24rpx;
+  border-radius: 20rpx;
+  background-color: rgba(204, 204, 204, 0.3);
+}
+
+.swiper-wrap .t-swiper {
+  /* height: 144rpx; */
+}
+
+swiper-wrap .t-swiper .t-cell__note {
+  font-size: small;
+  color: #4286F3;
+}
+
+.swiper-wrap .t-swiper .t-cell {
+  padding: 24rpx;
+}
+
+.swiper-wrap .t-swiper .t-cell::after {
+  border-bottom: none;
+}
+
+.card {
+  padding: 12rpx 24rpx;
+  margin: 12rpx;
+  display: flex;
+  align-items: center;
+  border-radius: 20rpx;
+  background-color: #FFFFFF;
+}
+
+.image-wrap {
+  display: grid;
+  justify-content: center;
+}
+
+.image {
+  width: 256rpx;
+  height: 210rpx;
+}
+
+.text {
+  margin-left: 24rpx;
+  margin-bottom: 12rpx;
+  font-size: smaller;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.address {
+  margin-left: 24rpx;
+  font-size: x-small;
+  color: #bbb;
+}
+
+.action-list {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.action-item {
+  display: flex;
+  gap: 10rpx;
+  margin-left: 24rpx;
+  justify-content: flex-start;
+  font-size: small;
+}
+
+.action-item-text {
+  display: grid;
+  align-items: center;
+  margin-left: -24rpx;
+  margin-bottom: -12rpx;
+}
+
+.noTap {
+  color: #bbb;
+}
+
+.like {
+  color: #fa550f;
+}
+
+.tap {
+  color: #000;
+}
+
+.button {
+  outline: none;
+}

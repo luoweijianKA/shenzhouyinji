@@ -1,0 +1,9 @@
+<view class="conversation-container" wx:for="{{conversations}}" wx:key="index">
+  <t-cell title="{{item.user_name}}" description="{{item.content}}" note="{{item.note}}" align="top" hover bordered data-participant="{{item.participant}}" bindtap="tapConversation">
+    <view class="avatar-wrapper" slot="left-icon">
+      <t-badge dot="{{item.has_new}}" offset="{{[4, 8]}}" class="badge-wrapper">
+        <image src="{{item.user_avatar}}" class="avatar" mode="widthFix"></image>
+      </t-badge>
+    </view>
+  </t-cell>
+</view>

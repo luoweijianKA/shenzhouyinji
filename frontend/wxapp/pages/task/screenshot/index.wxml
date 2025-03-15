@@ -1,0 +1,17 @@
+<wxs src="../../../common/tools.wxs" module="tools" />
+<view class="page-container">
+  <image src="{{tools.resource(images)}}" class="banner" mode="widthFix"></image>
+  <view class="card">
+    <view class="card-header">
+      <view class="title">{{name}}</view>
+    </view>
+    <view class="card-content">{{introduction}}</view>
+  </view>
+</view>
+<view class="page-container screenshot" wx:if="{{tempFiles && tempFiles.length > 0}}">
+  <image wx:for="{{tempFiles}}" wx:key="index" src="{{item.tempFilePath}}" class="img" mode="widthFix"></image>
+</view>
+<view class="page-action">
+  <button class="button start" bindtap="bindStart">{{started ? '重新截图' : '开始截图'}}</button>
+  <button class="button end" hidden="{{!started}}" bindtap="bindUpload">上传截图</button>
+</view>

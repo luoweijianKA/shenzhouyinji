@@ -1,0 +1,59 @@
+<view class="user-card">
+  <view class="ucc-header">
+    <image wx:if="{{userInfo.wechat_avatar}}" src="{{resourceUrl}}{{userInfo.wechat_avatar}}" class="ucc-header-avatar" mode="widthFix"></image>
+    <image wx:else src="{{avatarUrl}}" class="ucc-header-avatar" mode="widthFix"></image>
+    <view class="ucc-header-name">{{userInfo.wechat_name || '微信用户'}}</view>
+  </view>
+</view>
+<view class="tweet-container">
+  <view class="tag-container">
+    <view class="title">印迹心情</view>
+    <view class="tag-list">
+      <view wx:for="{{tags}}" wx:key="index" class="tag{{value && value.id === item.id ? ' active' : ''}}" data-value="{{item}}" bindtap="onTagChange">{{item.name}}</view>
+    </view>
+  </view>
+  <form bindsubmit="submitTweet">
+    <view class="tweet-photo-container">
+      <view class="tweet-open-camera" wx:for="{{backgrouds}}" wx:for-item="backgroud" wx:key="index">
+        <view class="tweet-photo-preview" wx:if="{{images[index] && images[index].url}}">
+          <image class="img" src="{{images[index].url}}" mode="widthFix"></image>
+          <view class="tweet-camera-action" wx:if="{{images[index].redo}}" data-index="{{index}}" bindtap="openCamera">
+            <view class="title">重拍</view>
+          </view>
+        </view>
+        <view class="tweet-photo-preview" wx:else>
+          <image class="img" src="{{backgroud}}" mode="widthFix" data-index="{{index}}" bindtap="openCamera"></image>
+        </view>
+      </view>
+      <view class="location" wx:if="{{region && region.length > 0}}">
+        <t-icon name="location" size="36rpx" />
+        <text>{{region}}</text>
+      </view>
+    </view>
+    <view class="tweet-btn">
+      <button class="btn-create" form-type="submit">发布</button>
+    </view>
+  </form>
+</view>
+
+<t-popup visible="{{visible}}" placement="bottom">
+  <view class="block block-bottom">
+    <view wx:if="{{cameraDisplay}}">
+      <camera class="tweet-camera" device-position="{{devicePosition}}" flash="off" binderror="error"> </camera>
+    </view>
+    <view class="tweet-camera-btn-group-container">
+      <view class="tweet-camera-btn-group">
+        <t-icon class="tweet-camera-btn-device" name="relativity" size="80rpx" bind:click="switchCamera" />
+        <button class="tweet-camera-btn" bindtap="takePhoto"></button>
+        <t-icon class="tweet-camera-btn-cancel" name="chevron-down" size="80rpx" bind:click="cancelCamera" />
+      </view>
+    </view>
+  </view>
+</t-popup>
+
+<t-overlay visible="{{loading}}" duration="{{500}}" class="loading-overlay">
+  <view class="loading-wrapper">
+    <view>上传相片中({{currentUploadImage}}/{{backgrouds.length}})</view>
+    <t-loading theme="dots" size="80rpx" />
+  </view>
+</t-overlay>
