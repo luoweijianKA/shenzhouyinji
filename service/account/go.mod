@@ -2,6 +2,8 @@ module gitlab.com/annoying-orange/shenzhouyinji/service/account
 
 go 1.19
 
+replace gitlab.com/annoying-orange/shenzhouyinji/service/account => ../account // 本地相对路径
+
 require (
 	github.com/go-micro/plugins/v4/registry/consul v1.2.0
 	github.com/go-micro/plugins/v4/server/grpc v1.2.0

@@ -1,6 +1,8 @@
 module gitlab.com/annoying-orange/shenzhouyinji/service/task
 
 go 1.19
+replace gitlab.com/annoying-orange/shenzhouyinji/service/task => ../task // 本地相对路径
+
 
 require (
 	github.com/go-micro/plugins/v4/registry/consul v1.2.0
