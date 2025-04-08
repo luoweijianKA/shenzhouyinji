@@ -19,6 +19,8 @@ service ManagementService {
     rpc GetTagByID(MsKeyword) returns (Tag) {}
     rpc GetTagByCategoryID(MsKeyword) returns (TagsRes) {}
 
+    rpc GetAreaInfoByParentID(AreaInfoRequest) returns (AreaInfosRes) {}
+
     rpc CreateAuditing(Auditing) returns (AuditingResponse) {}
     rpc GetAuditings(AuditingRequest) returns (AuditingResponse) {}
 
@@ -49,6 +51,14 @@ message Tag {
     int32 status = 4;
 }
 
+message AreaInfo {
+    string id = 1;
+    string name = 2;
+    string parent_id = 3;
+    string type = 4;
+    int32 status = 5;
+}
+
 message MsKeyword {
     string value = 1;
 }
@@ -66,6 +76,10 @@ message CategoriesRes {
 message TagsRes {
     repeated Tag data = 1;
 }
+message AreaInfosRes {
+    repeated AreaInfo data = 1;
+}
+
 
 message Config {
     string key = 1;
@@ -104,6 +118,11 @@ message AuditingResponse {
 message RestoreRequest {
     string userId = 1;
     repeated string values = 2;
+}
+
+message AreaInfoRequest {
+    string type = 1;
+    string parentId = 2;
 }
 
 message RestoreResponse {}

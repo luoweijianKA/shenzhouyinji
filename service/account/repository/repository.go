@@ -142,12 +142,53 @@ func (r *MySqlRepository) GetAccount(ctx context.Context, req *pb.AsKeyword) (*p
 }
 
 func (r *MySqlRepository) GetAccounts(ctx context.Context, in *pb.AccountRequest, out *pb.AccountResponse) error {
-	db := r.Database.Table("user")
+	fields := []string{
+		"u.id",
+		"u.login_id",
+		"u.role",
+		"u.wechat",
+		"u.wechat_name",
+		"u.wechat_avatar",
+		"u.status",
+		"u.scopes",
+		"u.create_time",
+		"up.name",
+		"up.gender",
+		"up.age",
+		"up.birthday",
+		"up.email",
+		"up.phone",
+		"up.city",
+		"up.tags",
+		"up.nric",
+		"up.authentication",
+		"up.profession",
+		"up.guardian_name",
+		"up.guardian_nric",
+		"up.guardian_phone",
+	}
+	db := r.Database.Table("user u ").Joins("INNER JOIN  user_profile up on u.id = up.id ").Select(fields)
 	if len(in.Roles) > 0 {
 		db = db.Where("role IN ?", in.Roles)
 	}
 	if len(in.Search) > 0 {
 		db = db.Where("wechat_name LIKE ?", "%"+in.Search+"%")
+	}
+
+	if len(in.Phone) > 0 {
+		db = db.Where("up.phone LIKE ?", "%"+in.Phone+"%")
+	}
+
+	if len(in.Province) > 0 {
+		db = db.Where("up.city LIKE ?", in.Province+",%,%")
+	}
+
+	if len(in.City) > 0 {
+		db = db.Where("up.city LIKE ?", "%,"+in.City+",%")
+	}
+
+	if len(in.District) > 0 {
+		db = db.Where("up.city LIKE ?", "%,%,"+in.District)
 	}
 
 	if err := db.Order("create_time DESC").Find(&out.Data).Error; err != nil {

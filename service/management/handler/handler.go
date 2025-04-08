@@ -149,6 +149,17 @@ func (h *Handler) GetTagByCategoryID(ctx context.Context, req *pb.MsKeyword, res
 	return nil
 }
 
+func (h *Handler) GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest, res *pb.AreaInfosRes) error {
+	result, err := h.Repository.GetAreaInfoByParentID(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	res.Data = result.Data
+
+	return nil
+}
+
 func (h *Handler) CreateAuditing(ctx context.Context, in *pb.Auditing, out *pb.AuditingResponse) error {
 	return h.Repository.CreateAuditing(ctx, in, out)
 }

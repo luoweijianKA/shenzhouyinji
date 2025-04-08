@@ -29,7 +29,6 @@ func main() {
 	if err := config.Load(); err != nil {
 		logger.Fatal(err)
 	}
-
 	// Create service
 	var CONSUL_REG_ADDRESS = os.Getenv("CONSUL_REG_ADDRESS")
 

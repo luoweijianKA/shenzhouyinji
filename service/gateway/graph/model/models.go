@@ -30,6 +30,8 @@ type Account struct {
 	Scopes       []string `json:"scopes"`
 	Status       int      `json:"status"`
 	CreateTime   int      `json:"create_time"`
+	Phone        *string  `json:"phone"`
+	City         *string  `json:"city"`
 }
 
 type Passport struct {
