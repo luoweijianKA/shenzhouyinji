@@ -1,7 +1,7 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/message
+module github.com/luoweijianKA/shenzhouyinji/service/message
 
 go 1.19
-replace gitlab.com/annoying-orange/shenzhouyinji/service/message => ../message // 本地相对路径
+//replace gitlab.com/annoying-orange/shenzhouyinji/service/message => ../message // 本地相对路径
 
 require (
 	github.com/go-micro/plugins/v4/registry/consul v1.2.1

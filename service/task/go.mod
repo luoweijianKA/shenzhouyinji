@@ -1,7 +1,7 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/task
+module github.com/luoweijianKA/shenzhouyinji/service/task
 
 go 1.19
-replace gitlab.com/annoying-orange/shenzhouyinji/service/task => ../task // 本地相对路径
+//replace gitlab.com/annoying-orange/shenzhouyinji/service/task => ../task // 本地相对路径
 
 
 require (

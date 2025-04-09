@@ -1,8 +1,8 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/event
+module github.com/luoweijianKA/shenzhouyinji/service/service/event
 
 go 1.19
 
-replace gitlab.com/annoying-orange/shenzhouyinji/service/event => ../event // 本地相对路径
+//replace gitlab.com/annoying-orange/shenzhouyinji/service/event => ../event // 本地相对路径
 
 
 require (
