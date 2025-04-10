@@ -24,12 +24,12 @@ require (
 	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.10.0
-	gitlab.com/annoying-orange/shenzhouyinji/service/account v0.0.0-20240605073319-f44d0d9fa51d
-	gitlab.com/annoying-orange/shenzhouyinji/service/event v0.0.0-20240605073319-f44d0d9fa51d
-	gitlab.com/annoying-orange/shenzhouyinji/service/management v0.0.0-20240605073319-f44d0d9fa51d
-	gitlab.com/annoying-orange/shenzhouyinji/service/message v0.0.0-20240605073319-f44d0d9fa51d
-	gitlab.com/annoying-orange/shenzhouyinji/service/sceneryspot v0.0.0-20240605073319-f44d0d9fa51d
-	gitlab.com/annoying-orange/shenzhouyinji/service/task v0.0.0-20240605073319-f44d0d9fa51d
+	gitlab.com/annoying-orange/shenzhouyinji/service/account v0.0.0
+	gitlab.com/annoying-orange/shenzhouyinji/service/event v0.0.0
+	gitlab.com/annoying-orange/shenzhouyinji/service/management v0.0.0
+	gitlab.com/annoying-orange/shenzhouyinji/service/message v0.0.0
+	gitlab.com/annoying-orange/shenzhouyinji/service/sceneryspot v0.0.0
+	gitlab.com/annoying-orange/shenzhouyinji/service/task v0.0.0
 	go-micro.dev/v4 v4.11.0
 	go.mongodb.org/mongo-driver v1.15.0
 	golang.org/x/crypto v0.37.0
