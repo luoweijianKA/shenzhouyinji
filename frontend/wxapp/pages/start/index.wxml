@@ -26,7 +26,10 @@
       </view>
       <view class="note">仅限字母+数字+汉字并不超过10个字符</view>
       <view class="button-group">
-        <button class="btn-save" form-type="submit">保存</button>
+        <button wx:if="{{!phoneNumber}}" class="btn-save" form-type="submit" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
+            保存
+        </button>
+        <button wx:else class="btn-save" form-type="submit">保存</button>
       </view>
     </form>
   </view>
