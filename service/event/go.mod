@@ -1,4 +1,4 @@
-module github.com/luoweijianKA/shenzhouyinji/service/service/event
+module github.com/luoweijianKA/shenzhouyinji/service/event
 
 go 1.19
 
