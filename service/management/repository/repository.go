@@ -30,6 +30,7 @@ type Repository interface {
 	GetTagByCategoryID(ctx context.Context, req *pb.MsKeyword) (*pb.TagsRes, error)
 
 	GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest) (*pb.AreaInfosRes, error)
+	GetTurtleBackMenuList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackMenuRes, error)
 
 	CreateAuditing(ctx context.Context, in *pb.Auditing, out *pb.AuditingResponse) error
 	GetAuditings(ctx context.Context, in *pb.AuditingRequest, out *pb.AuditingResponse) error
@@ -288,6 +289,18 @@ func (r *MySqlRepository) GetTagByCategoryID(ctx context.Context, req *pb.MsKeyw
 	result.Data = make([]*pb.Tag, 0)
 
 	if err := r.Database.Table("sys_tag").Where("category_id = ?", req.Value).Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// TurtleBackMenu
+func (r *MySqlRepository) GetTurtleBackMenuList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackMenuRes, error) {
+	result := new(pb.TurtleBackMenuRes)
+	result.Data = make([]*pb.TurtleBackMenu, 0)
+
+	if err := r.Database.Table("turtle_back_menu").Find(&result.Data).Error; err != nil {
 		return nil, err
 	}
 

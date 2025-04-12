@@ -246,6 +246,8 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.Update
 		GuardianName:   *input.GuardianName,
 		GuardianNric:   *input.GuardianNric,
 		GuardianPhone:  *input.GuardianPhone,
+		Step:           int32(*input.Step),
+		StepTime:       int32(*input.StepTime),
 	}
 
 	res, err := r.accountService.UpdateProfile(ctx, req)

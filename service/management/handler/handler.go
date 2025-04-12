@@ -2,13 +2,24 @@ package handler
 
 import (
 	"context"
-
 	pb "gitlab.com/annoying-orange/shenzhouyinji/service/management/proto"
 	repo "gitlab.com/annoying-orange/shenzhouyinji/service/management/repository"
 )
 
 type Handler struct {
 	Repository repo.Repository
+}
+
+func (h *Handler) GetTurtleBackMenuList(ctx context.Context, in *pb.MsKeyword, out *pb.TurtleBackMenuRes) error {
+
+	result, err := h.Repository.GetTurtleBackMenuList(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	out.Data = result.Data
+
+	return nil
 }
 
 // Config

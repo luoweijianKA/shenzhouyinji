@@ -1,0 +1,8 @@
+#!/bin/bash
+pid=$(ss -lnpt|grep 5050|awk -F '[,=]' '{print$3}')
+app=account
+dir=/data/shenzhouyinji/service/$app
+kill -9 $pid
+DB_SOURCE="root:shenzhouyinji@tcp(127.0.0.1:3306)/shenzhouyinji" \
+CONSUL_REG_ADDRESS="127.0.0.1:8500" \
+nohup $dir/$app > nohup.out 2>&1 &

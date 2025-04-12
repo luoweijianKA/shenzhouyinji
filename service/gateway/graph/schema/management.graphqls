@@ -16,6 +16,13 @@ type AreaInfo {
   sort: Int!
 }
 
+type TurtleBackMenu {
+  id:ID!
+  menuName: String
+  path: String
+  menuCode: String
+}
+
 input NewCategory {
   name: String!
   parent_id: String

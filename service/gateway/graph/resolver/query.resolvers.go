@@ -844,6 +844,28 @@ func (r *queryResolver) AreaInfoByParentID(ctx context.Context, typeArg string, 
 	return results, err
 }
 
+// TurtleBackMenuList is the resolver for the turtleBackMenuList field.
+func (r *queryResolver) TurtleBackMenuList(ctx context.Context) ([]*model.TurtleBackMenu, error) {
+	req := mPB.MsKeyword{}
+
+	res, err := r.managementService.GetTurtleBackMenuList(ctx, &req)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]*model.TurtleBackMenu, 0)
+	for _, s := range res.Data {
+		results = append(results, &model.TurtleBackMenu{
+			ID:       s.Id,
+			MenuName: &s.MenuName,
+			MenuCode: &s.MenuCode,
+			Path:     &s.Path,
+		})
+	}
+
+	return results, err
+}
+
 // Configs is the resolver for the configs field.
 func (r *queryResolver) Configs(ctx context.Context) (map[string]any, error) {
 	out, err := r.managementService.GetConfigs(ctx, &mPB.ConfigRequest{})

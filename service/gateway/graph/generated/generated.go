@@ -745,6 +745,7 @@ type ComplexityRoot struct {
 		TopCategories              func(childComplexity int) int
 		Trek                       func(childComplexity int, id string) int
 		Treks                      func(childComplexity int, sceneryspotID string, eventID *string) int
+		TurtleBackMenuList         func(childComplexity int) int
 		Tweet                      func(childComplexity int, id string) int
 		TweetLikeRecords           func(childComplexity int, tweetID string) int
 		TweetLikers                func(childComplexity int, tweetID string) int
@@ -965,6 +966,13 @@ type ComplexityRoot struct {
 		Status        func(childComplexity int) int
 		Step          func(childComplexity int) int
 		Timestamp     func(childComplexity int) int
+	}
+
+	TurtleBackMenu struct {
+		ID       func(childComplexity int) int
+		MenuCode func(childComplexity int) int
+		MenuName func(childComplexity int) int
+		Path     func(childComplexity int) int
 	}
 
 	Tweet struct {
@@ -1445,6 +1453,7 @@ type QueryResolver interface {
 	UserShare(ctx context.Context, userID string, eventID string, sceneryspotID string) (*model.Tweet, error)
 	UserStampPointsRecord(ctx context.Context, input model.NewUserStampPointsRecord) ([]*model.UserStampPointsRecord, error)
 	AreaInfoByParentID(ctx context.Context, typeArg string, parentID *string) ([]*model.AreaInfo, error)
+	TurtleBackMenuList(ctx context.Context) ([]*model.TurtleBackMenu, error)
 	Configs(ctx context.Context) (map[string]any, error)
 	Category(ctx context.Context, id string) (*model.Category, error)
 	CategoryByName(ctx context.Context, name string) (*model.Category, error)
@@ -6131,6 +6140,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Treks(childComplexity, args["sceneryspot_id"].(string), args["event_id"].(*string)), true
 
+	case "Query.turtleBackMenuList":
+		if e.complexity.Query.TurtleBackMenuList == nil {
+			break
+		}
+
+		return e.complexity.Query.TurtleBackMenuList(childComplexity), true
+
 	case "Query.tweet":
 		if e.complexity.Query.Tweet == nil {
 			break
@@ -7637,6 +7653,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TrekTask.Timestamp(childComplexity), true
+
+	case "TurtleBackMenu.id":
+		if e.complexity.TurtleBackMenu.ID == nil {
+			break
+		}
+
+		return e.complexity.TurtleBackMenu.ID(childComplexity), true
+
+	case "TurtleBackMenu.menuCode":
+		if e.complexity.TurtleBackMenu.MenuCode == nil {
+			break
+		}
+
+		return e.complexity.TurtleBackMenu.MenuCode(childComplexity), true
+
+	case "TurtleBackMenu.menuName":
+		if e.complexity.TurtleBackMenu.MenuName == nil {
+			break
+		}
+
+		return e.complexity.TurtleBackMenu.MenuName(childComplexity), true
+
+	case "TurtleBackMenu.path":
+		if e.complexity.TurtleBackMenu.Path == nil {
+			break
+		}
+
+		return e.complexity.TurtleBackMenu.Path(childComplexity), true
 
 	case "Tweet.content":
 		if e.complexity.Tweet.Content == nil {
@@ -9588,6 +9632,8 @@ input UpdateProfile {
   guardian_name: String
   guardian_nric: String
   guardian_phone: String
+  step: Int
+  stepTime: Int
 }
 
 input UpdatePassword {
@@ -10227,6 +10273,13 @@ type AreaInfo {
   type: String!
   status: Int!
   sort: Int!
+}
+
+type TurtleBackMenu {
+  id:ID!
+  menuName: String
+  path: String
+  menuCode: String
 }
 
 input NewCategory {
@@ -10894,6 +10947,8 @@ type Query {
     type: String!
     parentId: String
   ): [AreaInfo] @auth
+
+  turtleBackMenuList:[TurtleBackMenu] @auth
 
   configs: Map @auth
 
@@ -47576,6 +47631,79 @@ func (ec *executionContext) fieldContext_Query_areaInfoByParentID(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_turtleBackMenuList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_turtleBackMenuList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().TurtleBackMenuList(rctx)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal []*model.TurtleBackMenu
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.TurtleBackMenu); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*gateway/graph/model.TurtleBackMenu`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.TurtleBackMenu)
+	fc.Result = res
+	return ec.marshalOTurtleBackMenu2ᚕᚖgatewayᚋgraphᚋmodelᚐTurtleBackMenu(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_turtleBackMenuList(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TurtleBackMenu_id(ctx, field)
+			case "menuName":
+				return ec.fieldContext_TurtleBackMenu_menuName(ctx, field)
+			case "path":
+				return ec.fieldContext_TurtleBackMenu_path(ctx, field)
+			case "menuCode":
+				return ec.fieldContext_TurtleBackMenu_menuCode(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TurtleBackMenu", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_configs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_configs(ctx, field)
 	if err != nil {
@@ -62298,6 +62426,173 @@ func (ec *executionContext) _TrekTask_electric_fence(ctx context.Context, field 
 func (ec *executionContext) fieldContext_TrekTask_electric_fence(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TrekTask",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TurtleBackMenu_id(ctx context.Context, field graphql.CollectedField, obj *model.TurtleBackMenu) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TurtleBackMenu_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TurtleBackMenu_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TurtleBackMenu",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TurtleBackMenu_menuName(ctx context.Context, field graphql.CollectedField, obj *model.TurtleBackMenu) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TurtleBackMenu_menuName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MenuName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TurtleBackMenu_menuName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TurtleBackMenu",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TurtleBackMenu_path(ctx context.Context, field graphql.CollectedField, obj *model.TurtleBackMenu) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TurtleBackMenu_path(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Path, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TurtleBackMenu_path(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TurtleBackMenu",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TurtleBackMenu_menuCode(ctx context.Context, field graphql.CollectedField, obj *model.TurtleBackMenu) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TurtleBackMenu_menuCode(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MenuCode, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TurtleBackMenu_menuCode(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TurtleBackMenu",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -78504,7 +78799,7 @@ func (ec *executionContext) unmarshalInputUpdateProfile(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "gender", "email", "phone", "city", "tags", "nric", "authentication", "profession", "guardian_name", "guardian_nric", "guardian_phone"}
+	fieldsInOrder := [...]string{"id", "name", "gender", "email", "phone", "city", "tags", "nric", "authentication", "profession", "guardian_name", "guardian_nric", "guardian_phone", "step", "stepTime"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -78602,6 +78897,20 @@ func (ec *executionContext) unmarshalInputUpdateProfile(ctx context.Context, obj
 				return it, err
 			}
 			it.GuardianPhone = data
+		case "step":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("step"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Step = data
+		case "stepTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stepTime"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StepTime = data
 		}
 	}
 
@@ -84660,6 +84969,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "turtleBackMenuList":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_turtleBackMenuList(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "configs":
 			field := field
 
@@ -87631,6 +87959,51 @@ func (ec *executionContext) _TrekTask(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "electric_fence":
 			out.Values[i] = ec._TrekTask_electric_fence(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var turtleBackMenuImplementors = []string{"TurtleBackMenu"}
+
+func (ec *executionContext) _TurtleBackMenu(ctx context.Context, sel ast.SelectionSet, obj *model.TurtleBackMenu) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, turtleBackMenuImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TurtleBackMenu")
+		case "id":
+			out.Values[i] = ec._TurtleBackMenu_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "menuName":
+			out.Values[i] = ec._TurtleBackMenu_menuName(ctx, field, obj)
+		case "path":
+			out.Values[i] = ec._TurtleBackMenu_path(ctx, field, obj)
+		case "menuCode":
+			out.Values[i] = ec._TurtleBackMenu_menuCode(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -94016,6 +94389,54 @@ func (ec *executionContext) marshalOTrek2ᚖgatewayᚋgraphᚋmodelᚐTrek(ctx c
 		return graphql.Null
 	}
 	return ec._Trek(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTurtleBackMenu2ᚕᚖgatewayᚋgraphᚋmodelᚐTurtleBackMenu(ctx context.Context, sel ast.SelectionSet, v []*model.TurtleBackMenu) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOTurtleBackMenu2ᚖgatewayᚋgraphᚋmodelᚐTurtleBackMenu(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOTurtleBackMenu2ᚖgatewayᚋgraphᚋmodelᚐTurtleBackMenu(ctx context.Context, sel ast.SelectionSet, v *model.TurtleBackMenu) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TurtleBackMenu(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOTweet2ᚕᚖgatewayᚋgraphᚋmodelᚐTweet(ctx context.Context, sel ast.SelectionSet, v []*model.Tweet) graphql.Marshaler {

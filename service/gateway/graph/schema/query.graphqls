@@ -52,6 +52,8 @@ type Query {
     parentId: String
   ): [AreaInfo] @auth
 
+  turtleBackMenuList:[TurtleBackMenu] @auth
+
   configs: Map @auth
 
   category(id: String!): Category

@@ -65,6 +65,8 @@ message Profile {
     string guardian_nric = 14;
     string guardian_phone = 15;
     int32 create_time = 16;
+    int32 step = 17;
+    int32 stepTime = 18;
 }
 
 message ClaimCode {

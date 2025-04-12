@@ -1172,6 +1172,13 @@ func (this TrekTask) GetRedone() *bool          { return this.Redone }
 func (this TrekTask) GetCompleted() *bool       { return this.Completed }
 func (this TrekTask) GetElectricFence() *string { return this.ElectricFence }
 
+type TurtleBackMenu struct {
+	ID       string  `json:"id"`
+	MenuName *string `json:"menuName,omitempty"`
+	Path     *string `json:"path,omitempty"`
+	MenuCode *string `json:"menuCode,omitempty"`
+}
+
 type Tweet struct {
 	ID            string  `json:"id"`
 	UserID        string  `json:"user_id"`
@@ -1376,6 +1383,8 @@ type UpdateProfile struct {
 	GuardianName   *string `json:"guardian_name,omitempty"`
 	GuardianNric   *string `json:"guardian_nric,omitempty"`
 	GuardianPhone  *string `json:"guardian_phone,omitempty"`
+	Step           *int    `json:"step,omitempty"`
+	StepTime       *int    `json:"stepTime,omitempty"`
 }
 
 type UpdatePuzzle struct {

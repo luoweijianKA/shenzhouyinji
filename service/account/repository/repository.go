@@ -123,6 +123,8 @@ func (r *MySqlRepository) UpdateProfile(ctx context.Context, item *pb.Profile) (
 		GuardianName:   item.GuardianName,
 		GuardianNric:   item.GuardianNric,
 		GuardianPhone:  item.GuardianPhone,
+		Step:           item.Step,
+		StepTime:       item.StepTime,
 	}).Error; err != nil {
 		return nil, err
 	}
