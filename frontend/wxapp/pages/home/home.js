@@ -214,8 +214,14 @@ Page({
   // 每次进入小程序都检查是否授权了相关权限，没授权拉起授权弹窗，否则直接退出小程序
   checkAuth() {
     const that = this;
-    const { openConfirm, exit, checkAuth, hasUpdateWeRun, hasUpdateLocation } =
-      that;
+    const {
+      openConfirm,
+      exit,
+      checkAuth,
+      hasUpdateWeRun,
+      hasUpdateLocation,
+      updateProfileData,
+    } = that;
 
     wx.getSetting({
       success(res) {
@@ -227,8 +233,6 @@ Page({
             scope: 'scope.userLocation',
             success(res) {
               // 用户同意授权后的操作
-              // TODO 上传信息给后台
-              console.log('位置res', res);
               checkAuth();
             },
             fail() {
@@ -241,8 +245,6 @@ Page({
             scope: 'scope.werun',
             success(res) {
               // 用户同意授权后的操作
-              // TODO 上传信息给后台
-              console.log('微信运动res', res);
               checkAuth();
             },
             fail(res) {
@@ -256,8 +258,6 @@ Page({
             scope: 'scope.camera',
             success(res) {
               // 用户同意授权后的操作
-              // TODO 上传信息给后台
-              console.log('摄像头res', res);
               checkAuth();
             },
             fail(res) {
@@ -270,8 +270,6 @@ Page({
             scope: 'scope.writePhotosAlbum',
             success(res) {
               // 用户同意授权后的操作
-              // TODO 上传信息给后台
-              console.log('写入相册res', res);
               checkAuth();
             },
             fail(res) {
@@ -290,24 +288,18 @@ Page({
         ) {
           openConfirm();
         } else {
+          // 每次显示页面重新检查授权状态，上传位置和微信运动数据
           if (
             res.authSetting['scope.userLocation'] === true &&
             hasUpdateLocation === false
           ) {
             getLocation(null, ({ latitude, longitude }) => {
               getRegion(latitude, longitude).then(async ({ region }) => {
-                console.log('location, region ', region, app.globalData.user);
-                const user = {
-                  ...app.globalData.user,
-                  profile: {
-                    ...app.globalData.user.profile,
-                    city: region,
-                  },
-                };
-                const result = await updateProfile(user);
+                const result = await updateProfileData({ region });
                 if (result.succed) {
                   // 标记只有在首页才能更新位置，不用每次onShow都发请求更新
                   that.hasUpdateLocation = true;
+                  app.globalData.user.profile.city = city;
                 }
               });
             });
@@ -317,17 +309,46 @@ Page({
             hasUpdateWeRun === false
           ) {
             getWeRunData(({ encryptedData, iv }) => {
-              decodeWeRunData(encryptedData, iv).then((data) => {
-                console.log('运动data', data);
-                const { stepInfoList } = data;
+              decodeWeRunData(encryptedData, iv).then(async (weRunData) => {
+                console.log('运动data', weRunData);
+                const { stepInfoList } = weRunData;
                 if (stepInfoList && stepInfoList.length > 0) {
-                  // TODO 上传微信运动步数
+                  const step = stepInfoList[0].step;
+                  const stepTime = stepInfoList[0].timestamp;
+                  const result = await updateProfileData({ step, stepTime });
+                  if (result.succed) {
+                    // 标记只有在首页才能更新运动数据，不用每次onShow都发请求更新
+                    that.hasUpdateWeRun = true;
+                    app.globalData.user.profile.step = step;
+                    app.globalData.user.profile.stepTime = stepTime;
+                  }
                 }
               });
             });
           }
         }
       },
+    });
+  },
+
+  //   更新位置和微信运动数据给后台
+  async updateProfileData({ region, step, stepTime }) {
+    return await updateProfile({
+      id: app.globalData.user.id,
+      name: '',
+      gender: '',
+      email: '',
+      phone: '',
+      city: region || '',
+      step: step || 0,
+      stepTime: stepTime || 0,
+      tags: '',
+      nric: '',
+      authentication: app.globalData.user.profile.authentication,
+      profession: '',
+      guardian_name: '',
+      guardian_nric: '',
+      guardian_phone: '',
     });
   },
 
