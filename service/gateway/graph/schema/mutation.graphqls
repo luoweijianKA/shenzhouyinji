@@ -14,6 +14,8 @@ type Mutation {
   setAccountRole(input: SetAccountRole!): Result! @auth
   deleteAccount(id: ID!): Account @auth @root
 
+
+
   createClaimCode(input: NewClaimCode!): Id! @auth @hasRole
   updateClaimCode(input: UpdateClaimCode!): Result! @auth
 
@@ -41,6 +43,7 @@ type Mutation {
 
   updateConfigs(input: Map! @auditing(code: CONFIGURATION)): Map! @auth @hasRole
 
+  updateTurtleBackConfig(input: UpdateTurtleBackConfig!):Result! @auth
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole
   updateEvent(input: UpdateEvent!): Result! @auth @hasRole

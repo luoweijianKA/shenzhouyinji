@@ -23,6 +23,7 @@ service ManagementService {
 
     rpc GetTurtleBackConfigList(MsKeyword) returns (TurtleBackConfigRes){}
     rpc UpdateTurtleBackConfig(TurtleBackConfig) returns (MsUpdateRes){}
+    rpc GetTurtleBackConfig(MsKeyword) returns (TurtleBackConfig){}
 
 
     rpc GetAreaInfoByParentID(AreaInfoRequest) returns (AreaInfosRes) {}
@@ -74,12 +75,13 @@ message TurtleBackMenu {
 
 message TurtleBackConfig {
     string id = 1;
-    string sort = 2;
+    int32 sort = 2;
     string menu_config_name = 3;
     string menu_name = 4;
     string path = 5;
-    bool enable = 6;
-    string iconId = 7;
+    string menu_code = 6;
+    bool enable = 7;
+    string iconPath = 8;
 }
 
 

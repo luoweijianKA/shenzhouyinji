@@ -1172,6 +1172,17 @@ func (this TrekTask) GetRedone() *bool          { return this.Redone }
 func (this TrekTask) GetCompleted() *bool       { return this.Completed }
 func (this TrekTask) GetElectricFence() *string { return this.ElectricFence }
 
+type TurtleBackConfig struct {
+	ID             string  `json:"id"`
+	Sort           int     `json:"sort"`
+	MenuConfigName string  `json:"menuConfigName"`
+	MenuName       string  `json:"menuName"`
+	Path           string  `json:"path"`
+	MenuCode       *string `json:"menuCode,omitempty"`
+	Enable         bool    `json:"enable"`
+	IconPath       *string `json:"iconPath,omitempty"`
+}
+
 type TurtleBackMenu struct {
 	ID       string  `json:"id"`
 	MenuName *string `json:"menuName,omitempty"`
@@ -1498,6 +1509,17 @@ type UpdateTrek struct {
 	Necessary     *bool   `json:"necessary,omitempty"`
 	Status        *int    `json:"status,omitempty"`
 	ElectricFence *string `json:"electric_fence,omitempty"`
+}
+
+type UpdateTurtleBackConfig struct {
+	ID             string  `json:"id"`
+	Sort           *int    `json:"sort,omitempty"`
+	MenuConfigName *string `json:"menuConfigName,omitempty"`
+	MenuName       *string `json:"menuName,omitempty"`
+	Path           *string `json:"path,omitempty"`
+	MenuCode       *string `json:"menuCode,omitempty"`
+	Enable         bool    `json:"enable"`
+	IconPath       *string `json:"iconPath,omitempty"`
 }
 
 type UpdateTweet struct {

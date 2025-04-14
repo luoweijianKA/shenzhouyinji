@@ -102,7 +102,7 @@ func (r *mutationResolver) LoginWithWechat(ctx context.Context, code string) (*m
 	WECHAT_SECRET := os.Getenv("WECHAT_SECRET")
 
 	wechat_url := fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", WECHAT_APPID, WECHAT_SECRET, code)
-
+	log.Println("wx:" + wechat_url)
 	wechat_res, wechat_err := http.Get(wechat_url)
 	if wechat_err != nil {
 		return nil, errors.New("invalid code")
@@ -111,6 +111,9 @@ func (r *mutationResolver) LoginWithWechat(ctx context.Context, code string) (*m
 	defer func() { _ = wechat_res.Body.Close() }()
 
 	w_session := new(model.WechetSession)
+	jsonBytes, _ := json.Marshal(w_session)
+
+	log.Println("wx:" + string(jsonBytes))
 
 	err := json.NewDecoder(wechat_res.Body).Decode(&w_session)
 
@@ -851,6 +854,32 @@ func (r *mutationResolver) UpdateConfigs(ctx context.Context, input map[string]a
 	r.auditing(ctx, AuditingCodeConfigs, "更新系统配置", input)
 
 	return input, nil
+}
+
+// UpdateTurtleBackConfig is the resolver for the updateTurtleBackConfig field.
+func (r *mutationResolver) UpdateTurtleBackConfig(ctx context.Context, input model.UpdateTurtleBackConfig) (*model.Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	req := &mPB.TurtleBackConfig{
+		Id:             input.ID,
+		Sort:           int32(NotNilInt(input.Sort, 0)),
+		MenuConfigName: NotNilString(input.MenuConfigName, ""),
+		MenuName:       NotNilString(input.MenuName, ""),
+		Path:           NotNilString(input.Path, ""),
+		MenuCode:       NotNilString(input.MenuCode, ""),
+		Enable:         NotNilBool(&input.Enable, false),
+		IconPath:       NotNilString(input.IconPath, ""),
+	}
+
+	res, err := r.managementService.UpdateTurtleBackConfig(ctx, req)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return &model.Result{Succed: &res.Value}, nil
 }
 
 // CreateEvent is the resolver for the createEvent field.

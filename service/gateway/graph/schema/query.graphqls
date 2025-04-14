@@ -54,6 +54,9 @@ type Query {
 
   turtleBackMenuList:[TurtleBackMenu] @auth
 
+  turtleBackConfigList:[TurtleBackConfig] @auth
+  turtleBackConfig(id: String!):TurtleBackConfig @auth
+
   configs: Map @auth
 
   category(id: String!): Category

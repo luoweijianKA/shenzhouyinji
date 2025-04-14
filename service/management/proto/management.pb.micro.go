@@ -49,6 +49,9 @@ type ManagementService interface {
 	GetTagByID(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*Tag, error)
 	GetTagByCategoryID(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TagsRes, error)
 	GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackMenuRes, error)
+	GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfigRes, error)
+	UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, opts ...client.CallOption) (*MsUpdateRes, error)
+	GetTurtleBackConfig(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfig, error)
 	GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, opts ...client.CallOption) (*AreaInfosRes, error)
 	CreateAuditing(ctx context.Context, in *Auditing, opts ...client.CallOption) (*AuditingResponse, error)
 	GetAuditings(ctx context.Context, in *AuditingRequest, opts ...client.CallOption) (*AuditingResponse, error)
@@ -205,6 +208,36 @@ func (c *managementService) GetTurtleBackMenuList(ctx context.Context, in *MsKey
 	return out, nil
 }
 
+func (c *managementService) GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfigRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.GetTurtleBackConfigList", in)
+	out := new(TurtleBackConfigRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementService) UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, opts ...client.CallOption) (*MsUpdateRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.UpdateTurtleBackConfig", in)
+	out := new(MsUpdateRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementService) GetTurtleBackConfig(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfig, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.GetTurtleBackConfig", in)
+	out := new(TurtleBackConfig)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementService) GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, opts ...client.CallOption) (*AreaInfosRes, error) {
 	req := c.c.NewRequest(c.name, "ManagementService.GetAreaInfoByParentID", in)
 	out := new(AreaInfosRes)
@@ -341,6 +374,9 @@ type ManagementServiceHandler interface {
 	GetTagByID(context.Context, *MsKeyword, *Tag) error
 	GetTagByCategoryID(context.Context, *MsKeyword, *TagsRes) error
 	GetTurtleBackMenuList(context.Context, *MsKeyword, *TurtleBackMenuRes) error
+	GetTurtleBackConfigList(context.Context, *MsKeyword, *TurtleBackConfigRes) error
+	UpdateTurtleBackConfig(context.Context, *TurtleBackConfig, *MsUpdateRes) error
+	GetTurtleBackConfig(context.Context, *MsKeyword, *TurtleBackConfig) error
 	GetAreaInfoByParentID(context.Context, *AreaInfoRequest, *AreaInfosRes) error
 	CreateAuditing(context.Context, *Auditing, *AuditingResponse) error
 	GetAuditings(context.Context, *AuditingRequest, *AuditingResponse) error
@@ -370,6 +406,9 @@ func RegisterManagementServiceHandler(s server.Server, hdlr ManagementServiceHan
 		GetTagByID(ctx context.Context, in *MsKeyword, out *Tag) error
 		GetTagByCategoryID(ctx context.Context, in *MsKeyword, out *TagsRes) error
 		GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, out *TurtleBackMenuRes) error
+		GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, out *TurtleBackConfigRes) error
+		UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, out *MsUpdateRes) error
+		GetTurtleBackConfig(ctx context.Context, in *MsKeyword, out *TurtleBackConfig) error
 		GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, out *AreaInfosRes) error
 		CreateAuditing(ctx context.Context, in *Auditing, out *AuditingResponse) error
 		GetAuditings(ctx context.Context, in *AuditingRequest, out *AuditingResponse) error
@@ -444,6 +483,18 @@ func (h *managementServiceHandler) GetTagByCategoryID(ctx context.Context, in *M
 
 func (h *managementServiceHandler) GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, out *TurtleBackMenuRes) error {
 	return h.ManagementServiceHandler.GetTurtleBackMenuList(ctx, in, out)
+}
+
+func (h *managementServiceHandler) GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, out *TurtleBackConfigRes) error {
+	return h.ManagementServiceHandler.GetTurtleBackConfigList(ctx, in, out)
+}
+
+func (h *managementServiceHandler) UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, out *MsUpdateRes) error {
+	return h.ManagementServiceHandler.UpdateTurtleBackConfig(ctx, in, out)
+}
+
+func (h *managementServiceHandler) GetTurtleBackConfig(ctx context.Context, in *MsKeyword, out *TurtleBackConfig) error {
+	return h.ManagementServiceHandler.GetTurtleBackConfig(ctx, in, out)
 }
 
 func (h *managementServiceHandler) GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, out *AreaInfosRes) error {

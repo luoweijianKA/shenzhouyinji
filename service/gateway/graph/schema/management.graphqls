@@ -23,6 +23,17 @@ type TurtleBackMenu {
   menuCode: String
 }
 
+type TurtleBackConfig {
+  id:ID!
+  sort: Int!
+  menuConfigName: String!
+  menuName: String!
+  path: String!
+  menuCode: String
+  enable: Boolean!
+  iconPath: String
+}
+
 input NewCategory {
   name: String!
   parent_id: String
@@ -38,6 +49,17 @@ input UpdateCategory {
   has_subclass: Boolean
   status: Int
   sort: Int
+}
+
+input UpdateTurtleBackConfig {
+  id:ID!
+  sort: Int
+  menuConfigName: String
+  menuName: String
+  path: String
+  menuCode: String
+  enable: Boolean!
+  iconPath: String
 }
 
 type Tag {

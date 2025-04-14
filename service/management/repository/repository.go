@@ -32,6 +32,10 @@ type Repository interface {
 	GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest) (*pb.AreaInfosRes, error)
 	GetTurtleBackMenuList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackMenuRes, error)
 
+	GetTurtleBackConfigList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfigRes, error)
+	GetTurtleBackConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfig, error)
+	UpdateTurtleBackConfig(ctx context.Context, req *pb.TurtleBackConfig) (*pb.MsUpdateRes, error)
+
 	CreateAuditing(ctx context.Context, in *pb.Auditing, out *pb.AuditingResponse) error
 	GetAuditings(ctx context.Context, in *pb.AuditingRequest, out *pb.AuditingResponse) error
 
@@ -146,6 +150,16 @@ func (r *MySqlRepository) GetCategoryByName(ctx context.Context, req *pb.MsKeywo
 	result := new(pb.Category)
 
 	if err := r.Database.Table("sys_category").Where("name = ?", req.Value).First(&result).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MySqlRepository) GetTurtleBackConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfig, error) {
+	result := new(pb.TurtleBackConfig)
+
+	if err := r.Database.Table("turtle_back_config").Where("id = ?", req.Value).First(&result).Error; err != nil {
 		return nil, err
 	}
 
@@ -305,6 +319,37 @@ func (r *MySqlRepository) GetTurtleBackMenuList(ctx context.Context, req *pb.MsK
 	}
 
 	return result, nil
+}
+
+// TurtleBackConfig
+func (r *MySqlRepository) GetTurtleBackConfigList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfigRes, error) {
+	result := new(pb.TurtleBackConfigRes)
+	result.Data = make([]*pb.TurtleBackConfig, 0)
+
+	if err := r.Database.Table("turtle_back_config").Order(" sort ASC ").Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MySqlRepository) UpdateTurtleBackConfig(ctx context.Context, item *pb.TurtleBackConfig) (*pb.MsUpdateRes, error) {
+	//values := map[string]interface{}{
+	//	"sort":             item.Sort,
+	//	"menu_config_name": item.MenuConfigName,
+	//	"menu_name":        item.MenuName,
+	//	"Path":             item.Path,
+	//	"menu_code":        item.MenuCode,
+	//	"enable":           item.Enable,
+	//	"icon_path":        item.IconPath,
+	//}
+	if err := r.Database.Table("turtle_back_config").Where("id = ?", item.Id).Updates(&item).Error; err != nil {
+		return nil, err
+	}
+	if !item.Enable {
+		r.Database.Table("turtle_back_config").Where("id = ?", item.Id).Select("enable").Updates(pb.TurtleBackConfig{Enable: false})
+	}
+	return &pb.MsUpdateRes{Value: true}, nil
 }
 
 // Auditing

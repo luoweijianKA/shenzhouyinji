@@ -10,6 +10,22 @@ type Handler struct {
 	Repository repo.Repository
 }
 
+func (h *Handler) GetTurtleBackConfig(ctx context.Context, in *pb.MsKeyword, res *pb.TurtleBackConfig) error {
+	result, err := h.Repository.GetTurtleBackConfigById(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	res.Id = result.Id
+	res.Sort = result.Sort
+	res.MenuCode = result.MenuCode
+	res.MenuName = result.MenuName
+	res.MenuConfigName = result.MenuConfigName
+	res.Path = result.Path
+	res.Enable = result.Enable
+	return nil
+}
+
 func (h *Handler) GetTurtleBackMenuList(ctx context.Context, in *pb.MsKeyword, out *pb.TurtleBackMenuRes) error {
 
 	result, err := h.Repository.GetTurtleBackMenuList(ctx, in)
@@ -18,6 +34,30 @@ func (h *Handler) GetTurtleBackMenuList(ctx context.Context, in *pb.MsKeyword, o
 	}
 
 	out.Data = result.Data
+
+	return nil
+}
+
+func (h *Handler) GetTurtleBackConfigList(ctx context.Context, in *pb.MsKeyword, out *pb.TurtleBackConfigRes) error {
+
+	result, err := h.Repository.GetTurtleBackConfigList(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	out.Data = result.Data
+
+	return nil
+}
+
+func (h *Handler) UpdateTurtleBackConfig(ctx context.Context, in *pb.TurtleBackConfig, out *pb.MsUpdateRes) error {
+
+	result, err := h.Repository.UpdateTurtleBackConfig(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	out.Value = result.Value
 
 	return nil
 }

@@ -866,6 +866,59 @@ func (r *queryResolver) TurtleBackMenuList(ctx context.Context) ([]*model.Turtle
 	return results, err
 }
 
+// TurtleBackConfigList is the resolver for the turtleBackConfigList field.
+func (r *queryResolver) TurtleBackConfigList(ctx context.Context) ([]*model.TurtleBackConfig, error) {
+	req := mPB.MsKeyword{}
+
+	res, err := r.managementService.GetTurtleBackConfigList(ctx, &req)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]*model.TurtleBackConfig, 0)
+	for _, s := range res.Data {
+		results = append(results, &model.TurtleBackConfig{
+			ID:             s.Id,
+			Sort:           int(s.Sort),
+			MenuName:       s.MenuName,
+			MenuConfigName: s.MenuConfigName,
+			Path:           s.Path,
+			Enable:         s.Enable,
+			IconPath:       &s.IconPath,
+			MenuCode:       &s.MenuCode,
+		})
+	}
+
+	return results, err
+}
+
+// TurtleBackConfig is the resolver for the turtleBackConfig field.
+func (r *queryResolver) TurtleBackConfig(ctx context.Context, id string) (*model.TurtleBackConfig, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	req := mPB.MsKeyword{
+		Value: id,
+	}
+
+	res, err := r.managementService.GetTurtleBackConfig(ctx, &req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.TurtleBackConfig{
+		ID:             res.Id,
+		Sort:           int(res.Sort),
+		MenuName:       res.MenuName,
+		MenuConfigName: res.MenuConfigName,
+		Path:           res.Path,
+		Enable:         res.Enable,
+		IconPath:       &res.IconPath,
+		MenuCode:       &res.MenuCode,
+	}, nil
+}
+
 // Configs is the resolver for the configs field.
 func (r *queryResolver) Configs(ctx context.Context) (map[string]any, error) {
 	out, err := r.managementService.GetConfigs(ctx, &mPB.ConfigRequest{})
