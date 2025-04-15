@@ -17,6 +17,24 @@ import {
   Tab,
 } from '@mui/material';
 import { Search } from 'react-feather';
+import { gql, useQuery } from '@apollo/client';
+import Loading from 'components/Loading';
+import Empty from 'components/Empty';
+
+const GET_DEDUCTION_RECORDS = gql`
+  query GetDeductionRecords($input: DeductionRecordInput!) {
+    deductionRecords(input: $input) {
+      sceneryName
+      deductionName
+      validTime
+      user
+      productName
+      verifier
+      userPhone
+      useTime
+    }
+  }
+`;
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -66,8 +84,17 @@ const DeductionRecord: React.FC = () => {
     useTimeEnd: '',
   });
 
-  // 模拟数据
-  const rows = [
+  const { data, loading, refetch } = useQuery(GET_DEDUCTION_RECORDS, {
+    variables: {
+      input: {
+        ...searchParams,
+        status: tabValue === 0 ? 'used' : 'unused'
+      }
+    },
+    fetchPolicy: 'network-only'
+  });
+
+  const rows = data?.deductionRecords || [
     {
       sceneryName: '丹霞山风景区',
       deductionName: '玩偶兑换券',
@@ -96,8 +123,12 @@ const DeductionRecord: React.FC = () => {
   };
 
   const handleSearch = () => {
-    // 处理搜索逻辑
-    console.log(searchParams);
+    refetch({
+      input: {
+        ...searchParams,
+        status: tabValue === 0 ? 'used' : 'unused'
+      }
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
