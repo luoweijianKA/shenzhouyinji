@@ -816,6 +816,106 @@ func (r *queryResolver) UserStampPointsRecord(ctx context.Context, input model.N
 	return results, err
 }
 
+// TideSpotList is the resolver for the tideSpotList field.
+func (r *queryResolver) TideSpotList(ctx context.Context, first *int, after *string, last *int, before *string, name *string) (*model.TideSpotConnection, error) {
+	afterCursor, err := DecodedCursor(after)
+	if err != nil {
+		return nil, err
+	}
+
+	beforeCursor, err := DecodedCursor(before)
+	if err != nil {
+		return nil, err
+	}
+
+	edges := make([]*model.TideSpotEdge, *first)
+	count := 0
+	currentPage := false
+
+	if afterCursor == "" && beforeCursor == "" {
+		currentPage = true
+	}
+
+	startCursor := ""
+	endCursor := ""
+	hasPreviousPage := false
+	hasNextPage := false
+
+	in := mPB.MsKeyword{Value: *name}
+
+	out, err := r.managementService.GetTideSpotList(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+	results := out.Data
+
+	if afterCursor == "" && len(beforeCursor) > 0 {
+		for i, v := range results {
+			if v.Id == beforeCursor {
+				currentPage = true
+			}
+			if currentPage && *last > 0 {
+				m, n := i-*last, i
+				if m < 0 {
+					m = 0
+				}
+				for _, v := range results[m:n] {
+					edges[count] = &model.TideSpotEdge{
+						Cursor: EncodeToCursor(v.Id),
+						Node:   r.NewTideSpot(v),
+					}
+					count++
+				}
+
+				hasPreviousPage = i-count > 0
+				hasNextPage = i < len(results)-1
+				break
+			}
+		}
+	} else {
+		for i, v := range results {
+			if currentPage && count < *first {
+				edges[count] = &model.TideSpotEdge{
+					Cursor: EncodeToCursor(v.Id),
+					Node:   r.NewTideSpot(v),
+				}
+				count++
+			}
+
+			if v.Id == afterCursor {
+				currentPage = true
+			}
+
+			if hasPreviousPage == false {
+				hasPreviousPage = i-count >= 0
+			}
+
+			if count == *first {
+				hasNextPage = i < len(results)-1
+				break
+			}
+		}
+	}
+
+	if count > 0 {
+		startCursor = EncodeToCursor(edges[0].Node.ID)
+		endCursor = EncodeToCursor(edges[count-1].Node.ID)
+	}
+
+	conn := model.TideSpotConnection{
+		TotalCount: len(results),
+		Edges:      edges[:count],
+		PageInfo: &model.PageInfo{
+			StartCursor:     startCursor,
+			EndCursor:       endCursor,
+			HasPreviousPage: &hasPreviousPage,
+			HasNextPage:     &hasNextPage,
+		},
+	}
+
+	return &conn, nil
+}
+
 // AreaInfoByParentID is the resolver for the areaInfoByParentID field.
 func (r *queryResolver) AreaInfoByParentID(ctx context.Context, typeArg string, parentID *string) ([]*model.AreaInfo, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)

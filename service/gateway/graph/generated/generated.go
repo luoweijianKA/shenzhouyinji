@@ -426,6 +426,8 @@ type ComplexityRoot struct {
 		CreateServiceItem         func(childComplexity int, input model.NewServiceItem) int
 		CreateStamp               func(childComplexity int, input model.NewStamp) int
 		CreateTag                 func(childComplexity int, input model.NewTag) int
+		CreateTideSpot            func(childComplexity int, input model.NewTideSpot) int
+		CreateTideSpotConfig      func(childComplexity int, input model.NewTideSpotConfig) int
 		CreateTrek                func(childComplexity int, input model.NewTrek) int
 		CreateTweet               func(childComplexity int, input model.NewTweet) int
 		CreateUserBadge           func(childComplexity int, input model.InputUserBadge) int
@@ -490,6 +492,7 @@ type ComplexityRoot struct {
 		UpdateServiceItem         func(childComplexity int, input model.UpdateServiceItem) int
 		UpdateStamp               func(childComplexity int, input model.UpdateStamp) int
 		UpdateTag                 func(childComplexity int, input model.UpdateTag) int
+		UpdateTideSpot            func(childComplexity int, input *model.UpdateTideSpot) int
 		UpdateTrek                func(childComplexity int, input model.UpdateTrek) int
 		UpdateTurtleBackConfig    func(childComplexity int, input model.UpdateTurtleBackConfig) int
 		UpdateTweet               func(childComplexity int, input model.UpdateTweet) int
@@ -743,6 +746,7 @@ type ComplexityRoot struct {
 		Task                       func(childComplexity int, id string, categoryID string, userID string, eventID string, campID *string, sceneryspotID *string) int
 		Tasks                      func(childComplexity int, userID string, eventID string, campID string, sceneryspotID string) int
 		TemporaryTasks             func(childComplexity int, userID string, eventID string, campID string) int
+		TideSpotList               func(childComplexity int, first *int, after *string, last *int, before *string, name *string) int
 		TopCategories              func(childComplexity int) int
 		Trek                       func(childComplexity int, id string) int
 		Treks                      func(childComplexity int, sceneryspotID string, eventID *string) int
@@ -935,6 +939,27 @@ type ComplexityRoot struct {
 		ID         func(childComplexity int) int
 		Name       func(childComplexity int) int
 		Status     func(childComplexity int) int
+	}
+
+	TideSpot struct {
+		CreateTime        func(childComplexity int) int
+		ElectricFence     func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Name              func(childComplexity int) int
+		PositionTolerance func(childComplexity int) int
+		Status            func(childComplexity int) int
+		UpdateTime        func(childComplexity int) int
+	}
+
+	TideSpotConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	TideSpotEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	Trek struct {
@@ -1359,6 +1384,9 @@ type MutationResolver interface {
 	UpdateTag(ctx context.Context, input model.UpdateTag) (*model.Result, error)
 	UpdateConfigs(ctx context.Context, input map[string]any) (map[string]any, error)
 	UpdateTurtleBackConfig(ctx context.Context, input model.UpdateTurtleBackConfig) (*model.Result, error)
+	CreateTideSpot(ctx context.Context, input model.NewTideSpot) (*model.ID, error)
+	UpdateTideSpot(ctx context.Context, input *model.UpdateTideSpot) (*model.Result, error)
+	CreateTideSpotConfig(ctx context.Context, input model.NewTideSpotConfig) (*model.ID, error)
 	CreateEvent(ctx context.Context, input model.NewEvent) (*model.ID, error)
 	UpdateEvent(ctx context.Context, input model.UpdateEvent) (*model.Result, error)
 	CreateEventScenerySpots(ctx context.Context, input model.InputEventSceneryspot) (*model.EventSceneryspot, error)
@@ -1467,6 +1495,7 @@ type QueryResolver interface {
 	UserStampByStampID(ctx context.Context, id string) ([]*model.UserStamp, error)
 	UserShare(ctx context.Context, userID string, eventID string, sceneryspotID string) (*model.Tweet, error)
 	UserStampPointsRecord(ctx context.Context, input model.NewUserStampPointsRecord) ([]*model.UserStampPointsRecord, error)
+	TideSpotList(ctx context.Context, first *int, after *string, last *int, before *string, name *string) (*model.TideSpotConnection, error)
 	AreaInfoByParentID(ctx context.Context, typeArg string, parentID *string) ([]*model.AreaInfo, error)
 	TurtleBackMenuList(ctx context.Context) ([]*model.TurtleBackMenu, error)
 	TurtleBackConfigList(ctx context.Context) ([]*model.TurtleBackConfig, error)
@@ -3556,6 +3585,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTag(childComplexity, args["input"].(model.NewTag)), true
 
+	case "Mutation.createTideSpot":
+		if e.complexity.Mutation.CreateTideSpot == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createTideSpot_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateTideSpot(childComplexity, args["input"].(model.NewTideSpot)), true
+
+	case "Mutation.CreateTideSpotConfig":
+		if e.complexity.Mutation.CreateTideSpotConfig == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_CreateTideSpotConfig_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateTideSpotConfig(childComplexity, args["input"].(model.NewTideSpotConfig)), true
+
 	case "Mutation.createTrek":
 		if e.complexity.Mutation.CreateTrek == nil {
 			break
@@ -4313,6 +4366,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTag(childComplexity, args["input"].(model.UpdateTag)), true
+
+	case "Mutation.updateTideSpot":
+		if e.complexity.Mutation.UpdateTideSpot == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTideSpot_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTideSpot(childComplexity, args["input"].(*model.UpdateTideSpot)), true
 
 	case "Mutation.updateTrek":
 		if e.complexity.Mutation.UpdateTrek == nil {
@@ -6138,6 +6203,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.TemporaryTasks(childComplexity, args["user_id"].(string), args["event_id"].(string), args["camp_id"].(string)), true
 
+	case "Query.tideSpotList":
+		if e.complexity.Query.TideSpotList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_tideSpotList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.TideSpotList(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string), args["name"].(*string)), true
+
 	case "Query.topCategories":
 		if e.complexity.Query.TopCategories == nil {
 			break
@@ -7505,6 +7582,90 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Tag.Status(childComplexity), true
+
+	case "TideSpot.createTime":
+		if e.complexity.TideSpot.CreateTime == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.CreateTime(childComplexity), true
+
+	case "TideSpot.electricFence":
+		if e.complexity.TideSpot.ElectricFence == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.ElectricFence(childComplexity), true
+
+	case "TideSpot.id":
+		if e.complexity.TideSpot.ID == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.ID(childComplexity), true
+
+	case "TideSpot.name":
+		if e.complexity.TideSpot.Name == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.Name(childComplexity), true
+
+	case "TideSpot.positionTolerance":
+		if e.complexity.TideSpot.PositionTolerance == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.PositionTolerance(childComplexity), true
+
+	case "TideSpot.status":
+		if e.complexity.TideSpot.Status == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.Status(childComplexity), true
+
+	case "TideSpot.updateTime":
+		if e.complexity.TideSpot.UpdateTime == nil {
+			break
+		}
+
+		return e.complexity.TideSpot.UpdateTime(childComplexity), true
+
+	case "TideSpotConnection.edges":
+		if e.complexity.TideSpotConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConnection.Edges(childComplexity), true
+
+	case "TideSpotConnection.pageInfo":
+		if e.complexity.TideSpotConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConnection.PageInfo(childComplexity), true
+
+	case "TideSpotConnection.totalCount":
+		if e.complexity.TideSpotConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConnection.TotalCount(childComplexity), true
+
+	case "TideSpotEdge.cursor":
+		if e.complexity.TideSpotEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.TideSpotEdge.Cursor(childComplexity), true
+
+	case "TideSpotEdge.node":
+		if e.complexity.TideSpotEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.TideSpotEdge.Node(childComplexity), true
 
 	case "Trek.create_time":
 		if e.complexity.Trek.CreateTime == nil {
@@ -9460,6 +9621,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputNewServiceItem,
 		ec.unmarshalInputNewStamp,
 		ec.unmarshalInputNewTag,
+		ec.unmarshalInputNewTideSpot,
+		ec.unmarshalInputNewTideSpotConfig,
+		ec.unmarshalInputNewTideSpotGood,
 		ec.unmarshalInputNewTrek,
 		ec.unmarshalInputNewTweet,
 		ec.unmarshalInputNewUserBadgeSwap,
@@ -9500,6 +9664,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateServiceItem,
 		ec.unmarshalInputUpdateStamp,
 		ec.unmarshalInputUpdateTag,
+		ec.unmarshalInputUpdateTideSpot,
 		ec.unmarshalInputUpdateTrek,
 		ec.unmarshalInputUpdateTurtleBackConfig,
 		ec.unmarshalInputUpdateTweet,
@@ -10426,11 +10591,60 @@ input UpdateTurtleBackConfig {
   iconPath: String
 }
 
+input NewTideSpot {
+  name: String!
+  positionTolerance: String
+  electricFence: String!
+}
+
+input UpdateTideSpot {
+  id: ID!
+  name: String
+  positionTolerance: String
+  electricFence: String
+  status : Int
+}
+
 type Tag {
   id: ID!
   name: String!
   category_id: String!
   status: Int!
+}
+
+type TideSpot {
+  id: ID!
+  name: String!
+  positionTolerance: String
+  electricFence: String
+  createTime: Int
+  updateTime: Int
+  status: Int
+}
+
+input NewTideSpotConfig {
+  id: ID!
+  tideSpotId: String!
+  tideSpotName: String!
+  couponName: String!
+  type: String!
+  compareWord: String
+  couponImgPath: String
+  compareLogoPath: String
+  desc: String
+  effectiveTime: Int
+  couponContent: String
+  minimumAmount: Int
+  deductionAmount: Int
+  guideDesc: String
+  guideVideoPath: String
+  enable: Boolean
+  tideSpotGoodList: [NewTideSpotGood]
+}
+
+input NewTideSpotGood {
+  goodName: String
+  goodBarcode: String
 }
 
 input NewTag {
@@ -10465,6 +10679,17 @@ input AuditingFilter {
 type AuditingEdge {
   cursor: ID!
   node: Auditing
+}
+
+type TideSpotEdge {
+  cursor: ID!
+  node: TideSpot
+}
+
+type TideSpotConnection {
+  totalCount: Int!
+  edges: [TideSpotEdge!]!
+  pageInfo: PageInfo!
 }
 
 type AuditingConnection {
@@ -10724,7 +10949,6 @@ type Mutation {
   deleteAccount(id: ID!): Account @auth @root
 
 
-
   createClaimCode(input: NewClaimCode!): Id! @auth @hasRole
   updateClaimCode(input: UpdateClaimCode!): Result! @auth
 
@@ -10753,6 +10977,11 @@ type Mutation {
   updateConfigs(input: Map! @auditing(code: CONFIGURATION)): Map! @auth @hasRole
 
   updateTurtleBackConfig(input: UpdateTurtleBackConfig!):Result! @auth
+
+  createTideSpot(input: NewTideSpot!): Id! @auth
+  updateTideSpot(input: UpdateTideSpot): Result! @auth
+
+  CreateTideSpotConfig(input: NewTideSpotConfig!): Id! @auth
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole
   updateEvent(input: UpdateEvent!): Result! @auth @hasRole
@@ -11073,6 +11302,13 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  tideSpotList(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    name: String
+  ): TideSpotConnection @auth
   areaInfoByParentID(
     type: String!
     parentId: String
@@ -12044,6 +12280,34 @@ func (ec *executionContext) dir_auditing_argsCode(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_CreateTideSpotConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_CreateTideSpotConfig_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_CreateTideSpotConfig_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.NewTideSpotConfig, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.NewTideSpotConfig
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNNewTideSpotConfig2gatewayᚋgraphᚋmodelᚐNewTideSpotConfig(ctx, tmp)
+	}
+
+	var zeroVal model.NewTideSpotConfig
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_activateUserEventPassport_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -12904,6 +13168,34 @@ func (ec *executionContext) field_Mutation_createTag_argsInput(
 	}
 
 	var zeroVal model.NewTag
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createTideSpot_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createTideSpot_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createTideSpot_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.NewTideSpot, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.NewTideSpot
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNNewTideSpot2gatewayᚋgraphᚋmodelᚐNewTideSpot(ctx, tmp)
+	}
+
+	var zeroVal model.NewTideSpot
 	return zeroVal, nil
 }
 
@@ -14904,6 +15196,34 @@ func (ec *executionContext) field_Mutation_updateTag_argsInput(
 	}
 
 	var zeroVal model.UpdateTag
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTideSpot_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateTideSpot_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateTideSpot_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*model.UpdateTideSpot, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal *model.UpdateTideSpot
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalOUpdateTideSpot2ᚖgatewayᚋgraphᚋmodelᚐUpdateTideSpot(ctx, tmp)
+	}
+
+	var zeroVal *model.UpdateTideSpot
 	return zeroVal, nil
 }
 
@@ -19091,6 +19411,126 @@ func (ec *executionContext) field_Query_temporaryTasks_argsCampID(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_tideSpotList_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Query_tideSpotList_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Query_tideSpotList_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Query_tideSpotList_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := ec.field_Query_tideSpotList_argsName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg4
+	return args, nil
+}
+func (ec *executionContext) field_Query_tideSpotList_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotList_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOID2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotList_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotList_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOID2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotList_argsName(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["name"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+	if tmp, ok := rawArgs["name"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -33933,6 +34373,251 @@ func (ec *executionContext) fieldContext_Mutation_updateTurtleBackConfig(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_createTideSpot(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTideSpot(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateTideSpot(rctx, fc.Args["input"].(model.NewTideSpot))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.ID
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ID); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.ID`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ID)
+	fc.Result = res
+	return ec.marshalNId2ᚖgatewayᚋgraphᚋmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createTideSpot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Id_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Id", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createTideSpot_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTideSpot(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTideSpot(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTideSpot(rctx, fc.Args["input"].(*model.UpdateTideSpot))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.Result
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Result); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.Result`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Result)
+	fc.Result = res
+	return ec.marshalNResult2ᚖgatewayᚋgraphᚋmodelᚐResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTideSpot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "succed":
+				return ec.fieldContext_Result_succed(ctx, field)
+			case "message":
+				return ec.fieldContext_Result_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Result", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTideSpot_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_CreateTideSpotConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_CreateTideSpotConfig(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateTideSpotConfig(rctx, fc.Args["input"].(model.NewTideSpotConfig))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.ID
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ID); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.ID`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.ID)
+	fc.Result = res
+	return ec.marshalNId2ᚖgatewayᚋgraphᚋmodelᚐID(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_CreateTideSpotConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Id_id(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Id", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_CreateTideSpotConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createEvent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createEvent(ctx, field)
 	if err != nil {
@@ -47815,6 +48500,88 @@ func (ec *executionContext) fieldContext_Query_userStampPointsRecord(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_tideSpotList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_tideSpotList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().TideSpotList(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string), fc.Args["name"].(*string))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.TideSpotConnection
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.TideSpotConnection); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.TideSpotConnection`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.TideSpotConnection)
+	fc.Result = res
+	return ec.marshalOTideSpotConnection2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_tideSpotList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_TideSpotConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_TideSpotConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_TideSpotConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TideSpotConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_tideSpotList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_areaInfoByParentID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_areaInfoByParentID(ctx, field)
 	if err != nil {
@@ -61662,6 +62429,548 @@ func (ec *executionContext) fieldContext_Tag_status(_ context.Context, field gra
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_id(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_name(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_positionTolerance(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_positionTolerance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PositionTolerance, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_positionTolerance(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_electricFence(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_electricFence(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ElectricFence, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_electricFence(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_createTime(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_createTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreateTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_createTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_updateTime(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_updateTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdateTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_updateTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpot_status(ctx context.Context, field graphql.CollectedField, obj *model.TideSpot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpot_status(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpot_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.TideSpotEdge)
+	fc.Result = res
+	return ec.marshalNTideSpotEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐTideSpotEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_TideSpotEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_TideSpotEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TideSpotEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgatewayᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.TideSpot)
+	fc.Result = res
+	return ec.marshalOTideSpot2ᚖgatewayᚋgraphᚋmodelᚐTideSpot(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TideSpot_id(ctx, field)
+			case "name":
+				return ec.fieldContext_TideSpot_name(ctx, field)
+			case "positionTolerance":
+				return ec.fieldContext_TideSpot_positionTolerance(ctx, field)
+			case "electricFence":
+				return ec.fieldContext_TideSpot_electricFence(ctx, field)
+			case "createTime":
+				return ec.fieldContext_TideSpot_createTime(ctx, field)
+			case "updateTime":
+				return ec.fieldContext_TideSpot_updateTime(ctx, field)
+			case "status":
+				return ec.fieldContext_TideSpot_status(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TideSpot", field.Name)
 		},
 	}
 	return fc, nil
@@ -77703,6 +79012,220 @@ func (ec *executionContext) unmarshalInputNewTag(ctx context.Context, obj any) (
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputNewTideSpot(ctx context.Context, obj any) (model.NewTideSpot, error) {
+	var it model.NewTideSpot
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "positionTolerance", "electricFence"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "positionTolerance":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("positionTolerance"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PositionTolerance = data
+		case "electricFence":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("electricFence"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ElectricFence = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewTideSpotConfig(ctx context.Context, obj any) (model.NewTideSpotConfig, error) {
+	var it model.NewTideSpotConfig
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "tideSpotId", "tideSpotName", "couponName", "type", "compareWord", "couponImgPath", "compareLogoPath", "desc", "effectiveTime", "couponContent", "minimumAmount", "deductionAmount", "guideDesc", "guideVideoPath", "enable", "tideSpotGoodList"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "tideSpotId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotId"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TideSpotID = data
+		case "tideSpotName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TideSpotName = data
+		case "couponName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("couponName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CouponName = data
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = data
+		case "compareWord":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compareWord"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CompareWord = data
+		case "couponImgPath":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("couponImgPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CouponImgPath = data
+		case "compareLogoPath":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("compareLogoPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CompareLogoPath = data
+		case "desc":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("desc"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Desc = data
+		case "effectiveTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("effectiveTime"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EffectiveTime = data
+		case "couponContent":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("couponContent"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CouponContent = data
+		case "minimumAmount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("minimumAmount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MinimumAmount = data
+		case "deductionAmount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deductionAmount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeductionAmount = data
+		case "guideDesc":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("guideDesc"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GuideDesc = data
+		case "guideVideoPath":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("guideVideoPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GuideVideoPath = data
+		case "enable":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enable"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enable = data
+		case "tideSpotGoodList":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotGoodList"))
+			data, err := ec.unmarshalONewTideSpotGood2ᚕᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TideSpotGoodList = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputNewTideSpotGood(ctx context.Context, obj any) (model.NewTideSpotGood, error) {
+	var it model.NewTideSpotGood
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"goodName", "goodBarcode"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "goodName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goodName"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GoodName = data
+		case "goodBarcode":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("goodBarcode"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GoodBarcode = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewTrek(ctx context.Context, obj any) (model.NewTrek, error) {
 	var it model.NewTrek
 	asMap := map[string]any{}
@@ -80380,6 +81903,61 @@ func (ec *executionContext) unmarshalInputUpdateTag(ctx context.Context, obj any
 				return it, err
 			}
 			it.CategoryID = data
+		case "status":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Status = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateTideSpot(ctx context.Context, obj any) (model.UpdateTideSpot, error) {
+	var it model.UpdateTideSpot
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "positionTolerance", "electricFence", "status"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "positionTolerance":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("positionTolerance"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PositionTolerance = data
+		case "electricFence":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("electricFence"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ElectricFence = data
 		case "status":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("status"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
@@ -83819,6 +85397,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createTideSpot":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createTideSpot(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateTideSpot":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTideSpot(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "CreateTideSpotConfig":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_CreateTideSpotConfig(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createEvent":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createEvent(ctx, field)
@@ -85815,6 +87414,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_userStampPointsRecord(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "tideSpotList":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_tideSpotList(ctx, field)
 				return res
 			}
 
@@ -88681,6 +90299,150 @@ func (ec *executionContext) _Tag(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tideSpotImplementors = []string{"TideSpot"}
+
+func (ec *executionContext) _TideSpot(ctx context.Context, sel ast.SelectionSet, obj *model.TideSpot) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tideSpotImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TideSpot")
+		case "id":
+			out.Values[i] = ec._TideSpot_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._TideSpot_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "positionTolerance":
+			out.Values[i] = ec._TideSpot_positionTolerance(ctx, field, obj)
+		case "electricFence":
+			out.Values[i] = ec._TideSpot_electricFence(ctx, field, obj)
+		case "createTime":
+			out.Values[i] = ec._TideSpot_createTime(ctx, field, obj)
+		case "updateTime":
+			out.Values[i] = ec._TideSpot_updateTime(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._TideSpot_status(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tideSpotConnectionImplementors = []string{"TideSpotConnection"}
+
+func (ec *executionContext) _TideSpotConnection(ctx context.Context, sel ast.SelectionSet, obj *model.TideSpotConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tideSpotConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TideSpotConnection")
+		case "totalCount":
+			out.Values[i] = ec._TideSpotConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._TideSpotConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._TideSpotConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tideSpotEdgeImplementors = []string{"TideSpotEdge"}
+
+func (ec *executionContext) _TideSpotEdge(ctx context.Context, sel ast.SelectionSet, obj *model.TideSpotEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tideSpotEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TideSpotEdge")
+		case "cursor":
+			out.Values[i] = ec._TideSpotEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._TideSpotEdge_node(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -92340,6 +94102,16 @@ func (ec *executionContext) unmarshalNNewTag2gatewayᚋgraphᚋmodelᚐNewTag(ct
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNNewTideSpot2gatewayᚋgraphᚋmodelᚐNewTideSpot(ctx context.Context, v any) (model.NewTideSpot, error) {
+	res, err := ec.unmarshalInputNewTideSpot(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNNewTideSpotConfig2gatewayᚋgraphᚋmodelᚐNewTideSpotConfig(ctx context.Context, v any) (model.NewTideSpotConfig, error) {
+	res, err := ec.unmarshalInputNewTideSpotConfig(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNewTrek2gatewayᚋgraphᚋmodelᚐNewTrek(ctx context.Context, v any) (model.NewTrek, error) {
 	res, err := ec.unmarshalInputNewTrek(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -92718,6 +94490,60 @@ func (ec *executionContext) marshalNTask2ᚕgatewayᚋgraphᚋmodelᚐTaskᚄ(ct
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalNTideSpotEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐTideSpotEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TideSpotEdge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTideSpotEdge2ᚖgatewayᚋgraphᚋmodelᚐTideSpotEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTideSpotEdge2ᚖgatewayᚋgraphᚋmodelᚐTideSpotEdge(ctx context.Context, sel ast.SelectionSet, v *model.TideSpotEdge) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TideSpotEdge(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNUpdateAccount2gatewayᚋgraphᚋmodelᚐUpdateAccount(ctx context.Context, v any) (model.UpdateAccount, error) {
@@ -94482,6 +96308,32 @@ func (ec *executionContext) unmarshalONewActivateUserEventPassport2ᚖgatewayᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalONewTideSpotGood2ᚕᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx context.Context, v any) ([]*model.NewTideSpotGood, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*model.NewTideSpotGood, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalONewTideSpotGood2ᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalONewTideSpotGood2ᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx context.Context, v any) (*model.NewTideSpotGood, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputNewTideSpotGood(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalONewUserEventPassport2ᚖgatewayᚋgraphᚋmodelᚐNewUserEventPassport(ctx context.Context, v any) (*model.NewUserEventPassport, error) {
 	if v == nil {
 		return nil, nil
@@ -95328,6 +97180,20 @@ func (ec *executionContext) marshalOTask2gatewayᚋgraphᚋmodelᚐTask(ctx cont
 	return ec._Task(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOTideSpot2ᚖgatewayᚋgraphᚋmodelᚐTideSpot(ctx context.Context, sel ast.SelectionSet, v *model.TideSpot) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TideSpot(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTideSpotConnection2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConnection(ctx context.Context, sel ast.SelectionSet, v *model.TideSpotConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TideSpotConnection(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOTrek2ᚕᚖgatewayᚋgraphᚋmodelᚐTrek(ctx context.Context, sel ast.SelectionSet, v []*model.Trek) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -95813,6 +97679,14 @@ func (ec *executionContext) marshalOTweetWithAccount2ᚖgatewayᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._TweetWithAccount(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUpdateTideSpot2ᚖgatewayᚋgraphᚋmodelᚐUpdateTideSpot(ctx context.Context, v any) (*model.UpdateTideSpot, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUpdateTideSpot(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOUserBadge2ᚕᚖgatewayᚋgraphᚋmodelᚐUserBadge(ctx context.Context, sel ast.SelectionSet, v []*model.UserBadge) graphql.Marshaler {

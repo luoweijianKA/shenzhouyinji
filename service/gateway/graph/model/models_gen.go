@@ -630,6 +630,37 @@ type NewTag struct {
 	Status     int    `json:"status"`
 }
 
+type NewTideSpot struct {
+	Name              string  `json:"name"`
+	PositionTolerance *string `json:"positionTolerance,omitempty"`
+	ElectricFence     string  `json:"electricFence"`
+}
+
+type NewTideSpotConfig struct {
+	ID               string             `json:"id"`
+	TideSpotID       string             `json:"tideSpotId"`
+	TideSpotName     string             `json:"tideSpotName"`
+	CouponName       string             `json:"couponName"`
+	Type             string             `json:"type"`
+	CompareWord      *string            `json:"compareWord,omitempty"`
+	CouponImgPath    *string            `json:"couponImgPath,omitempty"`
+	CompareLogoPath  *string            `json:"compareLogoPath,omitempty"`
+	Desc             *string            `json:"desc,omitempty"`
+	EffectiveTime    *int               `json:"effectiveTime,omitempty"`
+	CouponContent    *string            `json:"couponContent,omitempty"`
+	MinimumAmount    *int               `json:"minimumAmount,omitempty"`
+	DeductionAmount  *int               `json:"deductionAmount,omitempty"`
+	GuideDesc        *string            `json:"guideDesc,omitempty"`
+	GuideVideoPath   *string            `json:"guideVideoPath,omitempty"`
+	Enable           *bool              `json:"enable,omitempty"`
+	TideSpotGoodList []*NewTideSpotGood `json:"tideSpotGoodList,omitempty"`
+}
+
+type NewTideSpotGood struct {
+	GoodName    *string `json:"goodName,omitempty"`
+	GoodBarcode *string `json:"goodBarcode,omitempty"`
+}
+
 type NewTrek struct {
 	EventID       *string `json:"event_id,omitempty"`
 	SceneryspotID string  `json:"sceneryspot_id"`
@@ -1125,6 +1156,27 @@ type Tag struct {
 	Status     int    `json:"status"`
 }
 
+type TideSpot struct {
+	ID                string  `json:"id"`
+	Name              string  `json:"name"`
+	PositionTolerance *string `json:"positionTolerance,omitempty"`
+	ElectricFence     *string `json:"electricFence,omitempty"`
+	CreateTime        *int    `json:"createTime,omitempty"`
+	UpdateTime        *int    `json:"updateTime,omitempty"`
+	Status            *int    `json:"status,omitempty"`
+}
+
+type TideSpotConnection struct {
+	TotalCount int             `json:"totalCount"`
+	Edges      []*TideSpotEdge `json:"edges"`
+	PageInfo   *PageInfo       `json:"pageInfo"`
+}
+
+type TideSpotEdge struct {
+	Cursor string    `json:"cursor"`
+	Node   *TideSpot `json:"node,omitempty"`
+}
+
 type Trek struct {
 	ID            string  `json:"id"`
 	EventID       *string `json:"event_id,omitempty"`
@@ -1495,6 +1547,14 @@ type UpdateTag struct {
 	Name       *string `json:"name,omitempty"`
 	CategoryID *string `json:"category_id,omitempty"`
 	Status     *int    `json:"status,omitempty"`
+}
+
+type UpdateTideSpot struct {
+	ID                string  `json:"id"`
+	Name              *string `json:"name,omitempty"`
+	PositionTolerance *string `json:"positionTolerance,omitempty"`
+	ElectricFence     *string `json:"electricFence,omitempty"`
+	Status            *int    `json:"status,omitempty"`
 }
 
 type UpdateTrek struct {

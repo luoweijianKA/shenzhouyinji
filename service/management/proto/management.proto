@@ -14,12 +14,19 @@ service ManagementService {
     rpc GetCategoryByParentID(MsKeyword) returns (CategoriesRes) {}
     rpc GetTopCategory(MsEmptyReq) returns (CategoriesRes) {}
 
+    rpc CreateTideSpot(TideSpot) returns (MsKeyword) {}
+    rpc UpdateTideSpot(TideSpot) returns (MsUpdateRes) {}
+    rpc GetTideSpotList(MsKeyword) returns (TideSpotRes) {}
+
     rpc CreateTag(Tag) returns (MsKeyword) {}
     rpc UpdateTag(Tag) returns (MsUpdateRes) {}
     rpc GetTagByID(MsKeyword) returns (Tag) {}
     rpc GetTagByCategoryID(MsKeyword) returns (TagsRes) {}
 
     rpc GetTurtleBackMenuList(MsKeyword) returns (TurtleBackMenuRes){}
+
+    rpc CreateTideSpotConfig(TideSpotConfig) returns (MsKeyword) {}
+    rpc CreateTideSpotGood(TideSpotGood) returns (MsKeyword) {}
 
     rpc GetTurtleBackConfigList(MsKeyword) returns (TurtleBackConfigRes){}
     rpc UpdateTurtleBackConfig(TurtleBackConfig) returns (MsUpdateRes){}
@@ -65,6 +72,51 @@ message AreaInfo {
     string type = 4;
     int32 status = 5;
 }
+
+message TideSpot {
+    string id = 1;
+    string name = 2;
+    string position_tolerance = 3;
+    string electric_fence = 4;
+    int32 create_time = 5;
+    int32 update_time = 6;
+    int32 status = 7;
+}
+
+message TideSpotRes {
+    repeated TideSpot data = 1;
+}
+
+message TideSpotConfig {
+    string id = 1;
+    string tide_spot_id = 2;
+    string tide_spot_name = 3;
+    string coupon_name = 4;
+    string compare_word = 5;
+    string coupon_img_path = 6;
+    string compare_logo_path = 7;
+    string compare_logo_id = 8;
+    string desc = 9;
+    int32 effective_time = 10;
+    string coupon_content = 11;
+    int32 generate_num = 12;
+    int32 use_num = 13;
+    int32 not_use_num = 14;
+    int32 minimum_amount = 15;
+    int32 deduction_amount = 16;
+    int32 use_amount = 17;
+    string guide_desc = 18;
+    string guide_video_path = 19;
+    repeated TideSpotGood tide_spot_good_list = 20;
+    string type = 21;
+    bool enable = 22;
+}
+
+message TideSpotGood {
+    string good_name = 1;
+    string good_barcode = 2;
+}
+
 
 message TurtleBackMenu {
     string id = 1;

@@ -47,6 +47,13 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  tideSpotList(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    name: String
+  ): TideSpotConnection @auth
   areaInfoByParentID(
     type: String!
     parentId: String

@@ -10,6 +10,40 @@ type Handler struct {
 	Repository repo.Repository
 }
 
+func (h *Handler) CreateTideSpot(ctx context.Context, req *pb.TideSpot, res *pb.MsKeyword) error {
+	result, err := h.Repository.CreateTideSpot(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
+}
+
+func (h *Handler) UpdateTideSpot(ctx context.Context, req *pb.TideSpot, res *pb.MsUpdateRes) error {
+	result, err := h.Repository.UpdateTideSpot(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
+}
+
+func (h *Handler) GetTideSpotList(ctx context.Context, in *pb.MsKeyword, res *pb.TideSpotRes) error {
+	result, err := h.Repository.GetTideSpotList(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	res.Data = result.Data
+
+	return nil
+}
+
 func (h *Handler) GetTurtleBackConfig(ctx context.Context, in *pb.MsKeyword, res *pb.TurtleBackConfig) error {
 	result, err := h.Repository.GetTurtleBackConfigById(ctx, in)
 	if err != nil {

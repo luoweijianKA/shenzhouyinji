@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 	pb "gitlab.com/annoying-orange/shenzhouyinji/service/management/proto"
@@ -31,6 +32,10 @@ type Repository interface {
 
 	GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest) (*pb.AreaInfosRes, error)
 	GetTurtleBackMenuList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackMenuRes, error)
+
+	CreateTideSpot(ctx context.Context, req *pb.TideSpot) (*pb.MsKeyword, error)
+	UpdateTideSpot(ctx context.Context, req *pb.TideSpot) (*pb.MsUpdateRes, error)
+	GetTideSpotList(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotRes, error)
 
 	GetTurtleBackConfigList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfigRes, error)
 	GetTurtleBackConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfig, error)
@@ -246,6 +251,55 @@ func (r *MySqlRepository) GetAreaInfoByParentID(ctx context.Context, req *pb.Are
 		db = db.Where("type = ?", req.Type)
 	}
 	if err := db.Order("sort ASC ").Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// TideSpot
+func (r *MySqlRepository) CreateTideSpot(ctx context.Context, item *pb.TideSpot) (*pb.MsKeyword, error) {
+
+	item.Id = uuid.NewV4().String()
+	item.CreateTime = int32(time.Now().Unix())
+	item.UpdateTime = item.CreateTime
+
+	item.Status = 1
+	if err := r.Database.Table("tide_spot").Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsKeyword{Value: item.Id}, nil
+}
+func (r *MySqlRepository) UpdateTideSpot(ctx context.Context, item *pb.TideSpot) (*pb.MsUpdateRes, error) {
+	if item.Status == StatusDelete {
+		if err := r.Database.Table("tide_spot").Delete(&pb.TideSpot{}, "id = ?", item.Id).Error; err != nil {
+			return nil, err
+		}
+		return &pb.MsUpdateRes{Value: true}, nil
+	}
+
+	if err := r.Database.Table("tide_spot").Where("id = ?", item.Id).Updates(pb.TideSpot{
+		Name:              item.Name,
+		PositionTolerance: item.PositionTolerance,
+		ElectricFence:     item.ElectricFence,
+		UpdateTime:        int32(time.Now().Unix()),
+		Status:            item.Status,
+	}).Error; err != nil {
+		return nil, err
+	}
+
+	return &pb.MsUpdateRes{Value: true}, nil
+}
+func (r *MySqlRepository) GetTideSpotList(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotRes, error) {
+	result := new(pb.TideSpotRes)
+	result.Data = make([]*pb.TideSpot, 0)
+	db := r.Database.Table("tide_spot")
+
+	if len(req.Value) > 0 {
+		db = db.Where("name = ?", req.Value)
+	}
+
+	if err := db.Order("create_time DESC").Find(&result.Data).Error; err != nil {
 		return nil, err
 	}
 

@@ -62,11 +62,60 @@ input UpdateTurtleBackConfig {
   iconPath: String
 }
 
+input NewTideSpot {
+  name: String!
+  positionTolerance: String
+  electricFence: String!
+}
+
+input UpdateTideSpot {
+  id: ID!
+  name: String
+  positionTolerance: String
+  electricFence: String
+  status : Int
+}
+
 type Tag {
   id: ID!
   name: String!
   category_id: String!
   status: Int!
+}
+
+type TideSpot {
+  id: ID!
+  name: String!
+  positionTolerance: String
+  electricFence: String
+  createTime: Int
+  updateTime: Int
+  status: Int
+}
+
+input NewTideSpotConfig {
+  id: ID!
+  tideSpotId: String!
+  tideSpotName: String!
+  couponName: String!
+  type: String!
+  compareWord: String
+  couponImgPath: String
+  compareLogoPath: String
+  desc: String
+  effectiveTime: Int
+  couponContent: String
+  minimumAmount: Int
+  deductionAmount: Int
+  guideDesc: String
+  guideVideoPath: String
+  enable: Boolean
+  tideSpotGoodList: [NewTideSpotGood]
+}
+
+input NewTideSpotGood {
+  goodName: String
+  goodBarcode: String
 }
 
 input NewTag {
@@ -101,6 +150,17 @@ input AuditingFilter {
 type AuditingEdge {
   cursor: ID!
   node: Auditing
+}
+
+type TideSpotEdge {
+  cursor: ID!
+  node: TideSpot
+}
+
+type TideSpotConnection {
+  totalCount: Int!
+  edges: [TideSpotEdge!]!
+  pageInfo: PageInfo!
 }
 
 type AuditingConnection {
