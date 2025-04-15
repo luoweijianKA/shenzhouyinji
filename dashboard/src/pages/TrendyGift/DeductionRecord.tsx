@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -20,6 +20,9 @@ import { Search, Download } from '@mui/icons-material';
 import Loading from 'components/Loading';
 import Empty from 'components/Empty';
 
+/**
+ * 自定义TabPanel组件属性
+ */
 interface TabPanelProps {
     children?: React.ReactNode;
     index: number;
@@ -27,6 +30,9 @@ interface TabPanelProps {
     hidden?: boolean;
 }
 
+/**
+ * 抵扣记录数据结构
+ */
 interface DeductionRecordData {
     id: string | number;
     sceneryName: string;
@@ -39,6 +45,9 @@ interface DeductionRecordData {
     useTime: string;
 }
 
+/**
+ * 自定义TabPanel组件
+ */
 function TabPanel(props: TabPanelProps) {
     const {children, value, index, hidden = false, ...other} = props;
 
@@ -55,6 +64,9 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 
+/**
+ * 生成Tabs可访问性属性
+ */
 function a11yProps(index: number) {
     return {
         id: `simple-tab-${index}`,
@@ -62,71 +74,136 @@ function a11yProps(index: number) {
     };
 }
 
+/**
+ * 搜索参数数据结构
+ */
+interface SearchParams {
+    sceneryName: string;
+    deductionRule: string;
+    productName: string;
+    verifier: string;
+    user: string;
+    userPhone: string;
+    useTimeStart: string;
+    useTimeEnd: string;
+}
+
+const INITIAL_SEARCH_PARAMS: SearchParams = {
+    sceneryName: '',
+    deductionRule: '',
+    productName: '',
+    verifier: '',
+    user: '',
+    userPhone: '',
+    useTimeStart: '',
+    useTimeEnd: '',
+};
+
+// Keep mock data definition for reference or development
+const mockData: DeductionRecordData[] = Array.from({ length: 579 * 20 }, (_, i) => ({
+    id: `mock-${i + 1}`,
+    sceneryName: '丹霞山风景区',
+    deductionName: '玩偶兑换券',
+    validTime: '2026-03-14 12:00:00',
+    user: '哈哈哈',
+    productName: '杯子',
+    verifier: '张三',
+    userPhone: '13378987656',
+    useTime: '2026-03-14 12:00:00'
+}));
+
+/**
+ * 抵扣记录页面
+ */
 const DeductionRecord: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
-
     const [tabValue, setTabValue] = useState(0);
+    const [searchParams, setSearchParams] = useState<SearchParams>(INITIAL_SEARCH_PARAMS);
 
-    const [searchParams, setSearchParams] = useState({
-        sceneryName: '',
-        deductionRule: '',
-        productName: '',
-        verifier: '',
-        user: '',
-        userPhone: '',
-        useTimeStart: '',
-        useTimeEnd: '',
-    });
+    // Initialize with empty array, data should be fetched
+    const [recordData, setRecordData] = useState<DeductionRecordData[]>([]); 
+    const [loading, setLoading] = useState(false); // Use state for loading
+    const [errorState, setErrorState] = useState<Error | null>(null); // Use state for error
+    // const [totalCount, setTotalCount] = useState(0); // Use state for total count if server-side pagination
 
-    const mockData: DeductionRecordData[] = Array.from({ length: 579 * 20 }, (_, i) => ({
-        id: `mock-${i + 1}`,
-        sceneryName: '丹霞山风景区',
-        deductionName: '玩偶兑换券',
-        validTime: '2026-03-14 12:00:00',
-        user: '哈哈哈',
-        productName: '杯子',
-        verifier: '张三',
-        userPhone: '13378987656',
-        useTime: '2026-03-14 12:00:00'
-    }));
+    const refetch = useCallback(async () => { // Make async if fetching data
+        console.log("Refetching data with filters:", searchParams, "Tab:", tabValue);
+        setLoading(true); // Start loading
+        setErrorState(null); // Clear previous errors
+        try {
+            // TODO: 使用真实API调用逻辑替换
+            // const fetchedData = await fetchDeductionRecords({ 
+            //     ...searchParams, 
+            //     status: tabValue === 0 ? 'used' : 'unused', 
+            //     page, 
+            //     rowsPerPage 
+            // });
+            // setRecordData(fetchedData.records || []); // Update state with fetched data
+            // setTotalCount(fetchedData.totalCount || 0); // If pagination is server-side
+            
+            // TODO: 暂时使用模拟数据，后续移除
+            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+            setRecordData(mockData.filter(item => 
+                (tabValue === 0 ? item.useTime !== null : item.useTime === null) // Simple filter based on tab
+                // Add filtering based on searchParams here if mock data is used extensively
+            )); // <-- Example usage of setRecordData
 
-    const loading = false;
-    const refetch = () => console.log("Refetching data based on filters and tab...");
+        } catch (error) {
+            console.error("Failed to fetch deduction records:", error);
+            setErrorState(error as Error); // Handle error state
+        } finally {
+            setLoading(false); // Stop loading
+        }
+    }, [searchParams, tabValue]); // Add page, rowsPerPage if using them in fetch
 
-    const rows = mockData;
-    const displayRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    // TODO: 根据需要取消注释以在依赖项更改时获取数据
+    useEffect(() => {
+        refetch();
+    }, [refetch]); // refetch includes searchParams and tabValue as dependencies
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+    // TODO: 如果使用服务器端分页，请使用totalCount
+    const displayRows = useMemo(() => recordData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [recordData, page, rowsPerPage]);
+    const currentTotalCount = recordData.length; // For client-side pagination
+    // const currentTotalCount = totalCount; // For server-side pagination
+
+    const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
-    };
+        // TODO: 如果不是所有数据都加载到客户端，则考虑重新获取新页面的数据
+        // refetch();
+    }, []);
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
+        // TODO: 使用新的rowsPerPage重新获取数据
+        // refetch(); // Refetch data with new rowsPerPage
+    }, []);
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
-        setPage(0);
-        refetch();
-    };
+        setPage(0); // Reset page when tab changes
+        // TODO: 为新选项卡重新获取数据
+        // refetch(); // Refetch data for the new tab
+    }, []);
 
-    const handleSearch = () => {
-        setPage(0);
+    const handleSearch = useCallback(() => {
+        setPage(0); // Reset page on new search
         refetch();
-        console.log("Searching with:", searchParams)
-    };
+    }, [refetch]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchParams({
-            ...searchParams,
-            [e.target.name]: e.target.value
-        });
-    };
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setSearchParams(prev => ({ ...prev, [name]: value }));
+    }, []);
+
+    const handleExport = useCallback(() => {
+        console.log("Exporting data with filters:", searchParams, "Tab:", tabValue);
+        // TODO: 在此处添加实际的导出逻辑（例如，使用像xlsx这样的库）
+    }, [searchParams, tabValue]);
 
     return (
-        <Box sx={{p: 3, pt: 4}}>
+        <Box sx={{p: 3, pt: 8}}>
             <Box sx={{mb: 2}}>
                 <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -136,7 +213,8 @@ const DeductionRecord: React.FC = () => {
                     <Button
                         variant="contained"
                         startIcon={<Download/>}
-                        sx={{bgcolor: '#F44336', '&:hover': {bgcolor: '#D32F2F'}}}
+                        onClick={handleExport}
+                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                     >
                         导出Excel
                     </Button>
@@ -244,7 +322,7 @@ const DeductionRecord: React.FC = () => {
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={4} md={1} sx={{display: 'flex', justifyContent: 'flex-end'}}>
-                        <Button variant="contained" onClick={handleSearch} startIcon={<Search/>} sx={{bgcolor: '#F44336', '&:hover': {bgcolor: '#D32F2F'}}}>
+                        <Button variant="contained" onClick={handleSearch} startIcon={<Search/>} sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}>
                             搜索
                         </Button>
                     </Grid>
@@ -259,14 +337,18 @@ const DeductionRecord: React.FC = () => {
                     </Tabs>
                 </Box>
                 <Box sx={{ position: 'relative', minHeight: '300px' }}>
-                    {loading && <Loading />}
-                    {!loading && rows.length === 0 && <Empty />}
-                    {!loading && rows.length > 0 && (
-                        <TabPanel value={tabValue} index={tabValue}>
+                    {loading && <Loading />} 
+                    {/* Show error message if fetch failed */}
+                    {errorState && <Typography color="error">Failed to load records: {errorState.message}</Typography>}
+                    {/* Use TabPanel for content switching */}
+                    <TabPanel value={tabValue} index={0} hidden={loading || !!errorState}>
+                        {!loading && !errorState && displayRows.length === 0 && <Empty />} 
+                        {!loading && !errorState && displayRows.length > 0 && (
                             <TableContainer component={Paper}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
+                                            <TableCell>编号</TableCell>
                                             <TableCell>景区名称</TableCell>
                                             <TableCell>抵扣券名称</TableCell>
                                             <TableCell>有效期时间</TableCell>
@@ -281,6 +363,7 @@ const DeductionRecord: React.FC = () => {
                                     <TableBody>
                                         {displayRows.map((row: DeductionRecordData) => (
                                             <TableRow key={row.id}>
+                                                <TableCell>{row.id}</TableCell>
                                                 <TableCell>{row.sceneryName}</TableCell>
                                                 <TableCell>{row.deductionName}</TableCell>
                                                 <TableCell>{row.validTime}</TableCell>
@@ -299,7 +382,7 @@ const DeductionRecord: React.FC = () => {
                                 <TablePagination
                                     rowsPerPageOptions={[20, 50, 100]}
                                     component="div"
-                                    count={rows.length}
+                                    count={currentTotalCount} // Use state variable for count
                                     labelRowsPerPage="页面数量:"
                                     labelDisplayedRows={({from, to, count}) => `${from}-${to} / ${count}`}
                                     rowsPerPage={rowsPerPage}
@@ -308,8 +391,14 @@ const DeductionRecord: React.FC = () => {
                                     onRowsPerPageChange={handleChangeRowsPerPage}
                                 />
                             </TableContainer>
-                        </TabPanel>
-                    )}
+                        )}
+                    </TabPanel>
+                    {/* Add TabPanel for index 1 if needed */}
+                    {/* 
+                    <TabPanel value={tabValue} index={1} hidden={loading || !!errorState}>
+                        ... content for tab 1 ...
+                    </TabPanel> 
+                    */}
                 </Box>
             </Box>
         </Box>

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -20,12 +20,14 @@ import {
     FormLabel,
     IconButton,
 } from '@mui/material';
-import { Search, Close } from '@mui/icons-material';
-import { AddCircleOutline } from '@mui/icons-material';
+import { Search, Close, AddCircleOutline } from '@mui/icons-material';
 import Loading from 'components/Loading';
 import Empty from 'components/Empty';
 import QQMap from 'components/QQMap';
 
+/**
+ * 电子围栏表格行数据结构
+ */
 interface ElectronicFenceData {
     id: string | number;
     sceneryName: string;
@@ -34,6 +36,9 @@ interface ElectronicFenceData {
     updateTime: string;
 }
 
+/**
+ * 添加/编辑表单数据结构
+ */
 interface FenceFormData {
     sceneryName: string;
     locationSearch: string;
@@ -42,93 +47,144 @@ interface FenceFormData {
     tolerance: string;
 }
 
+const INITIAL_FENCE_FORM_DATA: FenceFormData = {
+    sceneryName: '',
+    locationSearch: '',
+    fenceName: '',
+    fenceCoordinates: '',
+    tolerance: '',
+};
+
+// TODO: 考虑将模拟数据移出或通过API获取
+const mockData: ElectronicFenceData[] = Array.from({ length: 100 }, (_, i) => ({
+    id: `100000${i}`,
+    sceneryName: '丹霞山风景区',
+    fenceName: '239876897766655555778888899',
+    createTime: '2026-03-14 12:00:00',
+    updateTime: '2026-03-14 12:00:00'
+}));
+
+/**
+ * 电子围栏管理页面
+ */
 const ElectronicFence: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
-    const [searchParams, setSearchParams] = useState({
-        sceneryName: '',
-    });
+    const [searchParams, setSearchParams] = useState({ sceneryName: '' }); // 简化的搜索状态
     const [openAddDialog, setOpenAddDialog] = useState(false);
-    const [formData, setFormData] = useState<FenceFormData>({
-        sceneryName: '',
-        locationSearch: '',
-        fenceName: '',
-        fenceCoordinates: '',
-        tolerance: '',
-    });
+    const [formData, setFormData] = useState<FenceFormData>(INITIAL_FENCE_FORM_DATA);
 
-    const mockData: ElectronicFenceData[] = Array.from({ length: 100 }, (_, i) => ({
-        id: `100000${i}`,
-        sceneryName: '丹霞山风景区',
-        fenceName: '239876897766655555778888899',
-        createTime: '2026-03-14 12:00:00',
-        updateTime: '2026-03-14 12:00:00'
-    }));
+    // TODO: 初始化为空数组，数据应通过API获取
+    const [fenceData, setFenceData] = useState<ElectronicFenceData[]>([]);
+    const [loading, setLoading] = useState(false); // 加载状态
+    const [errorState, setErrorState] = useState<Error | null>(null); // 错误状态
 
-    const loading = false;
-    const refetch = () => console.log("Refetching electronic fences...");
+    const refetch = useCallback(async () => { // 如果获取数据，则设为异步
+        console.log("Refetching electronic fences with filters:", searchParams);
+        setLoading(true);
+        setErrorState(null);
+        try {
+            // TODO: 使用真实API调用逻辑替换
+            // const fetchedData = await fetchFences({ ...searchParams, page, rowsPerPage });
+            // setFenceData(fetchedData.records || []);
+            // setTotalCount(fetchedData.totalCount || 0);
 
-    const rows = mockData;
-    const displayRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+            // TODO: 暂时使用模拟数据，后续移除
+            await new Promise(resolve => setTimeout(resolve, 500)); // 模拟延迟
+            setFenceData(mockData.filter(item => 
+                searchParams.sceneryName ? item.sceneryName.includes(searchParams.sceneryName) : true
+            )); // <-- 示例 setFenceData 用法
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+        } catch (error) {
+            console.error("Failed to fetch electronic fences:", error);
+            setErrorState(error as Error);
+        } finally {
+            setLoading(false);
+        }
+    }, [searchParams]);
+
+    // TODO: 在初始挂载和相关依赖项更改时获取数据
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
+
+    // 记忆化显示的行
+    const displayRows = useMemo(() => fenceData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [fenceData, page, rowsPerPage]);
+    const currentTotalCount = fenceData.length; // 客户端分页计数
+
+    const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
-    };
+    }, []);
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+        setPage(0); 
+    }, []);
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         setPage(0);
         refetch();
-        console.log("Searching fences with:", searchParams);
-    };
+    }, [refetch]);
 
-    const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchParams({
-            ...searchParams,
-            [e.target.name]: e.target.value
-        });
-    };
+    const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setSearchParams(prev => ({ ...prev, [name]: value }));
+    }, []);
 
-    const handleDialogInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleDialogInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    }, []);
 
-    const handleMapChange = (coordinates: string) => {
+    const handleMapChange = useCallback((coordinates: string) => {
         setFormData(prev => ({ ...prev, fenceCoordinates: coordinates }));
         console.log("Fence Coordinates:", coordinates);
-    };
+    }, []);
 
-    const handleSearchLocation = () => {
-        console.log("Searching location:", formData.locationSearch);
-    };
+    const handleSearchLocation = useCallback(() => {
+        console.log("Searching map location:", formData.locationSearch);
+    }, [formData.locationSearch]);
 
-    const handleOpenAddDialog = () => {
-        setFormData({
-            sceneryName: '',
-            locationSearch: '',
-            fenceName: '',
-            fenceCoordinates: '',
-            tolerance: '',
-        });
+    const handleOpenAddDialog = useCallback(() => {
+        setFormData(INITIAL_FENCE_FORM_DATA); // Reset form on open
         setOpenAddDialog(true);
-    }
+    }, []);
 
-    const handleCloseAddDialog = () => {
+    const handleCloseAddDialog = useCallback(() => {
         setOpenAddDialog(false);
-    }
+    }, []);
 
-    const handleAddSubmit = () => {
+    const handleAddSubmit = useCallback(async () => { // Make async if submitting data
         console.log('Adding electronic fence:', formData);
-        handleCloseAddDialog();
-    };
+        // Add logic to submit formData (e.g., API call)
+        // try {
+        //    await submitFence(formData);
+        //    refetch(); // Refetch table data on success
+        //    handleCloseAddDialog();
+        // } catch (submitError) {
+        //    console.error("Failed to submit fence:", submitError);
+        //    // Show error to user in dialog?
+        // }
+        handleCloseAddDialog(); // Close for now
+    }, [formData, handleCloseAddDialog]); // Add refetch if needed
+
+    const handleViewFence = useCallback((id: string | number) => {
+        console.log("View fence:", id);
+    }, []);
+
+    const handleEditFence = useCallback((fence: ElectronicFenceData) => {
+        console.log("Edit fence:", fence);
+        // Populate formData with fence data
+        // setFormData({ 
+        //    sceneryName: fence.sceneryName,
+        //    fenceName: fence.fenceName,
+        //    // ... map other fields, potentially fetch coordinates if not stored directly
+        // }); 
+        // setOpenAddDialog(true); // Open dialog in edit mode
+    }, []);
 
     return (
-        <Box sx={{p: 3, pt: 4}}>
+        <Box sx={{p: 3, pt: 8}}>
             <Box sx={{mb: 2}}>
                 <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -139,7 +195,7 @@ const ElectronicFence: React.FC = () => {
                         variant="contained"
                         startIcon={<AddCircleOutline/>}
                         onClick={handleOpenAddDialog}
-                        sx={{bgcolor: '#F44336', '&:hover': {bgcolor: '#D32F2F'}}}
+                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                     >
                         添加
                     </Button>
@@ -165,7 +221,7 @@ const ElectronicFence: React.FC = () => {
                             variant="contained"
                             startIcon={<Search/>}
                             onClick={handleSearch}
-                            sx={{bgcolor: '#F44336', '&:hover': {bgcolor: '#D32F2F'}}}
+                            sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                         >
                             搜索
                         </Button>
@@ -175,8 +231,9 @@ const ElectronicFence: React.FC = () => {
 
             <Box sx={{ position: 'relative', minHeight: '300px' }}>
                  {loading && <Loading />}
-                 {!loading && rows.length === 0 && <Empty />}
-                 {!loading && rows.length > 0 && (
+                 {errorState && <Typography color="error">Failed to load fences: {errorState.message}</Typography>}
+                 {!loading && !errorState && fenceData.length === 0 && <Empty />}
+                 {!loading && !errorState && fenceData.length > 0 && (
                      <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
@@ -198,8 +255,8 @@ const ElectronicFence: React.FC = () => {
                                         <TableCell>{row.createTime}</TableCell>
                                         <TableCell>{row.updateTime}</TableCell>
                                         <TableCell>
-                                            <Button size="small" sx={{ color: '#F44336', textDecoration: 'underline', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } }}>查看</Button>
-                                            <Button size="small" sx={{ color: '#F44336', textDecoration: 'underline', p: 0, minWidth: 'auto', ml: 1, '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } }}>编辑</Button>
+                                            <Button onClick={() => handleViewFence(row.id)} size="small" sx={{ color: '#F44336', textDecoration: 'underline', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } }}>查看</Button>
+                                            <Button onClick={() => handleEditFence(row)} size="small" sx={{ color: '#F44336', textDecoration: 'underline', p: 0, minWidth: 'auto', ml: 1, '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } }}>编辑</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -208,7 +265,7 @@ const ElectronicFence: React.FC = () => {
                         <TablePagination
                             rowsPerPageOptions={[20, 50, 100]}
                             component="div"
-                            count={rows.length}
+                            count={currentTotalCount}
                             labelRowsPerPage="页面数量:"
                             labelDisplayedRows={({from, to, count}) => `${from}-${to} / ${count}`}
                             rowsPerPage={rowsPerPage}
@@ -237,7 +294,7 @@ const ElectronicFence: React.FC = () => {
                  </DialogTitle>
                  <DialogContent sx={{ p: 3 }}>
                      <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-                         {/* Scenic Area */}
+                         {/* 景区 */}
                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
                              <FormLabel sx={{ minWidth: 100, textAlign: 'right', mr: 2 }}>所属景区:</FormLabel>
                              <TextField
@@ -250,7 +307,7 @@ const ElectronicFence: React.FC = () => {
                              />
                          </Box>
 
-                         {/* Location Search */}
+                         {/* 定位搜索 */}
                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
                              <FormLabel sx={{ minWidth: 100, textAlign: 'right', mr: 2 }}>定位位置:</FormLabel>
                              <TextField
@@ -275,7 +332,7 @@ const ElectronicFence: React.FC = () => {
                              </Button>
                          </Box>
 
-                         {/* Fence Name */}
+                         {/* 电子围栏名称 */}
                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
                              <FormLabel required sx={{ minWidth: 100, textAlign: 'right', mr: 2 }}>*电子围栏名称:</FormLabel>
                              <TextField
@@ -288,9 +345,9 @@ const ElectronicFence: React.FC = () => {
                              />
                          </Box>
 
-                         {/* Map Component */}
+                         {/* 地图组件 */}
                          <Box sx={{ height: 400, width: '100%', mt: 1, border: '1px solid #ccc' }}>
-                             {/* Render QQMap only when dialog is open to ensure container exists */}
+                             {/* 仅在对话框打开时渲染QQMap以确保容器存在 */}
                              {openAddDialog && (
                                  <QQMap
                                      overlay="marker"
@@ -300,7 +357,7 @@ const ElectronicFence: React.FC = () => {
                              )}
                          </Box>
 
-                         {/* Tolerance */}
+                         {/* 容错 */}
                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
                              <FormLabel sx={{ minWidth: 100, textAlign: 'right', mr: 2 }}>定位容错:</FormLabel>
                              <TextField

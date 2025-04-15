@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
     Box,
     Button,
@@ -11,9 +11,11 @@ import {
     FormLabel,
     Grid,
     IconButton,
+    InputLabel,
     MenuItem,
     Paper,
     Select,
+    SelectChangeEvent,
     Table,
     TableBody,
     TableCell,
@@ -34,52 +36,13 @@ import {
     ReceiptLong,
     CameraAlt
 } from '@mui/icons-material';
-import {useState, useEffect} from "react";
 import { EditorState, ContentState, convertToRaw, convertFromHTML, convertFromRaw } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
 /**
- * 兑换券管理页面组件
- *
- * 功能：
- * - 展示兑换券的统计信息（生成数量、兑换金额等）
- * - 列表展示兑换券的详细信息
- * - 支持分页、每页行数调整
- * - 提供添加兑换券的功能（弹窗表单）
- *
- * 使用的状态：
- * - page: 当前页码
- * - rowsPerPage: 每页显示的行数
- * - open: 控制弹窗的显示与隐藏
- * - formData: 表单数据，用于添加兑换券
- *
- * 主要方法：
- * - handleOpen: 打开弹窗
- * - handleClose: 关闭弹窗
- * - handleInputChange: 处理表单输入框的变更
- * - handleVoucherContentChange: 处理兑换券内容的变更
- * - addVoucherContent: 添加兑换券内容条目
- * - removeVoucherContent: 移除兑换券内容条目
- * - handleSubmit: 提交表单
- * - handleChangePage: 处理分页变更
- * - handleChangeRowsPerPage: 处理每页行数变更
- *
- * 模拟数据：
- * - stats: 用于展示的统计信息
- * - rows: 用于展示的兑换券列表数据
- *
- * 主要组件：
- * - StatCard: 用于展示统计信息的卡片
- * - Dialog: 用于添加兑换券的弹窗
- * - Table: 用于展示兑换券列表
- * - TablePagination: 表格分页组件
- * - TextField: 输入框组件，用于表单输入
- * - Select/MenuItem: 下拉选择组件，用于选择景区
- * - Button: 按钮组件，用于触发操作
- * - IconButton: 图标按钮组件，用于添加或移除兑换券内容
+ * 统计卡片组件
  */
-
 interface StatCardProps {
     title: string;
     value: string;
@@ -112,6 +75,9 @@ const StatCard: React.FC<StatCardProps> = ({title, value, icon, bgColor}) => (
     </Paper>
 );
 
+/**
+ * 兑换券表格行数据结构
+ */
 interface ExchangeVoucherRow {
     id: number;
     sceneryName: string;
@@ -125,72 +91,76 @@ interface ExchangeVoucherRow {
     triggerRule: string;
     createTime: string;
     status: '正常' | '已过期' | '已终止';
-    guidance?: { text: string; video: any };
+    guidance?: { text: string; video: File | null };
 }
 
+/**
+ * 指引弹窗属性
+ */
 interface GuidanceDialogProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (guidance: { text: string; video: any }) => void;
-    data: { text: string; video: any } | null;
+    onSubmit: (guidance: { text: string; video: File | null }) => void;
+    data: { text: string; video: File | null } | null;
 }
 
+/**
+ * 指引编辑/查看弹窗
+ */
 const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit, data }) => {
     const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-    const [videoFile, setVideoFile] = useState<any>(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (open) {
             let initialEditorState = EditorState.createEmpty();
             if (data?.text) {
                 try {
-                     // Assume data.text is a JSON string representation of RawDraftContentState
-                     const rawContent = JSON.parse(data.text);
-                     // Use convertFromRaw to create ContentState from the parsed raw JSON object
-                     const contentState = convertFromRaw(rawContent); 
-                     initialEditorState = EditorState.createWithContent(contentState);
+                    const rawContent = JSON.parse(data.text);
+                    const contentState = convertFromRaw(rawContent);
+                    initialEditorState = EditorState.createWithContent(contentState);
                 } catch (e) {
-                    // If JSON parsing or convertFromRaw fails, assume it might be HTML
-                    console.warn("Failed to parse guidance text as JSON/raw content, attempting HTML conversion.", e);
+                    console.warn("Failed to parse guidance text as JSON/raw, attempting HTML.", e);
                     try {
                         const blocksFromHTML = convertFromHTML(data.text);
                         if (blocksFromHTML.contentBlocks) {
                             const state = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
                             initialEditorState = EditorState.createWithContent(state);
                         } else {
-                             console.warn("Could not convert HTML to ContentState.");
+                            console.warn("Could not convert HTML to ContentState.");
                         }
                     } catch (htmlError) {
-                         console.error("Error converting HTML:", htmlError);
+                        console.error("Error converting HTML:", htmlError);
                     }
                 }
             }
             setEditorState(initialEditorState);
             setVideoFile(data?.video || null);
         } else {
-             // Reset state when dialog closes (optional, but good practice)
-             setEditorState(EditorState.createEmpty());
-             setVideoFile(null);
+            setEditorState(EditorState.createEmpty());
+            setVideoFile(null);
         }
     }, [data, open]);
 
-    const onEditorStateChange = (newEditorState: EditorState) => {
+    const onEditorStateChange = useCallback((newEditorState: EditorState) => {
         setEditorState(newEditorState);
-    };
+    }, []);
 
-    const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleVideoUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             console.log("Video file selected:", event.target.files[0]);
             setVideoFile(event.target.files[0]);
+        } else {
+            setVideoFile(null);
         }
-    };
+    }, []);
 
-    const handleSubmit = () => {
+    const handleSubmit = useCallback(() => {
         const contentState = editorState.getCurrentContent();
-        const hasText = contentState.hasText(); 
-        const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : ''; 
-        onSubmit({ text: rawContent, video: videoFile }); 
-    };
+        const hasText = contentState.hasText();
+        const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
+        onSubmit({ text: rawContent, video: videoFile });
+    }, [editorState, videoFile, onSubmit]);
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -223,7 +193,7 @@ const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit
                                 marginBottom: 0
                             }}
                             toolbar={{
-                                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', /*'embedded', 'emoji',*/ 'remove', 'history'],
+                                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'remove', 'history'],
                                 inline: { options: ['bold', 'italic', 'underline', 'strikethrough'] },
                                 list: { options: ['unordered', 'ordered'] },
                             }}
@@ -244,8 +214,7 @@ const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit
                         >
                             <input type="file" hidden accept="video/*" onChange={handleVideoUpload} />
                         </Button>
-                        {/* Optional: Display selected video file name */}
-                        {videoFile && typeof videoFile !== 'string' && <Typography variant="body2" sx={{ ml: 2 }}>{videoFile.name}</Typography>}
+                        {videoFile && <Typography variant="body2" sx={{ ml: 2 }}>{videoFile.name}</Typography>}
                     </Box>
                 </Box>
             </DialogContent>
@@ -257,293 +226,251 @@ const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit
     );
 };
 
+/**
+ * 添加/编辑表单数据结构
+ */
+interface AddFormData {
+    sceneryId: string;
+    voucherName: string;
+    keywordMatch: string;
+    voucherImage: string;
+    matchImage: string;
+    useLimit: string;
+    expireTime: string;
+    voucherContents: { id: number; value: string }[];
+}
+
+const INITIAL_ADD_FORM_DATA: AddFormData = {
+    sceneryId: '',
+    voucherName: '',
+    keywordMatch: '',
+    voucherImage: '',
+    matchImage: '',
+    useLimit: '',
+    expireTime: '',
+    voucherContents: [{ id: Date.now(), value: '' }],
+};
+
+const mockStats = [
+    {title: '生成兑换券（张）', value: '5231', icon: <ConfirmationNumber/>, bgColor: '#F44336'},
+    {title: '兑换金额（元）', value: '12560', icon: <MonetizationOn/>, bgColor: '#FF9800'},
+    {title: '已兑换数（张）', value: '3120', icon: <LocalOffer/>, bgColor: '#FFEB3B'},
+    {title: '未兑换数（张）', value: '2111', icon: <ReceiptLong/>, bgColor: '#4CAF50'},
+];
+
+const mockRows: ExchangeVoucherRow[] = Array.from({ length: 20 * 15 }, (_, i) => ({
+    id: i + 1,
+    sceneryName: '长隆欢乐世界',
+    voucherName: '快速通行证',
+    useLimit: '指定项目可用',
+    expireTime: '2025-12-31 23:59:59',
+    totalCount: 500,
+    exchangedCount: 250,
+    unexchangedCount: 250,
+    exchangedAmount: 12500,
+    triggerRule: '购买指定套餐',
+    createTime: '2024-01-15 10:00:00',
+    status: i % 4 === 0 ? '正常' : (i % 4 === 1 ? '已过期' : '已终止'),
+    guidance: i % 5 === 0 ? { text: JSON.stringify(convertToRaw(ContentState.createFromText(`这是第 ${i+1} 行的指引`))), video: null } : undefined,
+}));
+
+/**
+ * 兑换券管理页面
+ */
 const ExchangeVoucher: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openGuidanceDialog, setOpenGuidanceDialog] = useState(false);
-    const [selectedVoucherGuidance, setSelectedVoucherGuidance] = useState<{ text: string; video: any } | null>(null);
-    const [formData, setFormData] = useState({
-        sceneryId: '',
-        voucherName: '',
-        keywordMatch: '',
-        voucherImage: '',
-        matchImage: '',
-        useLimit: '',
-        expireTime: '',
-        voucherContents: ['']
-    });
+    const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
+    const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+    const [formData, setFormData] = useState<AddFormData>(INITIAL_ADD_FORM_DATA);
 
-    const handleOpenAddDialog = () => setOpenAddDialog(true);
+    const [voucherRows, setVoucherRows] = useState<ExchangeVoucherRow[]>(mockRows);
+
+    const handleOpenAddDialog = useCallback(() => {
+        setFormData(INITIAL_ADD_FORM_DATA);
+        setOpenAddDialog(true);
+    }, []);
+
     const handleCloseAddDialog = () => setOpenAddDialog(false);
 
     const handleOpenGuidanceDialog = (rowData: ExchangeVoucherRow) => {
-        setSelectedVoucherGuidance(rowData.guidance || { text: '', video: null });
+        setCurrentGuidanceData(rowData.guidance || { text: '', video: null });
+        setSelectedRowId(rowData.id);
         setOpenGuidanceDialog(true);
     };
 
     const handleCloseGuidanceDialog = () => {
         setOpenGuidanceDialog(false);
-        setSelectedVoucherGuidance(null);
+        setCurrentGuidanceData(null);
+        setSelectedRowId(null);
     };
 
-    const handleGuidanceSubmit = (guidance: { text: string; video: any }) => {
-        console.log("Submitting guidance:", guidance);
+    const handleGuidanceSubmit = useCallback((guidance: { text: string; video: File | null }) => {
+        console.log("Updating guidance for row:", selectedRowId, guidance);
+        setVoucherRows(prevRows => prevRows.map(row =>
+            row.id === selectedRowId ? { ...row, guidance } : row
+        ));
         handleCloseGuidanceDialog();
-    };
+    }, [selectedRowId, handleCloseGuidanceDialog]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    }, []);
 
-    const handleSelectChange = (e: any) => {
-        setFormData({...formData, sceneryId: e.target.value});
-    }
+    const handleSelectChange = useCallback((e: SelectChangeEvent<string>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name as keyof AddFormData]: value }));
+    }, []);
 
-    const handleVoucherContentChange = (index: number, value: string) => {
-        const newContents = [...formData.voucherContents];
-        newContents[index] = value;
-        setFormData({
-            ...formData,
-            voucherContents: newContents
-        });
-    };
+    const handleVoucherContentChange = useCallback((index: number, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            voucherContents: prev.voucherContents.map((content, i) =>
+                i === index ? { ...content, value } : content
+            )
+        }));
+    }, []);
 
-    const addVoucherContent = () => {
-        setFormData({
-            ...formData,
-            voucherContents: [...formData.voucherContents, '']
-        });
-    };
+    const addVoucherContent = useCallback(() => {
+        setFormData(prev => ({
+            ...prev,
+            voucherContents: [...prev.voucherContents, { id: Date.now(), value: '' }]
+        }));
+    }, []);
 
-    const removeVoucherContent = (index: number) => {
-        const newContents = formData.voucherContents.filter((_, i) => i !== index);
-        if (newContents.length >= 1) {
-            setFormData({
-                ...formData,
-                voucherContents: newContents
-            });
-        }
-    };
+    const removeVoucherContent = useCallback((idToRemove: number) => {
+        setFormData(prev => ({
+            ...prev,
+            voucherContents: prev.voucherContents.length > 1
+                ? prev.voucherContents.filter(content => content.id !== idToRemove)
+                : prev.voucherContents
+        }));
+    }, []);
 
-    const handleAddSubmit = () => {
-        console.log("Adding voucher:", formData);
+    const handleAddSubmit = useCallback(() => {
+        console.log("Submitting New Voucher:", formData);
         handleCloseAddDialog();
-    };
+    }, [formData, handleCloseAddDialog]);
 
-    const handleChangePage = (event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    const handleChangePage = useCallback((event: unknown, newPage: number) => setPage(newPage), []);
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
+    }, []);
 
-    const stats = [
-        {title: '生成兑换券（张）', value: '6783', icon: <ConfirmationNumber/>, bgColor: '#F44336'},
-        {title: '兑换金额（元）', value: '6783', icon: <MonetizationOn/>, bgColor: '#FF9800'},
-        {title: '已兑换数（张）', value: '6783', icon: <LocalOffer/>, bgColor: '#FFEB3B'},
-        {title: '未兑换数（张）', value: '6783', icon: <ReceiptLong/>, bgColor: '#4CAF50'},
-    ];
+    const displayRows = useMemo(() => voucherRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [voucherRows, page, rowsPerPage]);
 
-    const rows: ExchangeVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) => ({
-        id: i + 1,
-        sceneryName: '丹霞山风景区',
-        voucherName: '玩偶兑换券',
-        useLimit: '只能在景区使用',
-        expireTime: '2026-03-14 12:00:00',
-        totalCount: 1000,
-        exchangedCount: 300,
-        unexchangedCount: 700,
-        exchangedAmount: 700,
-        triggerRule: '关键字: 丹霞山, 上传图片: 图片, 关键字: 丹霞山, 图标: logo',
-        createTime: '2026-03-14 12:00:00',
-        status: i % 3 === 0 ? '正常' : (i % 3 === 1 ? '已过期' : '已终止'),
-        guidance: { text: `这是第 ${i+1} 条指引的初始内容。`, video: null }
-    }));
-
-    const displayRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-    const getStatusChipColor = (status: ExchangeVoucherRow['status']) => {
+    const getStatusChipColor = useCallback((status: ExchangeVoucherRow['status']) => {
         switch (status) {
-            case '正常':
-                return 'success';
-            case '已过期':
-                return 'warning';
-            case '已终止':
-                return 'error';
-            default:
-                return 'default';
+            case '正常': return 'success';
+            case '已过期': return 'warning';
+            case '已终止': return 'error';
+            default: return 'default';
         }
-    };
+    }, []);
 
+    /**
+     * 渲染添加/编辑弹窗内容
+     */
     const renderAddDialogContent = () => (
         <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>所属景区:</FormLabel>
                 <FormControl fullWidth size="small">
+                    <InputLabel id="add-scenery-select-label" sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
                     <Select
+                        labelId="add-scenery-select-label"
                         name="sceneryId"
                         value={formData.sceneryId}
                         onChange={handleSelectChange}
                         displayEmpty
+                        label={formData.sceneryId ? undefined : "请选择"}
                     >
                         <MenuItem value="" disabled>请选择</MenuItem>
-                        <MenuItem value="1">丹霞山风景区</MenuItem>
+                        <MenuItem value="1">长隆欢乐世界</MenuItem>
                     </Select>
                 </FormControl>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <FormLabel required sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>*兑换券名称:</FormLabel>
-                <TextField
-                    required
-                    fullWidth
-                    name="voucherName"
-                    value={formData.voucherName}
-                    onChange={handleInputChange}
-                    size="small"
-                />
+                <TextField required fullWidth name="voucherName" value={formData.voucherName} onChange={handleInputChange} size="small" />
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>比对凭证关键字:</FormLabel>
-                <TextField
-                    fullWidth
-                    name="keywordMatch"
-                    value={formData.keywordMatch}
-                    onChange={handleInputChange}
-                    size="small"
-                />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>电子券图片:</FormLabel>
-                <Box sx={{ display: 'flex', gap: 2, flexGrow: 1 }}>
-                    <Box sx={{ flex: 1, textAlign: 'center' }}>
-                        <Box
-                            sx={{
-                                width: '100%',
-                                height: 120,
-                                bgcolor: '#FFF5F5',
-                                borderRadius: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                border: '1px dashed #E0E0E0',
-                                mb: 0.5
-                            }}
-                        >
-                            <CameraAlt sx={{ color: '#F44336' }} />
-                        </Box>
-                    </Box>
-                    <Box sx={{ flex: 1, textAlign: 'center', display: 'flex', alignItems: 'center' }}>
-                        <FormLabel sx={{ minWidth: 'auto', mr: 1 }}>比对图标:</FormLabel>
-                        <Box
-                            sx={{
-                                width: '100%',
-                                height: 120,
-                                bgcolor: '#FFF5F5',
-                                borderRadius: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                border: '1px dashed #E0E0E0',
-                                mb: 0.5
-                            }}
-                        >
-                            <CameraAlt sx={{ color: '#F44336' }} />
-                        </Box>
-                    </Box>
-                </Box>
+                <TextField fullWidth name="keywordMatch" value={formData.keywordMatch} onChange={handleInputChange} size="small" />
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
                 <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>使用说明:</FormLabel>
-                <TextField
-                    fullWidth
-                    name="useLimit"
-                    value={formData.useLimit}
-                    onChange={handleInputChange}
-                    multiline
-                    rows={3}
-                    size="small"
-                />
+                <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline rows={3} size="small" />
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>有效时间:</FormLabel>
-                <TextField
-                    fullWidth
-                    name="expireTime"
-                    type="datetime-local"
-                    value={formData.expireTime}
-                    onChange={handleInputChange}
-                    InputLabelProps={{ shrink: true }}
-                    size="small"
-                />
+                <TextField fullWidth name="expireTime" type="datetime-local" value={formData.expireTime} onChange={handleInputChange} InputLabelProps={{ shrink: true }} size="small" />
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>生成兑换券内容:</FormLabel>
+                <FormLabel required sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>*兑换券内容:</FormLabel>
                 <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1 }}>
                     {formData.voucherContents.map((content, index) => (
-                        <Box key={index} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: index === formData.voucherContents.length - 1 ? 0 : 1.5 }}>
+                        <Box key={content.id} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: index === formData.voucherContents.length - 1 ? 0 : 1.5 }}>
                             <TextField
                                 fullWidth
-                                placeholder="例如: 可乐一瓶"
-                                value={content}
+                                required
+                                placeholder="例如：哈根达斯单球一个"
+                                value={content.value}
                                 onChange={(e) => handleVoucherContentChange(index, e.target.value)}
                                 size="small"
                                 sx={{ bgcolor: 'white' }}
                             />
-                            {formData.voucherContents.length > 1 && (
-                                <IconButton
-                                    size="small"
-                                    color="error"
-                                    onClick={() => removeVoucherContent(index)}
-                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
-                                >
-                                    <RemoveCircleOutline fontSize="small" />
-                                </IconButton>
-                            )}
                             <IconButton
                                 size="small"
-                                color="primary"
-                                onClick={addVoucherContent}
-                                sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
+                                color="error"
+                                onClick={() => removeVoucherContent(content.id)}
+                                sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+                                disabled={formData.voucherContents.length <= 1}
                             >
-                                <AddCircleOutline fontSize="small" />
+                                <RemoveCircleOutline fontSize="small" />
                             </IconButton>
                         </Box>
                     ))}
+                    <Button
+                        startIcon={<AddCircleOutline fontSize="small" />}
+                        onClick={addVoucherContent}
+                        size="small"
+                        variant="outlined"
+                        sx={{ mt: 1.5, alignSelf: 'flex-start' }}
+                    >
+                        添加内容
+                    </Button>
                 </Box>
             </Box>
         </Box>
     );
 
     return (
-        <Box sx={{p: 3, pt: 4}}>
+        <Box sx={{p: 3, pt: 8}}>
             <Box sx={{mb: 2}}>
                 <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Typography variant="h5" component="h2">
-                        兑换券管理
-                    </Typography>
-                    <Button
-                        variant="contained"
+                <Typography variant="h5" component="h2">
+                    兑换券管理
+                </Typography>
+                <Button
+                    variant="contained"
                         startIcon={<AddCircleOutline/>}
                         onClick={handleOpenAddDialog}
-                        sx={{bgcolor: '#F44336', '&:hover': {bgcolor: '#D32F2F'}}}
-                    >
-                        添加
-                    </Button>
+                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
+                >
+                    添加
+                </Button>
                 </Box>
             </Box>
 
@@ -571,11 +498,11 @@ const ExchangeVoucher: React.FC = () => {
                 open={openGuidanceDialog}
                 onClose={handleCloseGuidanceDialog}
                 onSubmit={handleGuidanceSubmit}
-                data={selectedVoucherGuidance}
+                data={currentGuidanceData}
             />
 
             <Grid container spacing={3} sx={{mb: 3}}>
-                {stats.map((stat, index) => (
+                {mockStats.map((stat, index) => (
                     <Grid item xs={12} sm={6} md={3} key={index}>
                         <StatCard {...stat} />
                     </Grid>
@@ -586,6 +513,7 @@ const ExchangeVoucher: React.FC = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell>编号</TableCell>
                             <TableCell>景区名称</TableCell>
                             <TableCell>兑换券名称</TableCell>
                             <TableCell>使用说明</TableCell>
@@ -603,6 +531,7 @@ const ExchangeVoucher: React.FC = () => {
                     <TableBody>
                         {displayRows.map((row) => (
                             <TableRow key={row.id}>
+                                <TableCell>{row.id}</TableCell>
                                 <TableCell>{row.sceneryName}</TableCell>
                                 <TableCell>{row.voucherName}</TableCell>
                                 <TableCell sx={{maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.useLimit}>{row.useLimit}</TableCell>
@@ -611,16 +540,16 @@ const ExchangeVoucher: React.FC = () => {
                                 <TableCell>{row.exchangedCount}</TableCell>
                                 <TableCell>{row.unexchangedCount}</TableCell>
                                 <TableCell>{row.exchangedAmount}</TableCell>
-                                <TableCell sx={{maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.triggerRule}>{row.triggerRule}</TableCell>
+                                <TableCell sx={{maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.triggerRule}>{row.triggerRule}</TableCell>
                                 <TableCell>{row.createTime}</TableCell>
                                 <TableCell>
                                     <Chip label={row.status} color={getStatusChipColor(row.status)} size="small" />
                                 </TableCell>
                                 <TableCell>
                                     {row.status === '正常' && <Button size="small" color="error" sx={{minWidth: 'auto', p: 0.5}}>中止</Button>}
-                                    <Button 
-                                        size="small" 
-                                        color="info" 
+                                    <Button
+                                        size="small"
+                                        color="info"
                                         sx={{minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0}}
                                         onClick={() => handleOpenGuidanceDialog(row)}
                                     >
@@ -634,7 +563,7 @@ const ExchangeVoucher: React.FC = () => {
                 <TablePagination
                     rowsPerPageOptions={[20, 50, 100]}
                     component="div"
-                    count={rows.length}
+                    count={voucherRows.length}
                     labelRowsPerPage="页面数量:"
                     labelDisplayedRows={({from, to, count}) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     Box,
     Button,
@@ -11,9 +11,11 @@ import {
     FormLabel,
     Grid,
     IconButton,
+    InputLabel,
     MenuItem,
     Paper,
     Select,
+    SelectChangeEvent,
     Table,
     TableBody,
     TableCell,
@@ -34,39 +36,9 @@ import {
     ReceiptLong,
     CameraAlt
 } from '@mui/icons-material';
-import {useState} from "react";
 
 /**
- * 抵扣券管理页面
- *
- * 功能：
- * - 展示抵扣券的统计信息（生成数量、抵扣金额等）
- * - 列表展示抵扣券的详细信息
- * - 支持分页、每页行数调整
- * - 提供添加抵扣券的功能（弹窗表单）
- *
- * 主要组件：
- * - StatCard: 用于展示统计信息的卡片
- * - Dialog: 用于添加抵扣券的弹窗
- * - Table: 用于展示抵扣券列表
- *
- * 使用的状态：
- * - page: 当前页码
- * - rowsPerPage: 每页显示的行数
- * - open: 控制弹窗的显示与隐藏
- * - formData: 表单数据，用于添加抵扣券
- *
- * 主要方法：
- * - handleOpen: 打开弹窗
- * - handleClose: 关闭弹窗
- * - handleInputChange: 处理表单输入框的变更
- * - handleProductNameChange: 处理商品名称的变更
- * - handleProductBarcodeChange: 处理商品条码的变更
- * - addProduct: 添加商品条目
- * - removeProduct: 移除商品条目
- * - handleSubmit: 提交表单
- * - handleChangePage: 处理分页变更
- * - handleChangeRowsPerPage: 处理每页行数变更
+ * 统计信息卡片
  */
 interface StatCardProps {
     title: string;
@@ -100,6 +72,9 @@ const StatCard: React.FC<StatCardProps> = ({title, value, icon, bgColor}) => (
     </Paper>
 );
 
+/**
+ * 抵扣券表格行数据结构
+ */
 interface DiscountVoucherRow {
     id: number;
     sceneryName: string;
@@ -115,151 +90,165 @@ interface DiscountVoucherRow {
     status: '正常' | '已过期' | '已终止';
 }
 
+/**
+ * 抵扣规则数据结构
+ */
 interface DiscountRule {
     id: number;
     totalAmount: string;
     discountAmount: string;
 }
 
+/**
+ * 适用商品数据结构
+ */
 interface ApplicableProduct {
     id: number;
     name: string;
     barcode: string;
 }
 
+/**
+ * 添加/编辑表单数据结构
+ */
 interface FormData {
     sceneryId: string;
     voucherName: string;
     keywordMatch: string;
-    voucherImage: string; // Assuming string for now, might need adjustment for file upload
-    matchImage: string;   // Assuming string for now, might need adjustment for file upload
+    voucherImage: string;
+    matchImage: string;
     useLimit: string;
     expireTime: string;
     discountRules: DiscountRule[];
     applicableProducts: ApplicableProduct[];
 }
 
+const INITIAL_FORM_DATA: FormData = {
+    sceneryId: '',
+    voucherName: '',
+    keywordMatch: '',
+    voucherImage: '',
+    matchImage: '',
+    useLimit: '',
+    expireTime: '',
+    discountRules: [{ id: Date.now(), totalAmount: '', discountAmount: '' }],
+    applicableProducts: [{ id: Date.now(), name: '', barcode: '' }],
+};
+
+// Mock data - consider moving or fetching
+// TODO: 考虑将模拟数据移出或通过API获取
+const mockStats = [
+    {title: '生成抵扣券（张）', value: '6783', icon: <ConfirmationNumber/>, bgColor: '#F44336'},
+    {title: '抵扣金额（元）', value: '6783', icon: <MonetizationOn/>, bgColor: '#FF9800'},
+    {title: '已抵扣数（张）', value: '6783', icon: <LocalOffer/>, bgColor: '#FFEB3B'},
+    {title: '未抵扣数（张）', value: '6783', icon: <ReceiptLong/>, bgColor: '#4CAF50'},
+];
+const mockRows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) => ({
+    id: i + 1,
+    sceneryName: '丹霞山风景区',
+    voucherName: '玩偶兑换券',
+    useLimit: '只能在景区使用',
+    expireTime: '2026-03-14 12:00:00',
+    totalCount: 1000,
+    discountedCount: 300,
+    undiscountedCount: 700,
+    discountAmount: 700,
+    triggerRule: '关键字: 丹霞山, 上传图片: 图片, 关键字: 丹霞山, 图标: logo',
+    createTime: '2026-03-14 12:00:00',
+    status: i % 3 === 0 ? '正常' : (i % 3 === 1 ? '已过期' : '已终止'),
+}));
+
+/**
+ * 抵扣券管理页面
+ */
 const DiscountVoucher: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState<FormData>({
-        sceneryId: '',
-        voucherName: '',
-        keywordMatch: '',
-        voucherImage: '',
-        matchImage: '',
-        useLimit: '',
-        expireTime: '',
-        discountRules: [{ id: Date.now(), totalAmount: '', discountAmount: '' }] as DiscountRule[],
-        applicableProducts: [{ id: Date.now(), name: '', barcode: '' }] as ApplicableProduct[],
-    });
+    const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
 
-    const handleOpen = () => {
-        setFormData({
-            sceneryId: '',
-            voucherName: '',
-            keywordMatch: '',
-            voucherImage: '',
-            matchImage: '',
-            useLimit: '',
-            expireTime: '',
-            discountRules: [{ id: Date.now(), totalAmount: '', discountAmount: '' }],
-            applicableProducts: [{ id: Date.now(), name: '', barcode: '' }],
-        });
+    const handleOpen = useCallback(() => {
+        setFormData(INITIAL_FORM_DATA);
         setOpen(true);
-    };
-    const handleClose = () => setOpen(false);
+    }, []);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleClose = useCallback(() => setOpen(false), []);
+
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    }, []);
 
-    const handleSelectChange = (e: any) => {
-        setFormData(prev => ({ ...prev, sceneryId: e.target.value }));
-    }
+    const handleSelectChange = useCallback((e: SelectChangeEvent<string>) => {
+         const { name, value } = e.target;
+         setFormData(prev => ({ ...prev, [name as keyof FormData]: value }));
+    }, []);
 
-    const handleProductChange = (index: number, field: keyof Omit<ApplicableProduct, 'id'>, value: string) => {
-        const updatedProducts = formData.applicableProducts.map((product, i) => 
-            i === index ? { ...product, [field]: value } : product
-        );
-        setFormData(prev => ({ ...prev, applicableProducts: updatedProducts }));
-    };
-
-    const addProduct = () => {
-        setFormData(prev => ({ 
-            ...prev, 
-            applicableProducts: [...prev.applicableProducts, { id: Date.now(), name: '', barcode: '' }] 
+    const handleProductChange = useCallback((index: number, field: keyof Omit<ApplicableProduct, 'id'>, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            applicableProducts: prev.applicableProducts.map((product, i) =>
+                i === index ? { ...product, [field]: value } : product
+            )
         }));
-    };
+    }, []);
 
-    const removeProduct = (idToRemove: number) => {
-        if (formData.applicableProducts.length <= 1) return;
-        setFormData(prev => ({ 
-            ...prev, 
-            applicableProducts: prev.applicableProducts.filter(product => product.id !== idToRemove) 
+    const addProduct = useCallback(() => {
+        setFormData(prev => ({
+            ...prev,
+            applicableProducts: [...prev.applicableProducts, { id: Date.now(), name: '', barcode: '' }]
         }));
-    };
+    }, []);
 
-    const handleRuleChange = (index: number, field: keyof Omit<DiscountRule, 'id'>, value: string) => {
-        const updatedRules = formData.discountRules.map((rule, i) => 
-            i === index ? { ...rule, [field]: value } : rule
-        );
-        setFormData(prev => ({ ...prev, discountRules: updatedRules }));
-    };
-
-    const addRule = () => {
-        setFormData(prev => ({ 
-            ...prev, 
-            discountRules: [...prev.discountRules, { id: Date.now(), totalAmount: '', discountAmount: '' }] 
+    const removeProduct = useCallback((idToRemove: number) => {
+        setFormData(prev => ({
+            ...prev,
+            applicableProducts: prev.applicableProducts.length > 1
+                ? prev.applicableProducts.filter(product => product.id !== idToRemove)
+                : prev.applicableProducts
         }));
-    };
+    }, []);
 
-    const removeRule = (idToRemove: number) => {
-        if (formData.discountRules.length <= 1) return;
-        setFormData(prev => ({ 
-            ...prev, 
-            discountRules: prev.discountRules.filter(rule => rule.id !== idToRemove) 
+    const handleRuleChange = useCallback((index: number, field: keyof Omit<DiscountRule, 'id'>, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            discountRules: prev.discountRules.map((rule, i) =>
+                i === index ? { ...rule, [field]: value } : rule
+            )
         }));
-    };
+    }, []);
 
-    const handleSubmit = () => {
+    const addRule = useCallback(() => {
+        setFormData(prev => ({
+            ...prev,
+            discountRules: [...prev.discountRules, { id: Date.now(), totalAmount: '', discountAmount: '' }]
+        }));
+    }, []);
+
+    const removeRule = useCallback((idToRemove: number) => {
+        setFormData(prev => ({
+            ...prev,
+            discountRules: prev.discountRules.length > 1
+                ? prev.discountRules.filter(rule => rule.id !== idToRemove)
+                : prev.discountRules
+        }));
+    }, []);
+
+    const handleSubmit = useCallback(() => {
         console.log("Submitting Discount Voucher:", formData);
         handleClose();
-    };
+    }, [formData, handleClose]);
 
-    const stats = [
-        {title: '生成抵扣券（张）', value: '6783', icon: <ConfirmationNumber/>, bgColor: '#F44336'},
-        {title: '抵扣金额（元）', value: '6783', icon: <MonetizationOn/>, bgColor: '#FF9800'},
-        {title: '已抵扣数（张）', value: '6783', icon: <LocalOffer/>, bgColor: '#FFEB3B'},
-        {title: '未抵扣数（张）', value: '6783', icon: <ReceiptLong/>, bgColor: '#4CAF50'},
-    ];
+    const handleChangePage = useCallback((event: unknown, newPage: number) => setPage(newPage), []);
 
-    const rows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) => ({
-        id: i + 1,
-        sceneryName: '丹霞山风景区',
-        voucherName: '玩偶兑换券',
-        useLimit: '只能在景区使用',
-        expireTime: '2026-03-14 12:00:00',
-        totalCount: 1000,
-        discountedCount: 300,
-        undiscountedCount: 700,
-        discountAmount: 700,
-        triggerRule: '关键字: 丹霞山, 上传图片: 图片, 关键字: 丹霞山, 图标: logo',
-        createTime: '2026-03-14 12:00:00',
-        status: i % 3 === 0 ? '正常' : (i % 3 === 1 ? '已过期' : '已终止'),
-    }));
-
-    const handleChangePage = (event: unknown, newPage: number) => setPage(newPage);
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
+    }, []);
 
-    const displayRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    const displayRows = mockRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-    const getStatusChipColor = (status: DiscountVoucherRow['status']) => {
+    const getStatusChipColor = useCallback((status: DiscountVoucherRow['status']) => {
         switch (status) {
             case '正常':
                 return 'success';
@@ -270,14 +259,25 @@ const DiscountVoucher: React.FC = () => {
             default:
                 return 'default';
         }
-    };
+    }, []);
 
+    /**
+     * 渲染添加/编辑弹窗内容
+     */
     const renderDialogContent = () => (
         <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>所属景区:</FormLabel>
                 <FormControl fullWidth size="small">
-                    <Select name="sceneryId" value={formData.sceneryId} onChange={handleSelectChange} displayEmpty>
+                    <InputLabel id="scenery-select-label" sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
+                    <Select
+                        labelId="scenery-select-label"
+                        name="sceneryId"
+                        value={formData.sceneryId}
+                        onChange={handleSelectChange}
+                        displayEmpty
+                        label={formData.sceneryId ? undefined : "请选择"}
+                    >
                         <MenuItem value="" disabled>请选择</MenuItem>
                         <MenuItem value="1">丹霞山风景区</MenuItem>
                     </Select>
@@ -340,23 +340,33 @@ const DiscountVoucher: React.FC = () => {
                                 size="small"
                                 sx={{ bgcolor: 'white', flex: 1 }}
                             />
-                            {formData.applicableProducts.length > 1 && (
-                                <IconButton size="small" color="error" onClick={() => removeProduct(product.id)} sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}>
-                                    <RemoveCircleOutline fontSize="small" />
-                                </IconButton>
-                            )}
-                            <IconButton size="small" color="primary" onClick={addProduct} sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}>
-                                <AddCircleOutline fontSize="small" />
+                            <IconButton 
+                                size="small" 
+                                color="error" 
+                                onClick={() => removeProduct(product.id)} 
+                                sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+                                disabled={formData.applicableProducts.length <= 1}
+                            >
+                                <RemoveCircleOutline fontSize="small" />
                             </IconButton>
                         </Box>
                     ))}
+                    <Button 
+                        startIcon={<AddCircleOutline fontSize="small" />} 
+                        onClick={addProduct} 
+                        size="small" 
+                        variant="outlined"
+                        sx={{ mt: 1.5, alignSelf: 'flex-start' }}
+                    >
+                        添加商品
+                    </Button>
                 </Box>
             </Box>
 
-            {formData.discountRules.map((rule, index) => (
-                <Box key={rule.id} sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                    <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>生成抵扣券规则:</FormLabel> 
-                    <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1 }}>
+            <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: 1 }}>生成抵扣券规则:</FormLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
+                {formData.discountRules.map((rule, index) => (
+                    <Box key={rule.id} sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1 }}>
                         <Grid container spacing={1} alignItems="center"> 
                             <Grid item xs={12} sm={5}>
                                 <TextField
@@ -384,25 +394,35 @@ const DiscountVoucher: React.FC = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} sm={2} sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}> 
-                                {formData.discountRules.length > 1 && (
-                                    <IconButton size="small" color="error" onClick={() => removeRule(rule.id)} sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}>
-                                        <RemoveCircleOutline fontSize="small" />
-                                    </IconButton>
-                                )}
-                                <IconButton size="small" color="primary" onClick={addRule} sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}>
-                                    <AddCircleOutline fontSize="small" />
+                                 <IconButton 
+                                    size="small" 
+                                    color="error" 
+                                    onClick={() => removeRule(rule.id)} 
+                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }} 
+                                    disabled={formData.discountRules.length <= 1}
+                                >
+                                    <RemoveCircleOutline fontSize="small" />
                                 </IconButton>
                             </Grid>
                         </Grid>
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>满 {rule.totalAmount || '_'} 抵扣 {rule.discountAmount || '_'}</Typography>
-                     </Box>
-                </Box>
-            ))}
+                    </Box>
+                ))}
+                 <Button 
+                    startIcon={<AddCircleOutline fontSize="small" />} 
+                    onClick={addRule} 
+                    size="small" 
+                    variant="outlined" 
+                    sx={{ alignSelf: 'flex-start' }}
+                >
+                    添加规则
+                </Button>
+            </Box>
         </Box>
     );
 
     return (
-        <Box sx={{p: 3, pt: 4}}>
+        <Box sx={{p: 3, pt: 8}}>
             <Box sx={{mb: 2}}>
                 <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -413,7 +433,7 @@ const DiscountVoucher: React.FC = () => {
                         variant="contained"
                         startIcon={<AddCircleOutline/>}
                         onClick={handleOpen}
-                        sx={{bgcolor: '#F44336', '&:hover': {bgcolor: '#D32F2F'}}}
+                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                     >
                         添加
                     </Button>
@@ -445,7 +465,7 @@ const DiscountVoucher: React.FC = () => {
             </Dialog>
 
             <Grid container spacing={3} sx={{mb: 3}}>
-                {stats.map((stat, index) => (
+                {mockStats.map((stat, index) => (
                     <Grid item xs={12} sm={6} md={3} key={index}>
                         <StatCard {...stat} />
                     </Grid>
@@ -497,7 +517,7 @@ const DiscountVoucher: React.FC = () => {
                 <TablePagination
                     rowsPerPageOptions={[20, 50, 100]}
                     component="div"
-                    count={rows.length}
+                    count={mockRows.length}
                     labelRowsPerPage="页面数量:"
                     labelDisplayedRows={({from, to, count}) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}
