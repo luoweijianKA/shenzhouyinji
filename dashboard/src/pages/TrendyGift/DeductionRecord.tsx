@@ -40,24 +40,32 @@ interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+  hidden?: boolean;
+}
+
+interface DeductionRecord {
+  sceneryName: string;
+  deductionName: string;
+  validTime: string;
+  user: string;
+  productName: string;
+  verifier: string;
+  userPhone: string;
+  useTime: string;
 }
 
 function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, hidden = false, ...other } = props;
 
   return (
     <div
       role="tabpanel"
-      hidden={value !== index}
+      hidden={hidden || value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {!hidden && value === index && children}
     </div>
   );
 }
@@ -84,6 +92,49 @@ const DeductionRecord: React.FC = () => {
     useTimeEnd: '',
   });
 
+  const mockData = [
+    {
+      sceneryName: '广州塔',
+      deductionName: '广州塔门票抵扣券',
+      validTime: '2023-12-31',
+      user: '张三',
+      productName: '广州塔成人票',
+      verifier: '李四',
+      userPhone: '13800138000',
+      useTime: '2023-06-15 14:30:00'
+    },
+    {
+      sceneryName: '长隆野生动物园',
+      deductionName: '长隆门票抵扣券',
+      validTime: '2023-12-31',
+      user: '王五',
+      productName: '长隆野生动物园成人票',
+      verifier: '赵六',
+      userPhone: '13900139000',
+      useTime: '2023-06-16 10:20:00'
+    },
+    {
+      sceneryName: '白云山',
+      deductionName: '白云山门票抵扣券',
+      validTime: '2023-12-31',
+      user: '陈七',
+      productName: '白云山成人票',
+      verifier: '周八',
+      userPhone: '13700137000',
+      useTime: '2023-06-17 09:15:00'
+    }
+  ];
+
+  // const { data, loading, refetch } = useQuery(GET_DEDUCTION_RECORDS, {
+  //   variables: {
+  //     input: {
+  //       ...searchParams,
+  //       status: tabValue === 0 ? 'used' : 'unused'
+  //     }
+  //   },
+  //   fetchPolicy: 'network-only'
+  // });
+
   const { data, loading, refetch } = useQuery(GET_DEDUCTION_RECORDS, {
     variables: {
       input: {
@@ -94,20 +145,8 @@ const DeductionRecord: React.FC = () => {
     fetchPolicy: 'network-only'
   });
 
-  const rows = data?.deductionRecords || [
-    {
-      sceneryName: '丹霞山风景区',
-      deductionName: '玩偶兑换券',
-      validTime: '2026-03-14 12:00:00',
-      user: '哈哈哈',
-      productName: '杯子',
-      verifier: '张三',
-      userPhone: '13378987656',
-      useTime: '2026-03-14 12:00:00',
-      operation: '查看',
-    },
-    // 可以添加更多模拟数据
-  ];
+  const rows = data?.deductionRecords || mockData;
+  const displayRows = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -123,12 +162,8 @@ const DeductionRecord: React.FC = () => {
   };
 
   const handleSearch = () => {
-    refetch({
-      input: {
-        ...searchParams,
-        status: tabValue === 0 ? 'used' : 'unused'
-      }
-    });
+    setPage(0);
+    refetch();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -257,96 +292,59 @@ const DeductionRecord: React.FC = () => {
             <Tab label="未抵扣" {...a11yProps(1)} />
           </Tabs>
         </Box>
-        <TabPanel value={tabValue} index={0}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>景区名称</TableCell>
-                  <TableCell>抵扣券名称</TableCell>
-                  <TableCell>有效期时间</TableCell>
-                  <TableCell>使用人员</TableCell>
-                  <TableCell>产品名称</TableCell>
-                  <TableCell>核销人员</TableCell>
-                  <TableCell>使用人员手机</TableCell>
-                  <TableCell>使用时间</TableCell>
-                  <TableCell>操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.sceneryName}</TableCell>
-                    <TableCell>{row.deductionName}</TableCell>
-                    <TableCell>{row.validTime}</TableCell>
-                    <TableCell>{row.user}</TableCell>
-                    <TableCell>{row.productName}</TableCell>
-                    <TableCell>{row.verifier}</TableCell>
-                    <TableCell>{row.userPhone}</TableCell>
-                    <TableCell>{row.useTime}</TableCell>
-                    <TableCell>
-                      <Button size="small" color="primary">查看</Button>
-                    </TableCell>
+        {loading ? (
+          <Box sx={{ p: 3 }}><Loading /></Box>
+        ) : rows.length === 0 ? (
+          <Box sx={{ p: 3 }}><Empty /></Box>
+        ) : (
+          <TabPanel value={tabValue} index={tabValue}>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>景区名称</TableCell>
+                    <TableCell>抵扣券名称</TableCell>
+                    <TableCell>有效期时间</TableCell>
+                    <TableCell>使用人员</TableCell>
+                    <TableCell>产品名称</TableCell>
+                    <TableCell>核销人员</TableCell>
+                    <TableCell>使用人员手机</TableCell>
+                    <TableCell>使用时间</TableCell>
+                    <TableCell>操作</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[20, 50, 100]}
-              component="div"
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
-        </TabPanel>
-        <TabPanel value={tabValue} index={1}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>景区名称</TableCell>
-                  <TableCell>抵扣券名称</TableCell>
-                  <TableCell>有效期时间</TableCell>
-                  <TableCell>使用人员</TableCell>
-                  <TableCell>产品名称</TableCell>
-                  <TableCell>核销人员</TableCell>
-                  <TableCell>使用人员手机</TableCell>
-                  <TableCell>使用时间</TableCell>
-                  <TableCell>操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{row.sceneryName}</TableCell>
-                    <TableCell>{row.deductionName}</TableCell>
-                    <TableCell>{row.validTime}</TableCell>
-                    <TableCell>{row.user}</TableCell>
-                    <TableCell>{row.productName}</TableCell>
-                    <TableCell>{row.verifier}</TableCell>
-                    <TableCell>{row.userPhone}</TableCell>
-                    <TableCell>{row.useTime}</TableCell>
-                    <TableCell>
-                      <Button size="small" color="primary">查看</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <TablePagination
-              rowsPerPageOptions={[20, 50, 100]}
-              component="div"
-              count={rows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-          </TableContainer>
-        </TabPanel>
+                </TableHead>
+                <TableBody>
+                  {displayRows.map((row: DeductionRecord, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{row.sceneryName}</TableCell>
+                      <TableCell>{row.deductionName}</TableCell>
+                      <TableCell>{row.validTime}</TableCell>
+                      <TableCell>{row.user}</TableCell>
+                      <TableCell>{row.productName}</TableCell>
+                      <TableCell>{row.verifier}</TableCell>
+                      <TableCell>{row.userPhone}</TableCell>
+                      <TableCell>{row.useTime}</TableCell>
+                      <TableCell>
+                        <Button size="small" color="primary">查看</Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <TablePagination
+                rowsPerPageOptions={[20, 50, 100]}
+                component="div"
+                count={rows.length}
+                labelRowsPerPage="每页行数"
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} 共 ${count}`}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableContainer>
+          </TabPanel>
+        )}
       </Box>
     </Box>
   );

@@ -57,12 +57,12 @@ import TrendyGift from './TrendyGift'
 import ExchangeVoucher from './TrendyGift/ExchangeVoucher'
 import DiscountVoucher from './TrendyGift/DiscountVoucher'
 import ExchangeRecord from './TrendyGift/ExchangeRecord'
-import DiscountRecord from './TrendyGift/DiscountRecord'
-import GeoFence from './TrendyGift/GeoFence'
+import DeductionRecord from './TrendyGift/DeductionRecord'
 import { useAccountState } from 'state/account/hooks'
 import { ApplicationStatus, ApplicationModal } from '../state/application/actions'
 import { useApplicationState, useModalOpen, useAlert } from '../state/application/hooks'
 import theme from './theme'
+import ElectronicFence from "./TrendyGift/ElectronicFence";
 
 const drawerWidth = 265
 
@@ -401,13 +401,13 @@ const activedRoutes = [
   },
   {
     path: '/trendy-gift/discount-record',
-    component: DiscountRecord,
+    component: DeductionRecord,
     exact: true,
     strict: true,
   },
   {
     path: '/trendy-gift/geo-fence',
-    component: GeoFence,
+    component: ElectronicFence,
     exact: true,
     strict: true,
   }
@@ -426,7 +426,7 @@ export default function App() {
   const alert = useAlert()
   const { account } = useAccountState()
   const open = useModalOpen(ApplicationModal.NAV)
-  
+
   const routes = useMemo(() => {
     if (account) {
       return activedRoutes.map(route => <AuthRoute key={route.path} {...route} actived={!!account} />)
@@ -461,9 +461,9 @@ export default function App() {
               </Main>
               {message && (
                 <Snackbar
-                  open={!!message} 
-                  autoHideDuration={3000} 
-                  onClose={handleCloseMessage} 
+                  open={!!message}
+                  autoHideDuration={3000}
+                  onClose={handleCloseMessage}
                   anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                   TransitionComponent={SlideTransition}
                 >
