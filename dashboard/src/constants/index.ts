@@ -19,6 +19,10 @@ import {
   Users,
   Maximize,
   Tag,
+  Gift,
+  CreditCard,
+  FileText,
+  MapPin as FenceIcon,
 } from 'react-feather'
 
 export const KEYS = {
@@ -103,7 +107,18 @@ export const MENUS = [
       { label: "MENU_PASSPORT_SEARCH", value: 65536, url: "/passport/search", icon: Search },
     ]
   },
-  { 
+  {
+    label: "MENU_TRENDY_GIFT",
+    value: 589824,
+    childrens: [
+      { label: "MENU_EXCHANGE_VOUCHER", value: 65536, url: "/trendy-gift/exchange-voucher", icon: Gift },
+      { label: "MENU_DISCOUNT_VOUCHER", value: 65536, url: "/trendy-gift/discount-voucher", icon: CreditCard },
+      { label: "MENU_EXCHANGE_RECORD", value: 65536, url: "/trendy-gift/exchange-record", icon: FileText },
+      { label: "MENU_DISCOUNT_RECORD", value: 65536, url: "/trendy-gift/discount-record", icon: FileText },
+      { label: "MENU_GEO_FENCE", value: 65536, url: "/trendy-gift/geo-fence", icon: FenceIcon },
+    ]
+  },
+  {
     label: "MENU_SETTINGS",
     value: 589824,
     childrens: [

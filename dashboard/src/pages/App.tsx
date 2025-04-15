@@ -53,6 +53,12 @@ import SettingsCheckInTag from './Settings/CheckInTag'
 import SettingsMap from './Settings/Map'
 import SettingsLog from './Settings/Log'
 import SignIn from './SignIn'
+import TrendyGift from './TrendyGift'
+import ExchangeVoucher from './TrendyGift/ExchangeVoucher'
+import DiscountVoucher from './TrendyGift/DiscountVoucher'
+import ExchangeRecord from './TrendyGift/ExchangeRecord'
+import DiscountRecord from './TrendyGift/DiscountRecord'
+import GeoFence from './TrendyGift/GeoFence'
 import { useAccountState } from 'state/account/hooks'
 import { ApplicationStatus, ApplicationModal } from '../state/application/actions'
 import { useApplicationState, useModalOpen, useAlert } from '../state/application/hooks'
@@ -366,6 +372,42 @@ const activedRoutes = [
   {
     path: '/settings/log',
     component: SettingsLog,
+    exact: true,
+    strict: true,
+  },
+  {
+    path: '/trendy-gift',
+    component: TrendyGift,
+    exact: true,
+    strict: true,
+  },
+  {
+    path: '/trendy-gift/exchange-voucher',
+    component: ExchangeVoucher,
+    exact: true,
+    strict: true,
+  },
+  {
+    path: '/trendy-gift/discount-voucher',
+    component: DiscountVoucher,
+    exact: true,
+    strict: true,
+  },
+  {
+    path: '/trendy-gift/exchange-record',
+    component: ExchangeRecord,
+    exact: true,
+    strict: true,
+  },
+  {
+    path: '/trendy-gift/discount-record',
+    component: DiscountRecord,
+    exact: true,
+    strict: true,
+  },
+  {
+    path: '/trendy-gift/geo-fence',
+    component: GeoFence,
     exact: true,
     strict: true,
   }
