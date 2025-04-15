@@ -211,8 +211,6 @@ func (r *Resolver) NewAccount(v *aPB.Account) *model.Account {
 		Wechat:       &v.Wechat,
 		WechatName:   &v.WechatName,
 		WechatAvatar: &v.WechatAvatar,
-		Phone:        &v.Phone,
-		City:         &v.City,
 		Role:         model.Role(v.Role),
 		Scopes:       scopes,
 		Status:       int(v.Status),
@@ -313,6 +311,21 @@ func (r *Resolver) NewAuditing(v *mPB.Auditing) *model.Auditing {
 		Data:        data,
 		CreatedBy:   v.CreatedBy,
 		CreatedTime: int(v.CreatedTime),
+	}
+}
+
+func (r *Resolver) NewTideSpot(v *mPB.TideSpot) *model.TideSpot {
+	ct := int(v.CreateTime)
+	ut := int(v.UpdateTime)
+	status := int(v.Status)
+	return &model.TideSpot{
+		ID:                v.Id,
+		Name:              v.Name,
+		PositionTolerance: &v.PositionTolerance,
+		ElectricFence:     &v.ElectricFence,
+		CreateTime:        &ct,
+		UpdateTime:        &ut,
+		Status:            &status,
 	}
 }
 
