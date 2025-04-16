@@ -33,12 +33,12 @@ import {
     RemoveCircleOutline,
     CameraAlt
 } from '@mui/icons-material';
-import {LinkButton, PageHeader, Title} from "../styled";
+import { LinkButton, PageHeader, Title } from "../styled";
 
 /**
  * 自定义图标组件
  */
-const CustomIcon = React.memo<{ src: string }>(({src}) => (
+const CustomIcon = React.memo<{ src: string }>(({ src }) => (
     <Box
         component="img"
         src={src}
@@ -61,8 +61,8 @@ interface StatCardProps {
     bgColor: string;
 }
 
-const StatCard = React.memo<StatCardProps>(({title, value, icon, bgColor}) => (
-    <Paper elevation={0} sx={{p: 2, display: 'flex', alignItems: 'center', boxShadow: 'none'}}>
+const StatCard = React.memo<StatCardProps>(({ title, value, icon, bgColor }) => (
+    <Paper elevation={0} sx={{ p: 2, display: 'flex', alignItems: 'center', boxShadow: 'none' }}>
         <Box sx={{
             mr: '15px',
             p: 1.5,
@@ -78,10 +78,10 @@ const StatCard = React.memo<StatCardProps>(({title, value, icon, bgColor}) => (
             {icon}
         </Box>
         <Box>
-            <Typography variant="body2" color="text.secondary" sx={{fontSize: '16px', mb: 0, color: '#333'}}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '16px', mb: 0, color: '#333' }}>
                 {title}
             </Typography>
-            <Typography variant="h5" fontWeight="bold" sx={{fontSize: '32px', color: '#333'}}>
+            <Typography variant="h5" fontWeight="bold" sx={{ fontSize: '32px', color: '#333' }}>
                 {value}
             </Typography>
         </Box>
@@ -158,25 +158,25 @@ const mockStats = [
     {
         title: '生成抵扣券（张）',
         value: '6783',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png" />,
         bgColor: '#F41515'
     },
     {
         title: '抵扣金额（元）',
         value: '6783',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png" />,
         bgColor: '#FA7202'
     },
     {
         title: '已抵扣数（张）',
         value: '6783',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png" />,
         bgColor: '#FFCC00'
     },
     {
         title: '未抵扣数（张）',
         value: '6783',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png" />,
         bgColor: '#7DD000'
     },
 ];
@@ -196,9 +196,9 @@ const mockRows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) =
 }));
 // 常量样式对象
 const STYLES = {
-    formLabel: {minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px'},
-    dialogTitle: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
-    dialogActions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'},
+    formLabel: { minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px' },
+    dialogTitle: { m: 0, p: 2, borderBottom: '1px solid #E0E0E0' },
+    dialogActions: { p: 3, pt: 2, borderTop: '1px solid #E0E0E0' },
     statsContainer: {
         height: '150px',
         bgcolor: 'white',
@@ -220,7 +220,7 @@ const STYLES = {
         width: 100, height: 100, border: '1px dashed #E0E0E0', bgcolor: '#FFF5F5',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexDirection: 'column', textTransform: 'none', color: 'text.secondary',
-        '&:hover': {bgcolor: '#FFF0F0'}
+        '&:hover': { bgcolor: '#FFF0F0' }
     },
     imagePreview: {
         width: 100,
@@ -482,8 +482,8 @@ const DiscountVoucher: React.FC = () => {
     }, []);
 
     const handleSelectChange = useCallback((e: SelectChangeEvent<string>) => {
-         const { name, value } = e.target;
-         setFormData(prev => ({ ...prev, [name as keyof FormData]: value }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name as keyof FormData]: value }));
     }, []);
 
     const handleProductChange = useCallback((index: number, field: keyof Omit<ApplicableProduct, 'id'>, value: string) => {
@@ -573,7 +573,7 @@ const DiscountVoucher: React.FC = () => {
     }, []);
 
     return (
-        <Box sx={{ pt: 8}}>
+        <Box sx={{ pt: 8 }}>
             <PageHeader container>
                 <Grid item xs={4}>
                     <Breadcrumbs aria-label="breadcrumb">
@@ -581,7 +581,7 @@ const DiscountVoucher: React.FC = () => {
                     </Breadcrumbs>
                     <Title variant='h1'>{"抵扣券管理"}</Title>
                 </Grid>
-                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end"}}>
+                <Grid item xs={8} sx={{ display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end" }}>
                     <LinkButton
                         disableElevation
                         variant="contained"
@@ -589,7 +589,7 @@ const DiscountVoucher: React.FC = () => {
                             component="img"
                             src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_add@3x.png"
                             alt="icon"
-                            sx={{width: 20, height: 20}}
+                            sx={{ width: 20, height: 20 }}
                         />}
                         onClick={handleOpen}
                     >
@@ -610,10 +610,10 @@ const DiscountVoucher: React.FC = () => {
                             top: 8,
                         }}
                     >
-                        <Close/>
+                        <Close />
                     </IconButton>
                 </DialogTitle>
-                <DialogContent sx={{p: 3}}>
+                <DialogContent sx={{ p: 3 }}>
                     <DiscountDialogContent
                         formData={formData}
                         handleInputChange={handleInputChange}
@@ -628,7 +628,7 @@ const DiscountVoucher: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
-                    <Button onClick={handleClose} sx={{mr: 1}}>取消</Button>
+                    <Button onClick={handleClose} sx={{ mr: 1 }}>取消</Button>
                     <Button variant="contained" onClick={handleSubmit}>确定</Button>
                 </DialogActions>
             </Dialog>
@@ -645,7 +645,7 @@ const DiscountVoucher: React.FC = () => {
 
             <TableContainer component={Paper} sx={{
                 mt: 3,
-                pl:'37px',pr:'37px',
+                pl: '37px', pr: '37px',
                 borderRadius: '10px',
                 boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                 '& .MuiTable-root': {
@@ -674,20 +674,20 @@ const DiscountVoucher: React.FC = () => {
                             <TableRow key={row.id}>
                                 <TableCell>{row.sceneryName}</TableCell>
                                 <TableCell>{row.voucherName}</TableCell>
-                                <TableCell sx={{maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.useLimit}>{row.useLimit}</TableCell>
+                                <TableCell sx={{ maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.useLimit}>{row.useLimit}</TableCell>
                                 <TableCell>{row.expireTime}</TableCell>
                                 <TableCell>{row.totalCount}</TableCell>
                                 <TableCell>{row.discountedCount}</TableCell>
                                 <TableCell>{row.undiscountedCount}</TableCell>
                                 <TableCell>{row.discountAmount}</TableCell>
-                                <TableCell sx={{maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.triggerRule}>{row.triggerRule}</TableCell>
+                                <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={row.triggerRule}>{row.triggerRule}</TableCell>
                                 <TableCell>{row.createTime}</TableCell>
                                 <TableCell>
                                     <Chip label={row.status} color={getStatusChipColor(row.status)} size="small" />
                                 </TableCell>
                                 <TableCell>
-                                    {row.status === '正常' && <Button size="small" color="error" sx={{minWidth: 'auto', p: 0.5}}>中止</Button>}
-                                    <Button size="small" color="info" sx={{minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0}}>指引</Button>
+                                    {row.status === '正常' && <Button size="small" color="error" sx={{ minWidth: 'auto', p: 0.5 }}>中止</Button>}
+                                    <Button size="small" color="info" sx={{ minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0 }}>指引</Button>
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -698,7 +698,7 @@ const DiscountVoucher: React.FC = () => {
                     component="div"
                     count={mockRows.length}
                     labelRowsPerPage="页面数量:"
-                    labelDisplayedRows={({from, to, count}) => `${from}-${to} / ${count}`}
+                    labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}

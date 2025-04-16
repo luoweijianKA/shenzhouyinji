@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     Box,
     Breadcrumbs,
@@ -27,11 +27,11 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import {AddCircleOutline, CameraAlt, Close, RemoveCircleOutline} from '@mui/icons-material';
-import {ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState} from 'draft-js';
-import {Editor} from 'react-draft-wysiwyg';
+import { AddCircleOutline, CameraAlt, Close, RemoveCircleOutline } from '@mui/icons-material';
+import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import {LinkButton, PageHeader, Title} from "../styled";
+import { LinkButton, PageHeader, Title } from "../styled";
 
 /**
  * 统计卡片组件
@@ -43,8 +43,8 @@ interface StatCardProps {
     bgColor: string;
 }
 
-const StatCard = React.memo<StatCardProps>(({title, value, icon, bgColor}) => (
-    <Paper elevation={0} sx={{p: 2, display: 'flex', alignItems: 'center', boxShadow: 'none'}}>
+const StatCard = React.memo<StatCardProps>(({ title, value, icon, bgColor }) => (
+    <Paper elevation={0} sx={{ p: 2, display: 'flex', alignItems: 'center', boxShadow: 'none' }}>
         <Box sx={{
             mr: '15px',
             p: 1.5,
@@ -60,10 +60,10 @@ const StatCard = React.memo<StatCardProps>(({title, value, icon, bgColor}) => (
             {icon}
         </Box>
         <Box>
-            <Typography variant="body2" color="text.secondary" sx={{fontSize: '16px', mb: 0, color: '#333'}}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '16px', mb: 0, color: '#333' }}>
                 {title}
             </Typography>
-            <Typography variant="h5" fontWeight="bold" sx={{fontSize: '32px', color: '#333'}}>
+            <Typography variant="h5" fontWeight="bold" sx={{ fontSize: '32px', color: '#333' }}>
                 {value}
             </Typography>
         </Box>
@@ -102,7 +102,7 @@ interface GuidanceDialogProps {
 /**
  * 指引编辑/查看弹窗
  */
-const GuidanceDialog = React.memo<GuidanceDialogProps>(({open, onClose, onSubmit, data}) => {
+const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmit, data }) => {
     const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
     const [videoFile, setVideoFile] = useState<File | null>(null);
 
@@ -153,26 +153,26 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({open, onClose, onSubmit
         const contentState = editorState.getCurrentContent();
         const hasText = contentState.hasText();
         const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
-        onSubmit({text: rawContent, video: videoFile});
+        onSubmit({ text: rawContent, video: videoFile });
     }, [editorState, videoFile, onSubmit]);
 
     const DIALOG_STYLES = {
-        title: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
-        actions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'}
+        title: { m: 0, p: 2, borderBottom: '1px solid #E0E0E0' },
+        actions: { p: 3, pt: 2, borderTop: '1px solid #E0E0E0' }
     };
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={DIALOG_STYLES.title}>
                 指引
-                <IconButton aria-label="close" onClick={onClose} sx={{position: 'absolute', right: 8, top: 8}}>
-                    <Close/>
+                <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
+                    <Close />
                 </IconButton>
             </DialogTitle>
-            <DialogContent sx={{p: 3, pt: 2}}>
-                <Box sx={{display: 'flex', flexDirection: 'column', gap: 3}}>
-                    <Box sx={{display: 'flex', flexDirection: 'column'}}>
-                        <FormLabel sx={{mb: 1.5, fontWeight: 'normal'}}>操作指引:</FormLabel>
+            <DialogContent sx={{ p: 3, pt: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <FormLabel sx={{ mb: 1.5, fontWeight: 'normal' }}>操作指引:</FormLabel>
                         <Editor
                             editorState={editorState}
                             onEditorStateChange={onEditorStateChange}
@@ -194,29 +194,29 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({open, onClose, onSubmit
                             }}
                             toolbar={{
                                 options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
-                                inline: {options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript']},
-                                blockType: {options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote', 'Code']},
-                                list: {options: ['unordered', 'ordered', 'indent', 'outdent']},
-                                textAlign: {options: ['left', 'center', 'right', 'justify']},
+                                inline: { options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript'] },
+                                blockType: { options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote', 'Code'] },
+                                list: { options: ['unordered', 'ordered', 'indent', 'outdent'] },
+                                textAlign: { options: ['left', 'center', 'right', 'justify'] },
                             }}
                         />
                     </Box>
-                    <Box sx={{display: 'flex', alignItems: 'center'}}>
-                        <FormLabel sx={{minWidth: 'auto', mr: 1.5, fontWeight: 'normal'}}>操作视频:</FormLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ minWidth: 'auto', mr: 1.5, fontWeight: 'normal' }}>操作视频:</FormLabel>
                         <Button
                             variant="outlined"
                             component="label"
                             sx={STYLES.uploadButton}
                         >
-                            <CameraAlt sx={{color: '#F44336'}}/>
-                            <input type="file" hidden accept="video/*" onChange={handleVideoUpload}/>
+                            <CameraAlt sx={{ color: '#F44336' }} />
+                            <input type="file" hidden accept="video/*" onChange={handleVideoUpload} />
                         </Button>
-                        {videoFile && <Typography variant="body2" sx={{ml: 2}}>{videoFile.name}</Typography>}
+                        {videoFile && <Typography variant="body2" sx={{ ml: 2 }}>{videoFile.name}</Typography>}
                     </Box>
                 </Box>
             </DialogContent>
             <DialogActions sx={DIALOG_STYLES.actions}>
-                <Button onClick={onClose} sx={{mr: 1}}>取消</Button>
+                <Button onClick={onClose} sx={{ mr: 1 }}>取消</Button>
                 <Button variant="contained" onClick={handleSubmit}>确定</Button>
             </DialogActions>
         </Dialog>
@@ -245,10 +245,10 @@ const INITIAL_ADD_FORM_DATA: AddFormData = {
     matchImage: null,
     useLimit: '',
     expireTime: '',
-    voucherContents: [{id: Date.now(), value: ''}, { id: Date.now() + 1, value: '' }],
+    voucherContents: [{ id: Date.now(), value: '' }, { id: Date.now() + 1, value: '' }],
 };
 
-const CustomIcon = React.memo<{ src: string }>(({src}) => (
+const CustomIcon = React.memo<{ src: string }>(({ src }) => (
     <Box
         component="img"
         src={src}
@@ -265,33 +265,33 @@ const mockStats = [
     {
         title: '生成兑换券（张）',
         value: '5231',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png" />,
         bgColor: '#F41515'
     },
     {
         title: '兑换金额（元）',
         value: '12560',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png" />,
         bgColor: '#FA7202'
     },
     {
         title: '已兑换数（张）',
         value: '3120',
-        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png"/>,
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png" />,
         bgColor: '#FFCC00'
     },
     {
         title: '未兑换数（张）',
         value: '2111',
         icon: <CustomIcon
-            src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png"/>,
+            src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png" />,
         bgColor: '#7DD000'
     },
 ];
 
 // 生成模拟数据
 const generateMockRows = (): ExchangeVoucherRow[] =>
-    Array.from({length: 20 * 15}, (_, i) => ({
+    Array.from({ length: 20 * 15 }, (_, i) => ({
         id: i + 1,
         sceneryName: '长隆欢乐世界',
         voucherName: '快速通行证',
@@ -312,9 +312,9 @@ const generateMockRows = (): ExchangeVoucherRow[] =>
 
 // 常量样式对象
 const STYLES = {
-    formLabel: {minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px'},
-    dialogTitle: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
-    dialogActions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'},
+    formLabel: { minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px' },
+    dialogTitle: { m: 0, p: 2, borderBottom: '1px solid #E0E0E0' },
+    dialogActions: { p: 3, pt: 2, borderTop: '1px solid #E0E0E0' },
     statsContainer: {
         height: '150px',
         bgcolor: 'white',
@@ -336,7 +336,7 @@ const STYLES = {
         width: 100, height: 100, border: '1px dashed #E0E0E0', bgcolor: '#FFF5F5',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexDirection: 'column', textTransform: 'none', color: 'text.secondary',
-        '&:hover': {bgcolor: '#FFF0F0'}
+        '&:hover': { bgcolor: '#FFF0F0' }
     },
     imagePreview: {
         width: 100,
@@ -368,7 +368,7 @@ const VoucherContentItem = React.memo<{
     total: number,
     onValueChange: (index: number, value: string) => void,
     onRemove: (id: number) => void
-}>(({content, index, total, onValueChange, onRemove}) => (
+}>(({ content, index, total, onValueChange, onRemove }) => (
     <Box sx={{
         display: 'flex',
         gap: 1,
@@ -382,16 +382,16 @@ const VoucherContentItem = React.memo<{
             value={content.value}
             onChange={(e) => onValueChange(index, e.target.value)}
             size="small"
-            sx={{bgcolor: 'white'}}
+            sx={{ bgcolor: 'white' }}
         />
         <IconButton
             size="small"
             color="error"
             onClick={() => onRemove(content.id)}
-            sx={{bgcolor: '#FEECEB', '&:hover': {bgcolor: '#FDDAD8'}}}
+            sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
             disabled={total <= 1}
         >
-            <RemoveCircleOutline fontSize="small"/>
+            <RemoveCircleOutline fontSize="small" />
         </IconButton>
     </Box>
 ));
@@ -404,8 +404,8 @@ const VoucherContentsSection = React.memo<{
     onValueChange: (index: number, value: string) => void,
     onAdd: () => void,
     onRemove: (id: number) => void
-}>(({contents, onValueChange, onAdd, onRemove}) => (
-    <Box sx={{bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1, position: 'relative'}}>
+}>(({ contents, onValueChange, onAdd, onRemove }) => (
+    <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1, position: 'relative' }}>
         {contents.map((content, index) => (
             <VoucherContentItem
                 key={content.id}
@@ -425,10 +425,10 @@ const VoucherContentsSection = React.memo<{
                 top: '10px',
                 right: contents.length > 1 ? '45px' : '10px',
                 bgcolor: '#E3F2FD',
-                '&:hover': {bgcolor: '#BBDEFB'}
+                '&:hover': { bgcolor: '#BBDEFB' }
             }}
         >
-            <AddCircleOutline fontSize="small"/>
+            <AddCircleOutline fontSize="small" />
         </IconButton>
     </Box>
 ));
@@ -445,20 +445,20 @@ const AddDialogContent = React.memo<{
     removeVoucherContent: (id: number) => void,
     handleFileChange: (event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => void
 }>(({
-        formData,
-        handleInputChange,
-        handleSelectChange,
-        handleVoucherContentChange,
-        addVoucherContent,
-        removeVoucherContent,
-        handleFileChange
-    }) => (
-    <Box component="form" sx={{display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1}}>
-        <Box sx={{display: 'flex', alignItems: 'center'}}>
+    formData,
+    handleInputChange,
+    handleSelectChange,
+    handleVoucherContentChange,
+    addVoucherContent,
+    removeVoucherContent,
+    handleFileChange
+}) => (
+    <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel sx={STYLES.formLabel}>所属景区:</FormLabel>
             <FormControl fullWidth size="small">
                 <InputLabel id="add-scenery-select-label"
-                            sx={{...(formData.sceneryId && {display: 'none'})}}>请选择</InputLabel>
+                    sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
                 <Select
                     labelId="add-scenery-select-label"
                     name="sceneryId"
@@ -473,26 +473,26 @@ const AddDialogContent = React.memo<{
             </FormControl>
         </Box>
 
-        <Box sx={{display: 'flex', alignItems: 'center'}}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel required sx={STYLES.formLabel}>*兑换券名称:</FormLabel>
             <TextField required fullWidth name="voucherName" value={formData.voucherName}
-                       onChange={handleInputChange} size="small"/>
+                onChange={handleInputChange} size="small" />
         </Box>
 
-        <Box sx={{display: 'flex', alignItems: 'center'}}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel sx={STYLES.formLabel}>比对凭证关键字:</FormLabel>
             <TextField fullWidth name="keywordMatch" value={formData.keywordMatch} onChange={handleInputChange}
-                       size="small"/>
+                size="small" />
         </Box>
 
         {/* Moved Image Upload Fields Below Keyword Match */}
-        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-            <Box sx={{display: 'flex', alignItems: 'flex-start', flex: 1}}>
-                <FormLabel sx={{...STYLES.formLabel, pt: 0}}>电子券图片:</FormLabel>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flex: 1 }}>
+                <FormLabel sx={{ ...STYLES.formLabel, pt: 0 }}>电子券图片:</FormLabel>
                 <Button
                     variant="outlined"
                     component="label"
-                    startIcon={<CameraAlt sx={{color: '#F44336'}}/>}
+                    startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
                     sx={STYLES.uploadButton}
                 >
                     <input
@@ -511,12 +511,12 @@ const AddDialogContent = React.memo<{
                     )}
                 </Button>
             </Box>
-            <Box sx={{display: 'flex', alignItems: 'flex-start', flex: 1}}>
-                <FormLabel sx={{...STYLES.formLabel, pt: 0, minWidth: 'auto', mr: 1}}>比对图标:</FormLabel>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flex: 1 }}>
+                <FormLabel sx={{ ...STYLES.formLabel, pt: 0, minWidth: 'auto', mr: 1 }}>比对图标:</FormLabel>
                 <Button
                     variant="outlined"
                     component="label"
-                    startIcon={<CameraAlt sx={{color: '#F44336'}}/>}
+                    startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
                     sx={STYLES.uploadButton}
                 >
                     <input
@@ -537,20 +537,20 @@ const AddDialogContent = React.memo<{
             </Box>
         </Box>
 
-        <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <FormLabel sx={STYLES.formLabel}>使用说明:</FormLabel>
             <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline
-                       rows={3} size="small"/>
+                rows={3} size="small" />
         </Box>
 
-        <Box sx={{display: 'flex', alignItems: 'center'}}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel sx={STYLES.formLabel}>有效时间:</FormLabel>
             <TextField fullWidth name="expireTime" type="text" value={formData.expireTime}
-                       onChange={handleInputChange} size="small" placeholder="例如：2024-12-31"/>
+                onChange={handleInputChange} size="small" placeholder="例如：2024-12-31" />
         </Box>
 
-        <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
-            <FormLabel required sx={{...STYLES.formLabel, pt: 1}}>*兑换券内容:</FormLabel>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <FormLabel required sx={{ ...STYLES.formLabel, pt: 1 }}>*兑换券内容:</FormLabel>
             <VoucherContentsSection
                 contents={formData.voucherContents}
                 onValueChange={handleVoucherContentChange}
@@ -567,17 +567,17 @@ const AddDialogContent = React.memo<{
 const RowActions = React.memo<{
     row: ExchangeVoucherRow,
     onOpenGuidance: (row: ExchangeVoucherRow) => void
-}>(({row, onOpenGuidance}) => (
+}>(({ row, onOpenGuidance }) => (
     <>
         {row.status === '正常' &&
-            <Button size="small" color="error" sx={{minWidth: 'auto', p: 0.5}}>
+            <Button size="small" color="error" sx={{ minWidth: 'auto', p: 0.5 }}>
                 中止
             </Button>
         }
         <Button
             size="small"
             color="info"
-            sx={{minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0}}
+            sx={{ minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0 }}
             onClick={() => onOpenGuidance(row)}
         >
             指引
@@ -608,7 +608,7 @@ const ExchangeVoucher: React.FC = () => {
     }, []);
 
     const handleOpenGuidanceDialog = useCallback((rowData: ExchangeVoucherRow) => {
-        setCurrentGuidanceData(rowData.guidance || {text: '', video: null});
+        setCurrentGuidanceData(rowData.guidance || { text: '', video: null });
         setSelectedRowId(rowData.id);
         setOpenGuidanceDialog(true);
     }, []);
@@ -621,26 +621,26 @@ const ExchangeVoucher: React.FC = () => {
 
     const handleGuidanceSubmit = useCallback((guidance: { text: string; video: File | null }) => {
         setVoucherRows(prevRows => prevRows.map(row =>
-            row.id === selectedRowId ? {...row, guidance} : row
+            row.id === selectedRowId ? { ...row, guidance } : row
         ));
         handleCloseGuidanceDialog();
     }, [selectedRowId, handleCloseGuidanceDialog]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const {name, value} = e.target;
-        setFormData(prev => ({...prev, [name]: value}));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
     }, []);
 
     const handleSelectChange = useCallback((e: SelectChangeEvent<string>) => {
-        const {name, value} = e.target;
-        setFormData(prev => ({...prev, [name as keyof AddFormData]: value}));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name as keyof AddFormData]: value }));
     }, []);
 
     const handleVoucherContentChange = useCallback((index: number, value: string) => {
         setFormData(prev => ({
             ...prev,
             voucherContents: prev.voucherContents.map((content, i) =>
-                i === index ? {...content, value} : content
+                i === index ? { ...content, value } : content
             )
         }));
     }, []);
@@ -648,7 +648,7 @@ const ExchangeVoucher: React.FC = () => {
     const addVoucherContent = useCallback(() => {
         setFormData(prev => ({
             ...prev,
-            voucherContents: [...prev.voucherContents, {id: Date.now(), value: ''}]
+            voucherContents: [...prev.voucherContents, { id: Date.now(), value: '' }]
         }));
     }, []);
 
@@ -676,7 +676,7 @@ const ExchangeVoucher: React.FC = () => {
     }, []);
 
     const displayRows = useMemo(() =>
-            voucherRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+        voucherRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
         [voucherRows, page, rowsPerPage]
     );
 
@@ -690,7 +690,7 @@ const ExchangeVoucher: React.FC = () => {
     }, []);
 
     return (
-        <Box sx={{pt: 8}}>
+        <Box sx={{ pt: 8 }}>
             <PageHeader container>
                 <Grid item xs={4}>
                     <Breadcrumbs aria-label="breadcrumb">
@@ -698,7 +698,7 @@ const ExchangeVoucher: React.FC = () => {
                     </Breadcrumbs>
                     <Title variant='h1'>{"兑换券管理"}</Title>
                 </Grid>
-                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end"}}>
+                <Grid item xs={8} sx={{ display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end" }}>
                     <LinkButton
                         disableElevation
                         variant="contained"
@@ -706,7 +706,7 @@ const ExchangeVoucher: React.FC = () => {
                             component="img"
                             src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_add@3x.png"
                             alt="icon"
-                            sx={{width: 20, height: 20}}
+                            sx={{ width: 20, height: 20 }}
                         />}
                         onClick={handleOpenAddDialog}
                     >
@@ -722,12 +722,12 @@ const ExchangeVoucher: React.FC = () => {
                     <IconButton
                         aria-label="close"
                         onClick={handleCloseAddDialog}
-                        sx={{position: 'absolute', right: 8, top: 8}}
+                        sx={{ position: 'absolute', right: 8, top: 8 }}
                     >
-                        <Close/>
+                        <Close />
                     </IconButton>
                 </DialogTitle>
-                <DialogContent sx={{p: 3}}>
+                <DialogContent sx={{ p: 3 }}>
                     <AddDialogContent
                         formData={formData}
                         handleInputChange={handleInputChange}
@@ -739,7 +739,7 @@ const ExchangeVoucher: React.FC = () => {
                     />
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
-                    <Button onClick={handleCloseAddDialog} sx={{mr: 1}}>取消</Button>
+                    <Button onClick={handleCloseAddDialog} sx={{ mr: 1 }}>取消</Button>
                     <Button variant="contained" onClick={handleAddSubmit}>确定</Button>
                 </DialogActions>
             </Dialog>
@@ -766,7 +766,7 @@ const ExchangeVoucher: React.FC = () => {
             {/* 兑换券表格 */}
             <TableContainer component={Paper} sx={{
                 mt: 3,
-                pl:'37px',pr:'37px',
+                pl: '37px', pr: '37px',
                 borderRadius: '10px',
                 boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                 '& .MuiTable-root': {
@@ -804,7 +804,7 @@ const ExchangeVoucher: React.FC = () => {
                                 <TableCell sx={STYLES.truncatedCell} title={row.triggerRule}>{row.triggerRule}</TableCell>
                                 <TableCell>{row.createTime}</TableCell>
                                 <TableCell>
-                                    <Chip label={row.status} color={getStatusChipColor(row.status)} size="small"/>
+                                    <Chip label={row.status} color={getStatusChipColor(row.status)} size="small" />
                                 </TableCell>
                                 <TableCell>
                                     <RowActions row={row} onOpenGuidance={handleOpenGuidanceDialog} />
@@ -818,7 +818,7 @@ const ExchangeVoucher: React.FC = () => {
                     component="div"
                     count={voucherRows.length}
                     labelRowsPerPage="页面数量:"
-                    labelDisplayedRows={({from, to, count}) => `${from}-${to} / ${count}`}
+                    labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
