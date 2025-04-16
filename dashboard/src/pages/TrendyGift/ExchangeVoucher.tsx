@@ -170,9 +170,9 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({open, onClose, onSubmit
                 </IconButton>
             </DialogTitle>
             <DialogContent sx={{p: 3, pt: 2}}>
-                <Box sx={{display: 'flex', flexDirection: 'column', gap: 2.5}}>
+                <Box sx={{display: 'flex', flexDirection: 'column', gap: 3}}>
                     <Box sx={{display: 'flex', flexDirection: 'column'}}>
-                        <FormLabel sx={{mb: 1}}>操作指引:</FormLabel>
+                        <FormLabel sx={{mb: 1.5, fontWeight: 'normal'}}>操作指引:</FormLabel>
                         <Editor
                             editorState={editorState}
                             onEditorStateChange={onEditorStateChange}
@@ -183,34 +183,32 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({open, onClose, onSubmit
                                 border: '1px solid #E0E0E0',
                                 minHeight: '250px',
                                 padding: '0 15px',
-                                borderRadius: '4px',
+                                borderRadius: '0 0 4px 4px',
                                 backgroundColor: 'white'
                             }}
                             toolbarStyle={{
                                 border: '1px solid #E0E0E0',
+                                borderBottom: 'none',
                                 borderRadius: '4px 4px 0 0',
-                                marginBottom: 0
+                                marginBottom: 0,
                             }}
                             toolbar={{
-                                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'remove', 'history'],
-                                inline: {options: ['bold', 'italic', 'underline', 'strikethrough']},
-                                list: {options: ['unordered', 'ordered']},
+                                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
+                                inline: {options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript']},
+                                blockType: {options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote', 'Code']},
+                                list: {options: ['unordered', 'ordered', 'indent', 'outdent']},
+                                textAlign: {options: ['left', 'center', 'right', 'justify']},
                             }}
                         />
                     </Box>
                     <Box sx={{display: 'flex', alignItems: 'center'}}>
-                        <FormLabel sx={{minWidth: 80, textAlign: 'left', mr: 2}}>操作视频:</FormLabel>
+                        <FormLabel sx={{minWidth: 'auto', mr: 1.5, fontWeight: 'normal'}}>操作视频:</FormLabel>
                         <Button
                             variant="outlined"
                             component="label"
-                            startIcon={<CameraAlt sx={{color: '#F44336'}}/>}
-                            sx={{
-                                width: 100, height: 100, border: '1px dashed #E0E0E0', bgcolor: '#FFF5F5',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                flexDirection: 'column', textTransform: 'none', color: 'text.secondary',
-                                '&:hover': {bgcolor: '#FFF0F0'}
-                            }}
+                            sx={STYLES.uploadButton}
                         >
+                            <CameraAlt sx={{color: '#F44336'}}/>
                             <input type="file" hidden accept="video/*" onChange={handleVideoUpload}/>
                         </Button>
                         {videoFile && <Typography variant="body2" sx={{ml: 2}}>{videoFile.name}</Typography>}
@@ -232,8 +230,8 @@ interface AddFormData {
     sceneryId: string;
     voucherName: string;
     keywordMatch: string;
-    voucherImage: string;
-    matchImage: string;
+    voucherImage: File | null;
+    matchImage: File | null;
     useLimit: string;
     expireTime: string;
     voucherContents: { id: number; value: string }[];
@@ -243,11 +241,11 @@ const INITIAL_ADD_FORM_DATA: AddFormData = {
     sceneryId: '',
     voucherName: '',
     keywordMatch: '',
-    voucherImage: '',
-    matchImage: '',
+    voucherImage: null,
+    matchImage: null,
     useLimit: '',
     expireTime: '',
-    voucherContents: [{id: Date.now(), value: ''}],
+    voucherContents: [{id: Date.now(), value: ''}, { id: Date.now() + 1, value: '' }],
 };
 
 const CustomIcon = React.memo<{ src: string }>(({src}) => (
@@ -314,7 +312,7 @@ const generateMockRows = (): ExchangeVoucherRow[] =>
 
 // 常量样式对象
 const STYLES = {
-    formLabel: {minWidth: 120, textAlign: 'right', mr: 2},
+    formLabel: {minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px'},
     dialogTitle: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
     dialogActions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'},
     statsContainer: {
@@ -333,6 +331,19 @@ const STYLES = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
+    },
+    uploadButton: {
+        width: 100, height: 100, border: '1px dashed #E0E0E0', bgcolor: '#FFF5F5',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexDirection: 'column', textTransform: 'none', color: 'text.secondary',
+        '&:hover': {bgcolor: '#FFF0F0'}
+    },
+    imagePreview: {
+        width: 100,
+        height: 100,
+        objectFit: 'cover',
+        border: '1px solid #E0E0E0',
+        borderRadius: '4px'
     }
 };
 
@@ -394,7 +405,7 @@ const VoucherContentsSection = React.memo<{
     onAdd: () => void,
     onRemove: (id: number) => void
 }>(({contents, onValueChange, onAdd, onRemove}) => (
-    <Box sx={{bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1}}>
+    <Box sx={{bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1, position: 'relative'}}>
         {contents.map((content, index) => (
             <VoucherContentItem
                 key={content.id}
@@ -405,15 +416,20 @@ const VoucherContentsSection = React.memo<{
                 onRemove={onRemove}
             />
         ))}
-        <Button
-            startIcon={<AddCircleOutline fontSize="small"/>}
-            onClick={onAdd}
+        <IconButton
             size="small"
-            variant="outlined"
-            sx={{mt: 1.5, alignSelf: 'flex-start'}}
+            color="primary"
+            onClick={onAdd}
+            sx={{
+                position: 'absolute',
+                top: '10px',
+                right: contents.length > 1 ? '45px' : '10px',
+                bgcolor: '#E3F2FD',
+                '&:hover': {bgcolor: '#BBDEFB'}
+            }}
         >
-            添加内容
-        </Button>
+            <AddCircleOutline fontSize="small"/>
+        </IconButton>
     </Box>
 ));
 
@@ -426,14 +442,16 @@ const AddDialogContent = React.memo<{
     handleSelectChange: (e: SelectChangeEvent<string>) => void,
     handleVoucherContentChange: (index: number, value: string) => void,
     addVoucherContent: () => void,
-    removeVoucherContent: (id: number) => void
+    removeVoucherContent: (id: number) => void,
+    handleFileChange: (event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => void
 }>(({
         formData,
         handleInputChange,
         handleSelectChange,
         handleVoucherContentChange,
         addVoucherContent,
-        removeVoucherContent
+        removeVoucherContent,
+        handleFileChange
     }) => (
     <Box component="form" sx={{display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1}}>
         <Box sx={{display: 'flex', alignItems: 'center'}}>
@@ -467,16 +485,68 @@ const AddDialogContent = React.memo<{
                        size="small"/>
         </Box>
 
+        {/* Moved Image Upload Fields Below Keyword Match */}
+        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+            <Box sx={{display: 'flex', alignItems: 'flex-start', flex: 1}}>
+                <FormLabel sx={{...STYLES.formLabel, pt: 0}}>电子券图片:</FormLabel>
+                <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<CameraAlt sx={{color: '#F44336'}}/>}
+                    sx={STYLES.uploadButton}
+                >
+                    <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'voucherImage')}
+                    />
+                    {formData.voucherImage && (
+                        <Box
+                            component="img"
+                            src={URL.createObjectURL(formData.voucherImage)}
+                            alt="Voucher Preview"
+                            sx={STYLES.imagePreview}
+                        />
+                    )}
+                </Button>
+            </Box>
+            <Box sx={{display: 'flex', alignItems: 'flex-start', flex: 1}}>
+                <FormLabel sx={{...STYLES.formLabel, pt: 0, minWidth: 'auto', mr: 1}}>比对图标:</FormLabel>
+                <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<CameraAlt sx={{color: '#F44336'}}/>}
+                    sx={STYLES.uploadButton}
+                >
+                    <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'matchImage')}
+                    />
+                    {formData.matchImage && (
+                        <Box
+                            component="img"
+                            src={URL.createObjectURL(formData.matchImage)}
+                            alt="Match Icon Preview"
+                            sx={STYLES.imagePreview}
+                        />
+                    )}
+                </Button>
+            </Box>
+        </Box>
+
         <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
-            <FormLabel sx={{...STYLES.formLabel, pt: 1}}>使用说明:</FormLabel>
+            <FormLabel sx={STYLES.formLabel}>使用说明:</FormLabel>
             <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline
                        rows={3} size="small"/>
         </Box>
 
         <Box sx={{display: 'flex', alignItems: 'center'}}>
             <FormLabel sx={STYLES.formLabel}>有效时间:</FormLabel>
-            <TextField fullWidth name="expireTime" type="datetime-local" value={formData.expireTime}
-                       onChange={handleInputChange} InputLabelProps={{shrink: true}} size="small"/>
+            <TextField fullWidth name="expireTime" type="text" value={formData.expireTime}
+                       onChange={handleInputChange} size="small" placeholder="例如：2024-12-31"/>
         </Box>
 
         <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
@@ -610,6 +680,15 @@ const ExchangeVoucher: React.FC = () => {
         [voucherRows, page, rowsPerPage]
     );
 
+    const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => {
+        if (event.target.files && event.target.files[0]) {
+            setFormData(prev => ({ ...prev, [fieldName]: event.target.files![0] }));
+        } else {
+            setFormData(prev => ({ ...prev, [fieldName]: null }));
+        }
+        event.target.value = '';
+    }, []);
+
     return (
         <Box sx={{pt: 8}}>
             <PageHeader container>
@@ -656,6 +735,7 @@ const ExchangeVoucher: React.FC = () => {
                         handleVoucherContentChange={handleVoucherContentChange}
                         addVoucherContent={addVoucherContent}
                         removeVoucherContent={removeVoucherContent}
+                        handleFileChange={handleFileChange}
                     />
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>

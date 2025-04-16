@@ -329,12 +329,13 @@ const ElectronicFence: React.FC = () => {
                              <Button
                                  variant="contained"
                                  sx={{
-                                     bgcolor: '#F44336',
-                                     '&:hover': { bgcolor: '#D32F2F' },
-                                     height: '40px' // Match text field height
+                                     bgcolor: '#C01A12',
+                                     '&:hover': { bgcolor: '#A51710' },
+                                     height: '40px',
+                                     boxShadow: 'none'
                                  }}
                                  onClick={handleSearchLocation}
-                                 size="medium" // Match text field height
+                                 size="medium"
                              >
                                  搜索
                              </Button>
@@ -342,7 +343,7 @@ const ElectronicFence: React.FC = () => {
 
                          {/* 电子围栏名称 */}
                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                             <FormLabel required sx={{ minWidth: 100, textAlign: 'right', mr: 2 }}>*电子围栏名称:</FormLabel>
+                             <FormLabel required sx={{ minWidth: 100, textAlign: 'right', mr: 2 }}>*电子围栏:</FormLabel>
                              <TextField
                                  required
                                  fullWidth
@@ -354,15 +355,18 @@ const ElectronicFence: React.FC = () => {
                          </Box>
 
                          {/* 地图组件 */}
-                         <Box sx={{ height: 400, width: '100%', mt: 1, border: '1px solid #ccc' }}>
-                             {/* 仅在对话框打开时渲染QQMap以确保容器存在 */}
+                         <Box sx={{ height: 400, width: '100%', mt: 1 }}>
                              {openAddDialog && (
                                  <QQMap
                                      overlay="marker"
                                      onChange={handleMapChange}
-                                     value={formData.fenceCoordinates} // Pass current coordinates if editing
+                                     value={formData.fenceCoordinates}
                                  />
                              )}
+                         </Box>
+
+                         <Box sx={{mt: 15}}>
+                              
                          </Box>
 
                          {/* 容错 */}
@@ -374,9 +378,12 @@ const ElectronicFence: React.FC = () => {
                                  onChange={handleDialogInputChange}
                                  size="small"
                                  type="number"
-                                 placeholder="请输入整数，单位KM" // Placeholder from image
-                                 InputProps={{ sx: { width: '200px' } }} // Limit width
+                                 placeholder="请填写整数，单位KM"
+                                 InputProps={{ sx: { width: '200px' } }}
                              />
+                             <Typography variant="body2" color="text.secondary" sx={{ml: 1}}>
+                                 请填写整数，单位KM
+                             </Typography>
                          </Box>
 
                      </Box>

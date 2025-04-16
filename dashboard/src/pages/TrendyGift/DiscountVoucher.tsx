@@ -131,8 +131,8 @@ interface FormData {
     sceneryId: string;
     voucherName: string;
     keywordMatch: string;
-    voucherImage: string;
-    matchImage: string;
+    voucherImage: File | null;
+    matchImage: File | null;
     useLimit: string;
     expireTime: string;
     discountRules: DiscountRule[];
@@ -143,8 +143,8 @@ const INITIAL_FORM_DATA: FormData = {
     sceneryId: '',
     voucherName: '',
     keywordMatch: '',
-    voucherImage: '',
-    matchImage: '',
+    voucherImage: null,
+    matchImage: null,
     useLimit: '',
     expireTime: '',
     discountRules: [{ id: Date.now(), totalAmount: '', discountAmount: '' }],
@@ -196,7 +196,7 @@ const mockRows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) =
 }));
 // 常量样式对象
 const STYLES = {
-    formLabel: {minWidth: 120, textAlign: 'right', mr: 2},
+    formLabel: {minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px'},
     dialogTitle: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
     dialogActions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'},
     statsContainer: {
@@ -215,8 +215,251 @@ const STYLES = {
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
+    },
+    uploadButton: {
+        width: 100, height: 100, border: '1px dashed #E0E0E0', bgcolor: '#FFF5F5',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        flexDirection: 'column', textTransform: 'none', color: 'text.secondary',
+        '&:hover': {bgcolor: '#FFF0F0'}
+    },
+    imagePreview: {
+        width: 100,
+        height: 100,
+        objectFit: 'cover',
+        border: '1px solid #E0E0E0',
+        borderRadius: '4px'
     }
 };
+
+// Extracted Dialog Content Component Props Interface
+interface DiscountDialogContentProps {
+    formData: FormData;
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    handleSelectChange: (e: SelectChangeEvent<string>) => void;
+    handleProductChange: (index: number, field: keyof Omit<ApplicableProduct, 'id'>, value: string) => void;
+    addProduct: () => void;
+    removeProduct: (idToRemove: number) => void;
+    handleRuleChange: (index: number, field: keyof Omit<DiscountRule, 'id'>, value: string) => void;
+    addRule: () => void;
+    removeRule: (idToRemove: number) => void;
+    handleFileChange: (event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => void;
+}
+
+// Extracted Dialog Content Component
+const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
+    formData,
+    handleInputChange,
+    handleSelectChange,
+    handleProductChange,
+    addProduct,
+    removeProduct,
+    handleRuleChange,
+    addRule,
+    removeRule,
+    handleFileChange
+}) => (
+    <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormLabel sx={STYLES.formLabel}>所属景区:</FormLabel>
+            <FormControl fullWidth size="small">
+                <InputLabel id="scenery-select-label" sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
+                <Select
+                    labelId="scenery-select-label"
+                    name="sceneryId"
+                    value={formData.sceneryId}
+                    onChange={handleSelectChange}
+                    displayEmpty
+                    label={formData.sceneryId ? undefined : "请选择"}
+                >
+                    <MenuItem value="" disabled>请选择</MenuItem>
+                    <MenuItem value="1">丹霞山风景区</MenuItem>
+                </Select>
+            </FormControl>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormLabel required sx={STYLES.formLabel}>*抵扣券名称:</FormLabel>
+            <TextField required fullWidth name="voucherName" value={formData.voucherName} onChange={handleInputChange} size="small" />
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormLabel sx={STYLES.formLabel}>比对凭证关键字:</FormLabel>
+            <TextField fullWidth name="keywordMatch" value={formData.keywordMatch} onChange={handleInputChange} size="small" />
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flex: 1 }}>
+                <FormLabel sx={{ ...STYLES.formLabel, pt: 0 }}>电子券图片:</FormLabel>
+                <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
+                    sx={STYLES.uploadButton}
+                >
+                    <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'voucherImage')}
+                    />
+                    {formData.voucherImage && (
+                        <Box
+                            component="img"
+                            src={URL.createObjectURL(formData.voucherImage)}
+                            alt="Voucher Preview"
+                            sx={STYLES.imagePreview}
+                        />
+                    )}
+                </Button>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flex: 1 }}>
+                <FormLabel sx={{ ...STYLES.formLabel, pt: 0, minWidth: 'auto', mr: 1 }}>比对图标:</FormLabel>
+                <Button
+                    variant="outlined"
+                    component="label"
+                    startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
+                    sx={STYLES.uploadButton}
+                >
+                    <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => handleFileChange(e, 'matchImage')}
+                    />
+                    {formData.matchImage && (
+                        <Box
+                            component="img"
+                            src={URL.createObjectURL(formData.matchImage)}
+                            alt="Match Icon Preview"
+                            sx={STYLES.imagePreview}
+                        />
+                    )}
+                </Button>
+            </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <FormLabel sx={STYLES.formLabel}>使用说明:</FormLabel>
+            <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline rows={3} size="small" />
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormLabel sx={STYLES.formLabel}>有效时间:</FormLabel>
+            <TextField fullWidth name="expireTime" type="text" value={formData.expireTime} onChange={handleInputChange} size="small" placeholder="例如：2024-12-31" />
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <FormLabel sx={STYLES.formLabel}>适用于商品:</FormLabel>
+            <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1, position: 'relative' }}>
+                {formData.applicableProducts.map((product, index, arr) => (
+                    <Box key={product.id} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: index === arr.length - 1 ? 0 : 1.5 }}>
+                        <TextField
+                            label="适用于商品名称"
+                            placeholder="商品名称"
+                            value={product.name}
+                            onChange={(e) => handleProductChange(index, 'name', e.target.value)}
+                            size="small"
+                            sx={{ bgcolor: 'white', flex: 1 }}
+                            InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                            label="适用于商品条码"
+                            placeholder="商品条码"
+                            value={product.barcode}
+                            onChange={(e) => handleProductChange(index, 'barcode', e.target.value)}
+                            size="small"
+                            sx={{ bgcolor: 'white', flex: 1 }}
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </Box>
+                ))}
+                <Box sx={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: 0.5 }}>
+                    <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={addProduct}
+                        sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
+                    >
+                        <AddCircleOutline fontSize="small" />
+                    </IconButton>
+                    {formData.applicableProducts.length > 1 && (
+                        <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => removeProduct(formData.applicableProducts[formData.applicableProducts.length - 1].id)}
+                            sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+                        >
+                            <RemoveCircleOutline fontSize="small" />
+                        </IconButton>
+                    )}
+                </Box>
+            </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <FormLabel sx={STYLES.formLabel}>生成抵扣券规则:</FormLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1, position: 'relative' }}>
+                {formData.discountRules.map((rule, index, arr) => (
+                    <Box key={rule.id} sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1 }}>
+                        <Grid container spacing={2} alignItems="center">
+                            <Grid item xs={12} sm={5.5}>
+                                <TextField
+                                    fullWidth
+                                    label="生成抵扣券总金额要求"
+                                    placeholder="例如200"
+                                    value={rule.totalAmount}
+                                    onChange={(e) => handleRuleChange(index, 'totalAmount', e.target.value)}
+                                    size="small"
+                                    sx={{ bgcolor: 'white' }}
+                                    type="number"
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={5.5}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="生成抵扣券抵扣金额"
+                                    placeholder="例如20"
+                                    value={rule.discountAmount}
+                                    onChange={(e) => handleRuleChange(index, 'discountAmount', e.target.value)}
+                                    size="small"
+                                    sx={{ bgcolor: 'white' }}
+                                    type="number"
+                                    InputLabelProps={{ shrink: true }}
+                                />
+                            </Grid>
+                        </Grid>
+                        <Typography variant="body2" color="error" sx={{ mt: 1, fontSize: '0.8rem' }}>
+                            满{rule.totalAmount || '___'}抵扣{rule.discountAmount || '___'}
+                        </Typography>
+                    </Box>
+                ))}
+                <Box sx={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: 0.5 }}>
+                    <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={addRule}
+                        sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
+                    >
+                        <AddCircleOutline fontSize="small" />
+                    </IconButton>
+                    {formData.discountRules.length > 1 && (
+                        <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => removeRule(formData.discountRules[formData.discountRules.length - 1].id)}
+                            sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+                        >
+                            <RemoveCircleOutline fontSize="small" />
+                        </IconButton>
+                    )}
+                </Box>
+            </Box>
+        </Box>
+    </Box>
+));
+
 /**
  * 抵扣券管理页面
  */
@@ -293,6 +536,15 @@ const DiscountVoucher: React.FC = () => {
         }));
     }, []);
 
+    const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => {
+        if (event.target.files && event.target.files[0]) {
+            setFormData(prev => ({ ...prev, [fieldName]: event.target.files![0] }));
+        } else {
+            setFormData(prev => ({ ...prev, [fieldName]: null }));
+        }
+        event.target.value = '';
+    }, []);
+
     const handleSubmit = useCallback(() => {
         console.log("Submitting Discount Voucher:", formData);
         handleClose();
@@ -320,169 +572,9 @@ const DiscountVoucher: React.FC = () => {
         }
     }, []);
 
-    /**
-     * 渲染添加/编辑弹窗内容
-     */
-    const renderDialogContent = () => (
-        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>所属景区:</FormLabel>
-                <FormControl fullWidth size="small">
-                    <InputLabel id="scenery-select-label" sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
-                    <Select
-                        labelId="scenery-select-label"
-                        name="sceneryId"
-                        value={formData.sceneryId}
-                        onChange={handleSelectChange}
-                        displayEmpty
-                        label={formData.sceneryId ? undefined : "请选择"}
-                    >
-                        <MenuItem value="" disabled>请选择</MenuItem>
-                        <MenuItem value="1">丹霞山风景区</MenuItem>
-                    </Select>
-                </FormControl>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel required sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>*抵扣券名称:</FormLabel>
-                <TextField required fullWidth name="voucherName" value={formData.voucherName} onChange={handleInputChange} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>比对凭证关键字:</FormLabel>
-                <TextField fullWidth name="keywordMatch" value={formData.keywordMatch} onChange={handleInputChange} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>电子券图片:</FormLabel>
-                <Box sx={{ display: 'flex', gap: 2, flexGrow: 1 }}>
-                    <Box sx={{ flex: 1, textAlign: 'center' }}>
-                        <Box sx={{ width: '100%', height: 120, bgcolor: '#FFF5F5', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px dashed #E0E0E0', mb: 0.5 }}>
-                            <CameraAlt sx={{ color: '#F44336' }} />
-                        </Box>
-                    </Box>
-                    <Box sx={{ flex: 1, textAlign: 'center', display: 'flex', alignItems: 'center' }}>
-                        <FormLabel sx={{ minWidth: 'auto', mr: 1 }}>比对图标:</FormLabel>
-                        <Box sx={{ width: '100%', height: 120, bgcolor: '#FFF5F5', borderRadius: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px dashed #E0E0E0', mb: 0.5 }}>
-                            <CameraAlt sx={{ color: '#F44336' }} />
-                        </Box>
-                    </Box>
-                </Box>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>使用说明:</FormLabel>
-                <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline rows={3} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>有效时间:</FormLabel>
-                <TextField fullWidth name="expireTime" type="datetime-local" value={formData.expireTime} onChange={handleInputChange} InputLabelProps={{ shrink: true }} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>适用于商品:</FormLabel>
-                <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1 }}>
-                    {formData.applicableProducts.map((product, index) => (
-                        <Box key={product.id} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: index === formData.applicableProducts.length - 1 ? 0 : 1.5 }}>
-                            <TextField
-                                placeholder="商品名称"
-                                value={product.name}
-                                onChange={(e) => handleProductChange(index, 'name', e.target.value)}
-                                size="small"
-                                sx={{ bgcolor: 'white', flex: 1 }}
-                            />
-                            <TextField
-                                placeholder="商品条码"
-                                value={product.barcode}
-                                onChange={(e) => handleProductChange(index, 'barcode', e.target.value)}
-                                size="small"
-                                sx={{ bgcolor: 'white', flex: 1 }}
-                            />
-                            <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => removeProduct(product.id)}
-                                sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
-                                disabled={formData.applicableProducts.length <= 1}
-                            >
-                                <RemoveCircleOutline fontSize="small" />
-                            </IconButton>
-                        </Box>
-                    ))}
-                    <Button
-                        startIcon={<AddCircleOutline fontSize="small" />}
-                        onClick={addProduct}
-                        size="small"
-                        variant="outlined"
-                        sx={{ mt: 1.5, alignSelf: 'flex-start' }}
-                    >
-                        添加商品
-                    </Button>
-                </Box>
-            </Box>
-
-            <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: 1 }}>生成抵扣券规则:</FormLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
-                {formData.discountRules.map((rule, index) => (
-                    <Box key={rule.id} sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1 }}>
-                        <Grid container spacing={1} alignItems="center">
-                            <Grid item xs={12} sm={5}>
-                                <TextField
-                                    fullWidth
-                                    placeholder="例如200"
-                                    label="总金额要求"
-                                    value={rule.totalAmount}
-                                    onChange={(e) => handleRuleChange(index, 'totalAmount', e.target.value)}
-                                    size="small"
-                                    sx={{ bgcolor: 'white' }}
-                                    type="number"
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={5}>
-                                <TextField
-                                    fullWidth
-                                    placeholder="例如20"
-                                    label="抵扣金额"
-                                    value={rule.discountAmount}
-                                    onChange={(e) => handleRuleChange(index, 'discountAmount', e.target.value)}
-                                    size="small"
-                                    sx={{ bgcolor: 'white' }}
-                                    type="number"
-                                    required
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={2} sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                                 <IconButton
-                                    size="small"
-                                    color="error"
-                                    onClick={() => removeRule(rule.id)}
-                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
-                                    disabled={formData.discountRules.length <= 1}
-                                >
-                                    <RemoveCircleOutline fontSize="small" />
-                                </IconButton>
-                            </Grid>
-                        </Grid>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>满 {rule.totalAmount || '_'} 抵扣 {rule.discountAmount || '_'}</Typography>
-                    </Box>
-                ))}
-                 <Button
-                    startIcon={<AddCircleOutline fontSize="small" />}
-                    onClick={addRule}
-                    size="small"
-                    variant="outlined"
-                    sx={{ alignSelf: 'flex-start' }}
-                >
-                    添加规则
-                </Button>
-            </Box>
-        </Box>
-    );
-
     return (
         <Box sx={{ pt: 8}}>
-                      <PageHeader container>
+            <PageHeader container>
                 <Grid item xs={4}>
                     <Breadcrumbs aria-label="breadcrumb">
                         <Typography color="text.primary">{"潮品礼遇"}</Typography>
@@ -507,7 +599,7 @@ const DiscountVoucher: React.FC = () => {
             </PageHeader>
 
             <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-                <DialogTitle sx={{m: 0, p: 2, borderBottom: '1px solid #E0E0E0'}}>
+                <DialogTitle sx={STYLES.dialogTitle}>
                     添加
                     <IconButton
                         aria-label="close"
@@ -522,9 +614,20 @@ const DiscountVoucher: React.FC = () => {
                     </IconButton>
                 </DialogTitle>
                 <DialogContent sx={{p: 3}}>
-                    {renderDialogContent()}
+                    <DiscountDialogContent
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                        handleSelectChange={handleSelectChange}
+                        handleProductChange={handleProductChange}
+                        addProduct={addProduct}
+                        removeProduct={removeProduct}
+                        handleRuleChange={handleRuleChange}
+                        addRule={addRule}
+                        removeRule={removeRule}
+                        handleFileChange={handleFileChange}
+                    />
                 </DialogContent>
-                <DialogActions sx={{p: 3, pt: 2, borderTop: '1px solid #E0E0E0'}}>
+                <DialogActions sx={STYLES.dialogActions}>
                     <Button onClick={handleClose} sx={{mr: 1}}>取消</Button>
                     <Button variant="contained" onClick={handleSubmit}>确定</Button>
                 </DialogActions>
@@ -539,7 +642,6 @@ const DiscountVoucher: React.FC = () => {
                     ))}
                 </Grid>
             </Paper>
-
 
             <TableContainer component={Paper} sx={{
                 mt: 3,
