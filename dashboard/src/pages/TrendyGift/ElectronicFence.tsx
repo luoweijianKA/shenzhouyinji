@@ -19,11 +19,13 @@ import {
     DialogTitle,
     FormLabel,
     IconButton,
+    Breadcrumbs
 } from '@mui/material';
-import { Search, Close, AddCircleOutline } from '@mui/icons-material';
+import {  Close } from '@mui/icons-material';
 import Loading from 'components/Loading';
 import Empty from 'components/Empty';
 import QQMap from 'components/QQMap';
+import { PageHeader,Title,LinkButton } from '../styled';
 
 /**
  * 电子围栏表格行数据结构
@@ -91,7 +93,7 @@ const ElectronicFence: React.FC = () => {
 
             // TODO: 暂时使用模拟数据，后续移除
             await new Promise(resolve => setTimeout(resolve, 500)); // 模拟延迟
-            setFenceData(mockData.filter(item => 
+            setFenceData(mockData.filter(item =>
                 searchParams.sceneryName ? item.sceneryName.includes(searchParams.sceneryName) : true
             )); // <-- 示例 setFenceData 用法
 
@@ -118,7 +120,7 @@ const ElectronicFence: React.FC = () => {
 
     const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0); 
+        setPage(0);
     }, []);
 
     const handleSearch = useCallback(() => {
@@ -175,33 +177,40 @@ const ElectronicFence: React.FC = () => {
     const handleEditFence = useCallback((fence: ElectronicFenceData) => {
         console.log("Edit fence:", fence);
         // Populate formData with fence data
-        // setFormData({ 
+        // setFormData({
         //    sceneryName: fence.sceneryName,
         //    fenceName: fence.fenceName,
         //    // ... map other fields, potentially fetch coordinates if not stored directly
-        // }); 
+        // });
         // setOpenAddDialog(true); // Open dialog in edit mode
     }, []);
 
     return (
-        <Box sx={{p: 3, pt: 8}}>
-            <Box sx={{mb: 2}}>
-                <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
-                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Typography variant="h5" component="h2">
-                        电子围栏
-                    </Typography>
-                    <Button
+        <Box sx={{pt: 8}}>
+            <PageHeader container>
+            <Grid item xs={4}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">{"潮品礼遇"}</Typography>
+                    </Breadcrumbs>
+                    <Title variant='h1'>{"电子围栏"}</Title>
+                </Grid>
+                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end"}}>
+                    <LinkButton
+                        disableElevation
                         variant="contained"
-                        startIcon={<AddCircleOutline/>}
+                        startIcon={<Box
+                            component="img"
+                            src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_add@3x.png"
+                            alt="icon"
+                            sx={{width: 20, height: 20}}
+                        />}
                         onClick={handleOpenAddDialog}
-                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
+                        sx={{width: 90, height: 36}}
                     >
-                        添加
-                    </Button>
-                </Box>
-            </Box>
-
+                        {"添加"}
+                    </LinkButton>
+                </Grid>
+            </PageHeader>
             <Paper sx={{p: 3, mb: 3}}>
                 <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12} sm={4}>
@@ -216,12 +225,11 @@ const ElectronicFence: React.FC = () => {
                             />
                         </Box>
                     </Grid>
-                    <Grid item xs={12} sm={8} sx={{display: 'flex', justifyContent: 'flex-end'}}>
+                    <Grid item xs={12} sm={8} sx={{display: 'flex', justifyContent: 'flex-end', pr: 0}}>
                         <Button
                             variant="contained"
-                            startIcon={<Search/>}
                             onClick={handleSearch}
-                            sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
+                            sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}, width: '100px', height: '36px'}}
                         >
                             搜索
                         </Button>
@@ -255,8 +263,8 @@ const ElectronicFence: React.FC = () => {
                                         <TableCell>{row.createTime}</TableCell>
                                         <TableCell>{row.updateTime}</TableCell>
                                         <TableCell>
-                                            <Button onClick={() => handleViewFence(row.id)} size="small" sx={{ color: '#F44336', textDecoration: 'underline', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } }}>查看</Button>
-                                            <Button onClick={() => handleEditFence(row)} size="small" sx={{ color: '#F44336', textDecoration: 'underline', p: 0, minWidth: 'auto', ml: 1, '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' } }}>编辑</Button>
+                                            <Button onClick={() => handleViewFence(row.id)} size="small" sx={{ color: '#C01A12', p: 0, minWidth: 'auto', '&:hover': { bgcolor: 'transparent' } }}>查看</Button>
+                                            <Button onClick={() => handleEditFence(row)} size="small" sx={{ color: '#C01A12', p: 0, minWidth: 'auto', ml: 1, '&:hover': { bgcolor: 'transparent' } }}>编辑</Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -320,8 +328,8 @@ const ElectronicFence: React.FC = () => {
                              />
                              <Button
                                  variant="contained"
-                                 sx={{ 
-                                     bgcolor: '#F44336', 
+                                 sx={{
+                                     bgcolor: '#F44336',
                                      '&:hover': { bgcolor: '#D32F2F' },
                                      height: '40px' // Match text field height
                                  }}

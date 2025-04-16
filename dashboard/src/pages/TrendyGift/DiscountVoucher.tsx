@@ -24,18 +24,32 @@ import {
     TablePagination,
     TableRow,
     TextField,
-    Typography
+    Typography,
+    Breadcrumbs
 } from '@mui/material';
 import {
     AddCircleOutline,
     Close,
     RemoveCircleOutline,
-    ConfirmationNumber,
-    MonetizationOn,
-    LocalOffer,
-    ReceiptLong,
     CameraAlt
 } from '@mui/icons-material';
+import {LinkButton, PageHeader, Title} from "../styled";
+
+/**
+ * 自定义图标组件
+ */
+const CustomIcon = React.memo<{ src: string }>(({src}) => (
+    <Box
+        component="img"
+        src={src}
+        alt="图标"
+        sx={{
+            width: 50,
+            height: 50,
+            objectFit: 'contain',
+        }}
+    />
+));
 
 /**
  * 统计信息卡片
@@ -47,30 +61,32 @@ interface StatCardProps {
     bgColor: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({title, value, icon, bgColor}) => (
-    <Paper sx={{p: 2, display: 'flex', alignItems: 'center'}}>
+const StatCard = React.memo<StatCardProps>(({title, value, icon, bgColor}) => (
+    <Paper elevation={0} sx={{p: 2, display: 'flex', alignItems: 'center', boxShadow: 'none'}}>
         <Box sx={{
-            mr: 2,
+            mr: '15px',
             p: 1.5,
             bgcolor: bgColor,
-            borderRadius: '50%',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white'
+            color: 'white',
+            width: 54,
+            height: 54
         }}>
             {icon}
         </Box>
         <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography variant="body2" color="text.secondary" sx={{fontSize: '16px', mb: 0, color: '#333'}}>
                 {title}
             </Typography>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h5" fontWeight="bold" sx={{fontSize: '32px', color: '#333'}}>
                 {value}
             </Typography>
         </Box>
     </Paper>
-);
+));
 
 /**
  * 抵扣券表格行数据结构
@@ -135,13 +151,34 @@ const INITIAL_FORM_DATA: FormData = {
     applicableProducts: [{ id: Date.now(), name: '', barcode: '' }],
 };
 
+
 // Mock data - consider moving or fetching
 // TODO: 考虑将模拟数据移出或通过API获取
 const mockStats = [
-    {title: '生成抵扣券（张）', value: '6783', icon: <ConfirmationNumber/>, bgColor: '#F44336'},
-    {title: '抵扣金额（元）', value: '6783', icon: <MonetizationOn/>, bgColor: '#FF9800'},
-    {title: '已抵扣数（张）', value: '6783', icon: <LocalOffer/>, bgColor: '#FFEB3B'},
-    {title: '未抵扣数（张）', value: '6783', icon: <ReceiptLong/>, bgColor: '#4CAF50'},
+    {
+        title: '生成抵扣券（张）',
+        value: '6783',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png"/>,
+        bgColor: '#F41515'
+    },
+    {
+        title: '抵扣金额（元）',
+        value: '6783',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png"/>,
+        bgColor: '#FA7202'
+    },
+    {
+        title: '已抵扣数（张）',
+        value: '6783',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png"/>,
+        bgColor: '#FFCC00'
+    },
+    {
+        title: '未抵扣数（张）',
+        value: '6783',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png"/>,
+        bgColor: '#7DD000'
+    },
 ];
 const mockRows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) => ({
     id: i + 1,
@@ -157,7 +194,29 @@ const mockRows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) =
     createTime: '2026-03-14 12:00:00',
     status: i % 3 === 0 ? '正常' : (i % 3 === 1 ? '已过期' : '已终止'),
 }));
-
+// 常量样式对象
+const STYLES = {
+    formLabel: {minWidth: 120, textAlign: 'right', mr: 2},
+    dialogTitle: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
+    dialogActions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'},
+    statsContainer: {
+        height: '150px',
+        bgcolor: 'white',
+        borderRadius: '10px',
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+        mb: '16px',
+        mt: '20px',
+        p: '34px',
+        display: 'flex',
+        alignItems: 'center'
+    },
+    truncatedCell: {
+        maxWidth: 150,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+    }
+};
 /**
  * 抵扣券管理页面
  */
@@ -340,10 +399,10 @@ const DiscountVoucher: React.FC = () => {
                                 size="small"
                                 sx={{ bgcolor: 'white', flex: 1 }}
                             />
-                            <IconButton 
-                                size="small" 
-                                color="error" 
-                                onClick={() => removeProduct(product.id)} 
+                            <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => removeProduct(product.id)}
                                 sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
                                 disabled={formData.applicableProducts.length <= 1}
                             >
@@ -351,10 +410,10 @@ const DiscountVoucher: React.FC = () => {
                             </IconButton>
                         </Box>
                     ))}
-                    <Button 
-                        startIcon={<AddCircleOutline fontSize="small" />} 
-                        onClick={addProduct} 
-                        size="small" 
+                    <Button
+                        startIcon={<AddCircleOutline fontSize="small" />}
+                        onClick={addProduct}
+                        size="small"
                         variant="outlined"
                         sx={{ mt: 1.5, alignSelf: 'flex-start' }}
                     >
@@ -367,7 +426,7 @@ const DiscountVoucher: React.FC = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
                 {formData.discountRules.map((rule, index) => (
                     <Box key={rule.id} sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1 }}>
-                        <Grid container spacing={1} alignItems="center"> 
+                        <Grid container spacing={1} alignItems="center">
                             <Grid item xs={12} sm={5}>
                                 <TextField
                                     fullWidth
@@ -393,12 +452,12 @@ const DiscountVoucher: React.FC = () => {
                                     required
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={2} sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}> 
-                                 <IconButton 
-                                    size="small" 
-                                    color="error" 
-                                    onClick={() => removeRule(rule.id)} 
-                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }} 
+                            <Grid item xs={12} sm={2} sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                                 <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => removeRule(rule.id)}
+                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
                                     disabled={formData.discountRules.length <= 1}
                                 >
                                     <RemoveCircleOutline fontSize="small" />
@@ -408,11 +467,11 @@ const DiscountVoucher: React.FC = () => {
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>满 {rule.totalAmount || '_'} 抵扣 {rule.discountAmount || '_'}</Typography>
                     </Box>
                 ))}
-                 <Button 
-                    startIcon={<AddCircleOutline fontSize="small" />} 
-                    onClick={addRule} 
-                    size="small" 
-                    variant="outlined" 
+                 <Button
+                    startIcon={<AddCircleOutline fontSize="small" />}
+                    onClick={addRule}
+                    size="small"
+                    variant="outlined"
                     sx={{ alignSelf: 'flex-start' }}
                 >
                     添加规则
@@ -422,23 +481,30 @@ const DiscountVoucher: React.FC = () => {
     );
 
     return (
-        <Box sx={{p: 3, pt: 8}}>
-            <Box sx={{mb: 2}}>
-                <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
-                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Typography variant="h5" component="h2">
-                        抵扣券管理
-                    </Typography>
-                    <Button
+        <Box sx={{ pt: 8}}>
+                      <PageHeader container>
+                <Grid item xs={4}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">{"潮品礼遇"}</Typography>
+                    </Breadcrumbs>
+                    <Title variant='h1'>{"抵扣券管理"}</Title>
+                </Grid>
+                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end"}}>
+                    <LinkButton
+                        disableElevation
                         variant="contained"
-                        startIcon={<AddCircleOutline/>}
+                        startIcon={<Box
+                            component="img"
+                            src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_add@3x.png"
+                            alt="icon"
+                            sx={{width: 20, height: 20}}
+                        />}
                         onClick={handleOpen}
-                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                     >
-                        添加
-                    </Button>
-                </Box>
-            </Box>
+                        {"添加"}
+                    </LinkButton>
+                </Grid>
+            </PageHeader>
 
             <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
                 <DialogTitle sx={{m: 0, p: 2, borderBottom: '1px solid #E0E0E0'}}>
@@ -464,15 +530,26 @@ const DiscountVoucher: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            <Grid container spacing={3} sx={{mb: 3}}>
-                {mockStats.map((stat, index) => (
-                    <Grid item xs={12} sm={6} md={3} key={index}>
-                        <StatCard {...stat} />
-                    </Grid>
-                ))}
-            </Grid>
+            <Paper sx={STYLES.statsContainer}>
+                <Grid item container justifyContent="space-evenly">
+                    {mockStats.map((stat, index) => (
+                        <Grid item sm={3} md={3} key={index}>
+                            <StatCard {...stat} />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Paper>
 
-            <TableContainer component={Paper}>
+
+            <TableContainer component={Paper} sx={{
+                mt: 3,
+                pl:'37px',pr:'37px',
+                borderRadius: '10px',
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                '& .MuiTable-root': {
+                    p: 2
+                }
+            }}>
                 <Table>
                     <TableHead>
                         <TableRow>

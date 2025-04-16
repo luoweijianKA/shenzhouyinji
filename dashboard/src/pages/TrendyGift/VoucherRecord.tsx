@@ -235,7 +235,7 @@ const VoucherRecord: React.FC = () => {
     }, []);
 
     return (
-        <Box sx={{p: 3, pt: 8}}>
+        <Box sx={{ pt: 8}}>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3}}>
                  <Typography variant="subtitle1" color="text.secondary" sx={{ position: 'absolute', top: 24 }}>潮品礼遇</Typography>
                 <Typography variant="h5" component="h2">兑换券记录</Typography>

@@ -15,8 +15,13 @@ import {
     Tabs,
     TextField,
     Typography,
+    Breadcrumbs,
 } from '@mui/material';
-import { Search, Download } from '@mui/icons-material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import cnLocale from 'date-fns/locale/zh-CN';
+import {LinkButton, PageHeader, Title, DatePickerWrapper} from "../styled";
 import Loading from 'components/Loading';
 import Empty from 'components/Empty';
 
@@ -122,7 +127,7 @@ const DeductionRecord: React.FC = () => {
     const [searchParams, setSearchParams] = useState<SearchParams>(INITIAL_SEARCH_PARAMS);
 
     // Initialize with empty array, data should be fetched
-    const [recordData, setRecordData] = useState<DeductionRecordData[]>([]); 
+    const [recordData, setRecordData] = useState<DeductionRecordData[]>([]);
     const [loading, setLoading] = useState(false); // Use state for loading
     const [errorState, setErrorState] = useState<Error | null>(null); // Use state for error
     // const [totalCount, setTotalCount] = useState(0); // Use state for total count if server-side pagination
@@ -133,18 +138,18 @@ const DeductionRecord: React.FC = () => {
         setErrorState(null); // Clear previous errors
         try {
             // TODO: 使用真实API调用逻辑替换
-            // const fetchedData = await fetchDeductionRecords({ 
-            //     ...searchParams, 
-            //     status: tabValue === 0 ? 'used' : 'unused', 
-            //     page, 
-            //     rowsPerPage 
+            // const fetchedData = await fetchDeductionRecords({
+            //     ...searchParams,
+            //     status: tabValue === 0 ? 'used' : 'unused',
+            //     page,
+            //     rowsPerPage
             // });
             // setRecordData(fetchedData.records || []); // Update state with fetched data
             // setTotalCount(fetchedData.totalCount || 0); // If pagination is server-side
-            
+
             // TODO: 暂时使用模拟数据，后续移除
             await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-            setRecordData(mockData.filter(item => 
+            setRecordData(mockData.filter(item =>
                 (tabValue === 0 ? item.useTime !== null : item.useTime === null) // Simple filter based on tab
                 // Add filtering based on searchParams here if mock data is used extensively
             )); // <-- Example usage of setRecordData
@@ -203,23 +208,24 @@ const DeductionRecord: React.FC = () => {
     }, [searchParams, tabValue]);
 
     return (
-        <Box sx={{p: 3, pt: 8}}>
-            <Box sx={{mb: 2}}>
-                <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
-                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Typography variant="h5" component="h2">
-                        抵扣券记录
-                    </Typography>
-                    <Button
+        <Box sx={{ pt: 8}}>
+            <PageHeader container>
+                <Grid item xs={4}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">潮品礼遇</Typography>
+                    </Breadcrumbs>
+                    <Title variant='h1'>抵扣券记录</Title>
+                </Grid>
+                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end", pr: "10px"}}>
+                    <LinkButton
+                        disableElevation
                         variant="contained"
-                        startIcon={<Download/>}
                         onClick={handleExport}
-                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                     >
                         导出Excel
-                    </Button>
-                </Box>
-            </Box>
+                    </LinkButton>
+                </Grid>
+            </PageHeader>
 
             <Paper sx={{p: 3, mb: 3}}>
                 <Grid container spacing={2} alignItems="center">
@@ -298,57 +304,55 @@ const DeductionRecord: React.FC = () => {
                     <Grid item xs={12} sm={8} md={5}>
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                             <Typography variant="body2" sx={{ minWidth: '80px', textAlign: 'right', mr: 1 }}>使用时间:</Typography>
-                            <TextField
-                                fullWidth
-                                name="useTimeStart"
-                                type="datetime-local"
-                                value={searchParams.useTimeStart}
-                                onChange={handleInputChange}
-                                InputLabelProps={{shrink: true}}
-                                size="small"
-                                sx={{ mr: 1 }}
-                            />
-                            <Typography sx={{ mx: 1 }}>至</Typography>
-                            <TextField
-                                fullWidth
-                                name="useTimeEnd"
-                                type="datetime-local"
-                                value={searchParams.useTimeEnd}
-                                onChange={handleInputChange}
-                                InputLabelProps={{ shrink: true }}
-                                size="small"
-                                sx={{ ml: 1 }}
-                            />
+                            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={cnLocale}>
+                                <DatePickerWrapper>
+                                    <DesktopDatePicker
+                                        inputFormat="yyyy-MM-dd"
+                                        value={searchParams.useTimeStart ? new Date(searchParams.useTimeStart) : null}
+                                        onChange={(val) => handleInputChange({ target: { name: 'useTimeStart', value: val ? val.toISOString().split('T')[0] : '' } } as any)}
+                                        renderInput={(params) => <TextField {...params} size="small" />}
+                                    />
+                                </DatePickerWrapper>
+                                <Typography sx={{ mx: 1 }}>至</Typography>
+                                <DatePickerWrapper>
+                                    <DesktopDatePicker
+                                        inputFormat="yyyy-MM-dd"
+                                        value={searchParams.useTimeEnd ? new Date(searchParams.useTimeEnd) : null}
+                                        onChange={(val) => handleInputChange({ target: { name: 'useTimeEnd', value: val ? val.toISOString().split('T')[0] : '' } } as any)}
+                                        renderInput={(params) => <TextField {...params} size="small" />}
+                                    />
+                                </DatePickerWrapper>
+                            </LocalizationProvider>
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={4} md={1} sx={{display: 'flex', justifyContent: 'flex-end'}}>
-                        <Button variant="contained" onClick={handleSearch} startIcon={<Search/>} sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}>
+                        <Button variant="contained" onClick={handleSearch}  sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}, width: '100px', height: '36px'}}>
                             搜索
                         </Button>
                     </Grid>
                 </Grid>
             </Paper>
 
-            <Box sx={{width: '100%'}}>
-                <Box sx={{borderBottom: 1, borderColor: 'divider', mb: 3}}>
-                    <Tabs value={tabValue} onChange={handleTabChange} sx={{minHeight: '40px'}} indicatorColor="primary" textColor="primary">
-                        <Tab label="已抵扣" {...a11yProps(0)} sx={{minHeight: '40px', py: 1}}/>
-                        <Tab label="未抵扣" {...a11yProps(1)} sx={{minHeight: '40px', py: 1}}/>
+            <Box sx={{ position: 'relative', minHeight: '300px', bgcolor: 'white', pl: '37px', pr: '37px', borderRadius: '10px', boxShadow: 'rgb(90 114 123 / 11%) 0px 7px 30px 0px' }}>
+                <Box sx={{ borderBottom: 2, borderColor: 'divider', mb: 0 }}>
+                    <Tabs value={tabValue} onChange={handleTabChange} aria-label="deduction record tabs">
+                        <Tab label="已抵扣" {...a11yProps(0)} />
+                        <Tab label="未抵扣" {...a11yProps(1)} />
                     </Tabs>
                 </Box>
                 <Box sx={{ position: 'relative', minHeight: '300px' }}>
-                    {loading && <Loading />} 
+                    {loading && <Loading />}
                     {/* Show error message if fetch failed */}
                     {errorState && <Typography color="error">Failed to load records: {errorState.message}</Typography>}
                     {/* Use TabPanel for content switching */}
                     <TabPanel value={tabValue} index={0} hidden={loading || !!errorState}>
-                        {!loading && !errorState && displayRows.length === 0 && <Empty />} 
+                        {!loading && !errorState && displayRows.length === 0 && <Empty />}
                         {!loading && !errorState && displayRows.length > 0 && (
-                            <TableContainer component={Paper}>
+                            <TableContainer component={Paper} sx={{p: 2, border: 0}}>
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>编号</TableCell>
+
                                             <TableCell>景区名称</TableCell>
                                             <TableCell>抵扣券名称</TableCell>
                                             <TableCell>有效期时间</TableCell>
@@ -363,7 +367,6 @@ const DeductionRecord: React.FC = () => {
                                     <TableBody>
                                         {displayRows.map((row: DeductionRecordData) => (
                                             <TableRow key={row.id}>
-                                                <TableCell>{row.id}</TableCell>
                                                 <TableCell>{row.sceneryName}</TableCell>
                                                 <TableCell>{row.deductionName}</TableCell>
                                                 <TableCell>{row.validTime}</TableCell>
@@ -394,10 +397,10 @@ const DeductionRecord: React.FC = () => {
                         )}
                     </TabPanel>
                     {/* Add TabPanel for index 1 if needed */}
-                    {/* 
+                    {/*
                     <TabPanel value={tabValue} index={1} hidden={loading || !!errorState}>
                         ... content for tab 1 ...
-                    </TabPanel> 
+                    </TabPanel>
                     */}
                 </Box>
             </Box>

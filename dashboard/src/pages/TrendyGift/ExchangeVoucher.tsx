@@ -1,6 +1,7 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
     Box,
+    Breadcrumbs,
     Button,
     Chip,
     Dialog,
@@ -26,19 +27,11 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import {
-    AddCircleOutline,
-    Close,
-    RemoveCircleOutline,
-    ConfirmationNumber,
-    MonetizationOn,
-    LocalOffer,
-    ReceiptLong,
-    CameraAlt
-} from '@mui/icons-material';
-import { EditorState, ContentState, convertToRaw, convertFromHTML, convertFromRaw } from 'draft-js';
-import { Editor } from 'react-draft-wysiwyg';
+import {AddCircleOutline, CameraAlt, Close, RemoveCircleOutline} from '@mui/icons-material';
+import {ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState} from 'draft-js';
+import {Editor} from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import {LinkButton, PageHeader, Title} from "../styled";
 
 /**
  * 统计卡片组件
@@ -50,30 +43,32 @@ interface StatCardProps {
     bgColor: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({title, value, icon, bgColor}) => (
-    <Paper sx={{p: 2, display: 'flex', alignItems: 'center'}}>
+const StatCard = React.memo<StatCardProps>(({title, value, icon, bgColor}) => (
+    <Paper elevation={0} sx={{p: 2, display: 'flex', alignItems: 'center', boxShadow: 'none'}}>
         <Box sx={{
-            mr: 2,
+            mr: '15px',
             p: 1.5,
             bgcolor: bgColor,
-            borderRadius: '50%',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white'
+            color: 'white',
+            width: 54,
+            height: 54
         }}>
             {icon}
         </Box>
         <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
+            <Typography variant="body2" color="text.secondary" sx={{fontSize: '16px', mb: 0, color: '#333'}}>
                 {title}
             </Typography>
-            <Typography variant="h5" fontWeight="bold">
+            <Typography variant="h5" fontWeight="bold" sx={{fontSize: '32px', color: '#333'}}>
                 {value}
             </Typography>
         </Box>
     </Paper>
-);
+));
 
 /**
  * 兑换券表格行数据结构
@@ -107,7 +102,7 @@ interface GuidanceDialogProps {
 /**
  * 指引编辑/查看弹窗
  */
-const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit, data }) => {
+const GuidanceDialog = React.memo<GuidanceDialogProps>(({open, onClose, onSubmit, data}) => {
     const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
     const [videoFile, setVideoFile] = useState<File | null>(null);
 
@@ -148,7 +143,6 @@ const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit
 
     const handleVideoUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
-            console.log("Video file selected:", event.target.files[0]);
             setVideoFile(event.target.files[0]);
         } else {
             setVideoFile(null);
@@ -159,21 +153,26 @@ const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit
         const contentState = editorState.getCurrentContent();
         const hasText = contentState.hasText();
         const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
-        onSubmit({ text: rawContent, video: videoFile });
+        onSubmit({text: rawContent, video: videoFile});
     }, [editorState, videoFile, onSubmit]);
+
+    const DIALOG_STYLES = {
+        title: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
+        actions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'}
+    };
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle sx={{ m: 0, p: 2, borderBottom: '1px solid #E0E0E0' }}>
+            <DialogTitle sx={DIALOG_STYLES.title}>
                 指引
-                <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
-                    <Close />
+                <IconButton aria-label="close" onClick={onClose} sx={{position: 'absolute', right: 8, top: 8}}>
+                    <Close/>
                 </IconButton>
             </DialogTitle>
-            <DialogContent sx={{ p: 3, pt: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <FormLabel sx={{ mb: 1 }}>操作指引:</FormLabel>
+            <DialogContent sx={{p: 3, pt: 2}}>
+                <Box sx={{display: 'flex', flexDirection: 'column', gap: 2.5}}>
+                    <Box sx={{display: 'flex', flexDirection: 'column'}}>
+                        <FormLabel sx={{mb: 1}}>操作指引:</FormLabel>
                         <Editor
                             editorState={editorState}
                             onEditorStateChange={onEditorStateChange}
@@ -194,37 +193,37 @@ const GuidanceDialog: React.FC<GuidanceDialogProps> = ({ open, onClose, onSubmit
                             }}
                             toolbar={{
                                 options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'remove', 'history'],
-                                inline: { options: ['bold', 'italic', 'underline', 'strikethrough'] },
-                                list: { options: ['unordered', 'ordered'] },
+                                inline: {options: ['bold', 'italic', 'underline', 'strikethrough']},
+                                list: {options: ['unordered', 'ordered']},
                             }}
                         />
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <FormLabel sx={{ minWidth: 80, textAlign: 'left', mr: 2 }}>操作视频:</FormLabel>
+                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                        <FormLabel sx={{minWidth: 80, textAlign: 'left', mr: 2}}>操作视频:</FormLabel>
                         <Button
                             variant="outlined"
                             component="label"
-                            startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
+                            startIcon={<CameraAlt sx={{color: '#F44336'}}/>}
                             sx={{
                                 width: 100, height: 100, border: '1px dashed #E0E0E0', bgcolor: '#FFF5F5',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 flexDirection: 'column', textTransform: 'none', color: 'text.secondary',
-                                '&:hover': { bgcolor: '#FFF0F0' }
+                                '&:hover': {bgcolor: '#FFF0F0'}
                             }}
                         >
-                            <input type="file" hidden accept="video/*" onChange={handleVideoUpload} />
+                            <input type="file" hidden accept="video/*" onChange={handleVideoUpload}/>
                         </Button>
-                        {videoFile && <Typography variant="body2" sx={{ ml: 2 }}>{videoFile.name}</Typography>}
+                        {videoFile && <Typography variant="body2" sx={{ml: 2}}>{videoFile.name}</Typography>}
                     </Box>
                 </Box>
             </DialogContent>
-            <DialogActions sx={{ p: 3, pt: 2, borderTop: '1px solid #E0E0E0' }}>
-                <Button onClick={onClose} sx={{ mr: 1 }}>取消</Button>
+            <DialogActions sx={DIALOG_STYLES.actions}>
+                <Button onClick={onClose} sx={{mr: 1}}>取消</Button>
                 <Button variant="contained" onClick={handleSubmit}>确定</Button>
             </DialogActions>
         </Dialog>
     );
-};
+});
 
 /**
  * 添加/编辑表单数据结构
@@ -248,31 +247,273 @@ const INITIAL_ADD_FORM_DATA: AddFormData = {
     matchImage: '',
     useLimit: '',
     expireTime: '',
-    voucherContents: [{ id: Date.now(), value: '' }],
+    voucherContents: [{id: Date.now(), value: ''}],
 };
 
+const CustomIcon = React.memo<{ src: string }>(({src}) => (
+    <Box
+        component="img"
+        src={src}
+        alt="图标"
+        sx={{
+            width: 50,
+            height: 50,
+            objectFit: 'contain',
+        }}
+    />
+));
+
 const mockStats = [
-    {title: '生成兑换券（张）', value: '5231', icon: <ConfirmationNumber/>, bgColor: '#F44336'},
-    {title: '兑换金额（元）', value: '12560', icon: <MonetizationOn/>, bgColor: '#FF9800'},
-    {title: '已兑换数（张）', value: '3120', icon: <LocalOffer/>, bgColor: '#FFEB3B'},
-    {title: '未兑换数（张）', value: '2111', icon: <ReceiptLong/>, bgColor: '#4CAF50'},
+    {
+        title: '生成兑换券（张）',
+        value: '5231',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png"/>,
+        bgColor: '#F41515'
+    },
+    {
+        title: '兑换金额（元）',
+        value: '12560',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png"/>,
+        bgColor: '#FA7202'
+    },
+    {
+        title: '已兑换数（张）',
+        value: '3120',
+        icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png"/>,
+        bgColor: '#FFCC00'
+    },
+    {
+        title: '未兑换数（张）',
+        value: '2111',
+        icon: <CustomIcon
+            src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png"/>,
+        bgColor: '#7DD000'
+    },
 ];
 
-const mockRows: ExchangeVoucherRow[] = Array.from({ length: 20 * 15 }, (_, i) => ({
-    id: i + 1,
-    sceneryName: '长隆欢乐世界',
-    voucherName: '快速通行证',
-    useLimit: '指定项目可用',
-    expireTime: '2025-12-31 23:59:59',
-    totalCount: 500,
-    exchangedCount: 250,
-    unexchangedCount: 250,
-    exchangedAmount: 12500,
-    triggerRule: '购买指定套餐',
-    createTime: '2024-01-15 10:00:00',
-    status: i % 4 === 0 ? '正常' : (i % 4 === 1 ? '已过期' : '已终止'),
-    guidance: i % 5 === 0 ? { text: JSON.stringify(convertToRaw(ContentState.createFromText(`这是第 ${i+1} 行的指引`))), video: null } : undefined,
-}));
+// 生成模拟数据
+const generateMockRows = (): ExchangeVoucherRow[] =>
+    Array.from({length: 20 * 15}, (_, i) => ({
+        id: i + 1,
+        sceneryName: '长隆欢乐世界',
+        voucherName: '快速通行证',
+        useLimit: '指定项目可用',
+        expireTime: '2025-12-31 23:59:59',
+        totalCount: 500,
+        exchangedCount: 250,
+        unexchangedCount: 250,
+        exchangedAmount: 12500,
+        triggerRule: '购买指定套餐',
+        createTime: '2024-01-15 10:00:00',
+        status: i % 4 === 0 ? '正常' : (i % 4 === 1 ? '已过期' : '已终止'),
+        guidance: i % 5 === 0 ? {
+            text: JSON.stringify(convertToRaw(ContentState.createFromText(`这是第 ${i + 1} 行的指引`))),
+            video: null
+        } : undefined,
+    }));
+
+// 常量样式对象
+const STYLES = {
+    formLabel: {minWidth: 120, textAlign: 'right', mr: 2},
+    dialogTitle: {m: 0, p: 2, borderBottom: '1px solid #E0E0E0'},
+    dialogActions: {p: 3, pt: 2, borderTop: '1px solid #E0E0E0'},
+    statsContainer: {
+        height: '150px',
+        bgcolor: 'white',
+        borderRadius: '10px',
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+        mb: '16px',
+        mt: '20px',
+        p: '34px',
+        display: 'flex',
+        alignItems: 'center'
+    },
+    truncatedCell: {
+        maxWidth: 150,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+    }
+};
+
+/**
+ * 表格中状态对应的状态颜色
+ */
+const getStatusChipColor = (status: ExchangeVoucherRow['status']) => {
+    switch (status) {
+        case '正常': return 'success';
+        case '已过期': return 'warning';
+        case '已终止': return 'error';
+        default: return 'default';
+    }
+};
+
+/**
+ * 添加内容表单项组件
+ */
+const VoucherContentItem = React.memo<{
+    content: { id: number, value: string },
+    index: number,
+    total: number,
+    onValueChange: (index: number, value: string) => void,
+    onRemove: (id: number) => void
+}>(({content, index, total, onValueChange, onRemove}) => (
+    <Box sx={{
+        display: 'flex',
+        gap: 1,
+        alignItems: 'center',
+        mb: index === total - 1 ? 0 : 1.5
+    }}>
+        <TextField
+            fullWidth
+            required
+            placeholder="例如：哈根达斯单球一个"
+            value={content.value}
+            onChange={(e) => onValueChange(index, e.target.value)}
+            size="small"
+            sx={{bgcolor: 'white'}}
+        />
+        <IconButton
+            size="small"
+            color="error"
+            onClick={() => onRemove(content.id)}
+            sx={{bgcolor: '#FEECEB', '&:hover': {bgcolor: '#FDDAD8'}}}
+            disabled={total <= 1}
+        >
+            <RemoveCircleOutline fontSize="small"/>
+        </IconButton>
+    </Box>
+));
+
+/**
+ * 添加内容表单区域组件
+ */
+const VoucherContentsSection = React.memo<{
+    contents: { id: number, value: string }[],
+    onValueChange: (index: number, value: string) => void,
+    onAdd: () => void,
+    onRemove: (id: number) => void
+}>(({contents, onValueChange, onAdd, onRemove}) => (
+    <Box sx={{bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1}}>
+        {contents.map((content, index) => (
+            <VoucherContentItem
+                key={content.id}
+                content={content}
+                index={index}
+                total={contents.length}
+                onValueChange={onValueChange}
+                onRemove={onRemove}
+            />
+        ))}
+        <Button
+            startIcon={<AddCircleOutline fontSize="small"/>}
+            onClick={onAdd}
+            size="small"
+            variant="outlined"
+            sx={{mt: 1.5, alignSelf: 'flex-start'}}
+        >
+            添加内容
+        </Button>
+    </Box>
+));
+
+/**
+ * 添加/编辑弹窗内容组件
+ */
+const AddDialogContent = React.memo<{
+    formData: AddFormData,
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void,
+    handleSelectChange: (e: SelectChangeEvent<string>) => void,
+    handleVoucherContentChange: (index: number, value: string) => void,
+    addVoucherContent: () => void,
+    removeVoucherContent: (id: number) => void
+}>(({
+        formData,
+        handleInputChange,
+        handleSelectChange,
+        handleVoucherContentChange,
+        addVoucherContent,
+        removeVoucherContent
+    }) => (
+    <Box component="form" sx={{display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1}}>
+        <Box sx={{display: 'flex', alignItems: 'center'}}>
+            <FormLabel sx={STYLES.formLabel}>所属景区:</FormLabel>
+            <FormControl fullWidth size="small">
+                <InputLabel id="add-scenery-select-label"
+                            sx={{...(formData.sceneryId && {display: 'none'})}}>请选择</InputLabel>
+                <Select
+                    labelId="add-scenery-select-label"
+                    name="sceneryId"
+                    value={formData.sceneryId}
+                    onChange={handleSelectChange}
+                    displayEmpty
+                    label={formData.sceneryId ? undefined : "请选择"}
+                >
+                    <MenuItem value="" disabled>请选择</MenuItem>
+                    <MenuItem value="1">长隆欢乐世界</MenuItem>
+                </Select>
+            </FormControl>
+        </Box>
+
+        <Box sx={{display: 'flex', alignItems: 'center'}}>
+            <FormLabel required sx={STYLES.formLabel}>*兑换券名称:</FormLabel>
+            <TextField required fullWidth name="voucherName" value={formData.voucherName}
+                       onChange={handleInputChange} size="small"/>
+        </Box>
+
+        <Box sx={{display: 'flex', alignItems: 'center'}}>
+            <FormLabel sx={STYLES.formLabel}>比对凭证关键字:</FormLabel>
+            <TextField fullWidth name="keywordMatch" value={formData.keywordMatch} onChange={handleInputChange}
+                       size="small"/>
+        </Box>
+
+        <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
+            <FormLabel sx={{...STYLES.formLabel, pt: 1}}>使用说明:</FormLabel>
+            <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline
+                       rows={3} size="small"/>
+        </Box>
+
+        <Box sx={{display: 'flex', alignItems: 'center'}}>
+            <FormLabel sx={STYLES.formLabel}>有效时间:</FormLabel>
+            <TextField fullWidth name="expireTime" type="datetime-local" value={formData.expireTime}
+                       onChange={handleInputChange} InputLabelProps={{shrink: true}} size="small"/>
+        </Box>
+
+        <Box sx={{display: 'flex', alignItems: 'flex-start'}}>
+            <FormLabel required sx={{...STYLES.formLabel, pt: 1}}>*兑换券内容:</FormLabel>
+            <VoucherContentsSection
+                contents={formData.voucherContents}
+                onValueChange={handleVoucherContentChange}
+                onAdd={addVoucherContent}
+                onRemove={removeVoucherContent}
+            />
+        </Box>
+    </Box>
+));
+
+/**
+ * 表格行操作按钮组件
+ */
+const RowActions = React.memo<{
+    row: ExchangeVoucherRow,
+    onOpenGuidance: (row: ExchangeVoucherRow) => void
+}>(({row, onOpenGuidance}) => (
+    <>
+        {row.status === '正常' &&
+            <Button size="small" color="error" sx={{minWidth: 'auto', p: 0.5}}>
+                中止
+            </Button>
+        }
+        <Button
+            size="small"
+            color="info"
+            sx={{minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0}}
+            onClick={() => onOpenGuidance(row)}
+        >
+            指引
+        </Button>
+    </>
+));
 
 /**
  * 兑换券管理页面
@@ -285,51 +526,51 @@ const ExchangeVoucher: React.FC = () => {
     const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
     const [formData, setFormData] = useState<AddFormData>(INITIAL_ADD_FORM_DATA);
-
-    const [voucherRows, setVoucherRows] = useState<ExchangeVoucherRow[]>(mockRows);
+    const [voucherRows, setVoucherRows] = useState<ExchangeVoucherRow[]>(() => generateMockRows());
 
     const handleOpenAddDialog = useCallback(() => {
         setFormData(INITIAL_ADD_FORM_DATA);
         setOpenAddDialog(true);
     }, []);
 
-    const handleCloseAddDialog = () => setOpenAddDialog(false);
+    const handleCloseAddDialog = useCallback(() => {
+        setOpenAddDialog(false);
+    }, []);
 
-    const handleOpenGuidanceDialog = (rowData: ExchangeVoucherRow) => {
-        setCurrentGuidanceData(rowData.guidance || { text: '', video: null });
+    const handleOpenGuidanceDialog = useCallback((rowData: ExchangeVoucherRow) => {
+        setCurrentGuidanceData(rowData.guidance || {text: '', video: null});
         setSelectedRowId(rowData.id);
         setOpenGuidanceDialog(true);
-    };
+    }, []);
 
-    const handleCloseGuidanceDialog = () => {
+    const handleCloseGuidanceDialog = useCallback(() => {
         setOpenGuidanceDialog(false);
         setCurrentGuidanceData(null);
         setSelectedRowId(null);
-    };
+    }, []);
 
     const handleGuidanceSubmit = useCallback((guidance: { text: string; video: File | null }) => {
-        console.log("Updating guidance for row:", selectedRowId, guidance);
         setVoucherRows(prevRows => prevRows.map(row =>
-            row.id === selectedRowId ? { ...row, guidance } : row
+            row.id === selectedRowId ? {...row, guidance} : row
         ));
         handleCloseGuidanceDialog();
     }, [selectedRowId, handleCloseGuidanceDialog]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setFormData(prev => ({...prev, [name]: value}));
     }, []);
 
     const handleSelectChange = useCallback((e: SelectChangeEvent<string>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name as keyof AddFormData]: value }));
+        const {name, value} = e.target;
+        setFormData(prev => ({...prev, [name as keyof AddFormData]: value}));
     }, []);
 
     const handleVoucherContentChange = useCallback((index: number, value: string) => {
         setFormData(prev => ({
             ...prev,
             voucherContents: prev.voucherContents.map((content, i) =>
-                i === index ? { ...content, value } : content
+                i === index ? {...content, value} : content
             )
         }));
     }, []);
@@ -337,7 +578,7 @@ const ExchangeVoucher: React.FC = () => {
     const addVoucherContent = useCallback(() => {
         setFormData(prev => ({
             ...prev,
-            voucherContents: [...prev.voucherContents, { id: Date.now(), value: '' }]
+            voucherContents: [...prev.voucherContents, {id: Date.now(), value: ''}]
         }));
     }, []);
 
@@ -355,127 +596,49 @@ const ExchangeVoucher: React.FC = () => {
         handleCloseAddDialog();
     }, [formData, handleCloseAddDialog]);
 
-    const handleChangePage = useCallback((event: unknown, newPage: number) => setPage(newPage), []);
+    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+        setPage(newPage);
+    }, []);
 
     const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
     }, []);
 
-    const displayRows = useMemo(() => voucherRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage), [voucherRows, page, rowsPerPage]);
-
-    const getStatusChipColor = useCallback((status: ExchangeVoucherRow['status']) => {
-        switch (status) {
-            case '正常': return 'success';
-            case '已过期': return 'warning';
-            case '已终止': return 'error';
-            default: return 'default';
-        }
-    }, []);
-
-    /**
-     * 渲染添加/编辑弹窗内容
-     */
-    const renderAddDialogContent = () => (
-        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>所属景区:</FormLabel>
-                <FormControl fullWidth size="small">
-                    <InputLabel id="add-scenery-select-label" sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
-                    <Select
-                        labelId="add-scenery-select-label"
-                        name="sceneryId"
-                        value={formData.sceneryId}
-                        onChange={handleSelectChange}
-                        displayEmpty
-                        label={formData.sceneryId ? undefined : "请选择"}
-                    >
-                        <MenuItem value="" disabled>请选择</MenuItem>
-                        <MenuItem value="1">长隆欢乐世界</MenuItem>
-                    </Select>
-                </FormControl>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel required sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>*兑换券名称:</FormLabel>
-                <TextField required fullWidth name="voucherName" value={formData.voucherName} onChange={handleInputChange} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>比对凭证关键字:</FormLabel>
-                <TextField fullWidth name="keywordMatch" value={formData.keywordMatch} onChange={handleInputChange} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>使用说明:</FormLabel>
-                <TextField fullWidth name="useLimit" value={formData.useLimit} onChange={handleInputChange} multiline rows={3} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <FormLabel sx={{ minWidth: 120, textAlign: 'right', mr: 2 }}>有效时间:</FormLabel>
-                <TextField fullWidth name="expireTime" type="datetime-local" value={formData.expireTime} onChange={handleInputChange} InputLabelProps={{ shrink: true }} size="small" />
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <FormLabel required sx={{ minWidth: 120, textAlign: 'right', mr: 2, pt: 1 }}>*兑换券内容:</FormLabel>
-                <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1 }}>
-                    {formData.voucherContents.map((content, index) => (
-                        <Box key={content.id} sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: index === formData.voucherContents.length - 1 ? 0 : 1.5 }}>
-                            <TextField
-                                fullWidth
-                                required
-                                placeholder="例如：哈根达斯单球一个"
-                                value={content.value}
-                                onChange={(e) => handleVoucherContentChange(index, e.target.value)}
-                                size="small"
-                                sx={{ bgcolor: 'white' }}
-                            />
-                            <IconButton
-                                size="small"
-                                color="error"
-                                onClick={() => removeVoucherContent(content.id)}
-                                sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
-                                disabled={formData.voucherContents.length <= 1}
-                            >
-                                <RemoveCircleOutline fontSize="small" />
-                            </IconButton>
-                        </Box>
-                    ))}
-                    <Button
-                        startIcon={<AddCircleOutline fontSize="small" />}
-                        onClick={addVoucherContent}
-                        size="small"
-                        variant="outlined"
-                        sx={{ mt: 1.5, alignSelf: 'flex-start' }}
-                    >
-                        添加内容
-                    </Button>
-                </Box>
-            </Box>
-        </Box>
+    const displayRows = useMemo(() =>
+            voucherRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+        [voucherRows, page, rowsPerPage]
     );
 
     return (
-        <Box sx={{p: 3, pt: 8}}>
-            <Box sx={{mb: 2}}>
-                <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
-                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                <Typography variant="h5" component="h2">
-                    兑换券管理
-                </Typography>
-                <Button
-                    variant="contained"
-                        startIcon={<AddCircleOutline/>}
+        <Box sx={{pt: 8}}>
+            <PageHeader container>
+                <Grid item xs={4}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">{"潮品礼遇"}</Typography>
+                    </Breadcrumbs>
+                    <Title variant='h1'>{"兑换券管理"}</Title>
+                </Grid>
+                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end"}}>
+                    <LinkButton
+                        disableElevation
+                        variant="contained"
+                        startIcon={<Box
+                            component="img"
+                            src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_add@3x.png"
+                            alt="icon"
+                            sx={{width: 20, height: 20}}
+                        />}
                         onClick={handleOpenAddDialog}
-                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
-                >
-                    添加
-                </Button>
-                </Box>
-            </Box>
+                    >
+                        {"添加"}
+                    </LinkButton>
+                </Grid>
+            </PageHeader>
 
+            {/* 添加弹窗 */}
             <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
-                <DialogTitle sx={{m: 0, p: 2, borderBottom: '1px solid #E0E0E0'}}>
+                <DialogTitle sx={STYLES.dialogTitle}>
                     添加
                     <IconButton
                         aria-label="close"
@@ -486,14 +649,22 @@ const ExchangeVoucher: React.FC = () => {
                     </IconButton>
                 </DialogTitle>
                 <DialogContent sx={{p: 3}}>
-                    {renderAddDialogContent()}
+                    <AddDialogContent
+                        formData={formData}
+                        handleInputChange={handleInputChange}
+                        handleSelectChange={handleSelectChange}
+                        handleVoucherContentChange={handleVoucherContentChange}
+                        addVoucherContent={addVoucherContent}
+                        removeVoucherContent={removeVoucherContent}
+                    />
                 </DialogContent>
-                <DialogActions sx={{p: 3, pt: 2, borderTop: '1px solid #E0E0E0'}}>
+                <DialogActions sx={STYLES.dialogActions}>
                     <Button onClick={handleCloseAddDialog} sx={{mr: 1}}>取消</Button>
                     <Button variant="contained" onClick={handleAddSubmit}>确定</Button>
                 </DialogActions>
             </Dialog>
 
+            {/* 指引弹窗 */}
             <GuidanceDialog
                 open={openGuidanceDialog}
                 onClose={handleCloseGuidanceDialog}
@@ -501,19 +672,30 @@ const ExchangeVoucher: React.FC = () => {
                 data={currentGuidanceData}
             />
 
-            <Grid container spacing={3} sx={{mb: 3}}>
-                {mockStats.map((stat, index) => (
-                    <Grid item xs={12} sm={6} md={3} key={index}>
-                        <StatCard {...stat} />
-                    </Grid>
-                ))}
-            </Grid>
+            {/* 统计卡片 */}
+            <Paper sx={STYLES.statsContainer}>
+                <Grid item container justifyContent="space-evenly">
+                    {mockStats.map((stat, index) => (
+                        <Grid item sm={3} md={3} key={index}>
+                            <StatCard {...stat} />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Paper>
 
-            <TableContainer component={Paper}>
+            {/* 兑换券表格 */}
+            <TableContainer component={Paper} sx={{
+                mt: 3,
+                pl:'37px',pr:'37px',
+                borderRadius: '10px',
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+                '& .MuiTable-root': {
+                    p: 2
+                }
+            }}>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>编号</TableCell>
                             <TableCell>景区名称</TableCell>
                             <TableCell>兑换券名称</TableCell>
                             <TableCell>使用说明</TableCell>
@@ -531,30 +713,21 @@ const ExchangeVoucher: React.FC = () => {
                     <TableBody>
                         {displayRows.map((row) => (
                             <TableRow key={row.id}>
-                                <TableCell>{row.id}</TableCell>
                                 <TableCell>{row.sceneryName}</TableCell>
                                 <TableCell>{row.voucherName}</TableCell>
-                                <TableCell sx={{maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.useLimit}>{row.useLimit}</TableCell>
+                                <TableCell sx={STYLES.truncatedCell} title={row.useLimit}>{row.useLimit}</TableCell>
                                 <TableCell>{row.expireTime}</TableCell>
                                 <TableCell>{row.totalCount}</TableCell>
                                 <TableCell>{row.exchangedCount}</TableCell>
                                 <TableCell>{row.unexchangedCount}</TableCell>
                                 <TableCell>{row.exchangedAmount}</TableCell>
-                                <TableCell sx={{maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={row.triggerRule}>{row.triggerRule}</TableCell>
+                                <TableCell sx={STYLES.truncatedCell} title={row.triggerRule}>{row.triggerRule}</TableCell>
                                 <TableCell>{row.createTime}</TableCell>
                                 <TableCell>
-                                    <Chip label={row.status} color={getStatusChipColor(row.status)} size="small" />
+                                    <Chip label={row.status} color={getStatusChipColor(row.status)} size="small"/>
                                 </TableCell>
                                 <TableCell>
-                                    {row.status === '正常' && <Button size="small" color="error" sx={{minWidth: 'auto', p: 0.5}}>中止</Button>}
-                                    <Button
-                                        size="small"
-                                        color="info"
-                                        sx={{minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0}}
-                                        onClick={() => handleOpenGuidanceDialog(row)}
-                                    >
-                                        指引
-                                    </Button>
+                                    <RowActions row={row} onOpenGuidance={handleOpenGuidanceDialog} />
                                 </TableCell>
                             </TableRow>
                         ))}

@@ -15,11 +15,15 @@ import {
     Tabs,
     TextField,
     Typography,
+    Breadcrumbs,
 } from '@mui/material';
-import {Download, Search} from '@mui/icons-material';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import cnLocale from 'date-fns/locale/zh-CN';
 import Loading from "components/Loading";
 import Empty from "components/Empty";
-
+import {LinkButton, PageHeader, Title, DatePickerWrapper} from "../styled";
 /**
  * 兑换记录数据结构
  */
@@ -85,7 +89,7 @@ interface TabPanelProps {
 function TabPanel(props: TabPanelProps) {
     const {children, value, index, hidden = false, ...other} = props;
     return (
-        <div role="tabpanel" hidden={hidden || value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
+        <div role="tabpanel" hidden={hidden || value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other} style={{border: 'none'}}>
             {!hidden && value === index && children}
         </div>
     );
@@ -117,7 +121,7 @@ const ExchangeRecord: React.FC = () => {
             // setRecordData(fetchedData.records || []);
             // setTotalCount(fetchedData.totalCount || 0);
             await new Promise(resolve => setTimeout(resolve, 500));
-            setRecordData(mockData.filter(item => 
+            setRecordData(mockData.filter(item =>
                  (tabValue === 0 ? item.useTime !== null : item.useTime === null)
             ));
 
@@ -165,23 +169,25 @@ const ExchangeRecord: React.FC = () => {
     const currentTotalCount = recordData.length;
 
     return (
-        <Box sx={{p: 3, pt: 8}}>
-            <Box sx={{mb: 2}}>
-                <Typography variant="subtitle1" color="text.secondary">潮品礼遇</Typography>
-                <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <Typography variant="h5" component="h2">
-                        兑换券记录
-                    </Typography>
-                    <Button
+        <Box sx={{pt: 8}}>
+                 <PageHeader container>
+                <Grid item xs={4}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography color="text.primary">{"潮品礼遇"}</Typography>
+                    </Breadcrumbs>
+                    <Title variant='h1'>{"兑换券记录"}</Title>
+                </Grid>
+                <Grid item xs={8} sx={{display: "flex", gap: "0.5rem", alignItems: "flex-end", justifyContent: "end",pr: "10px"}}>
+                    <LinkButton
+                        disableElevation
                         variant="contained"
-                        startIcon={<Download/>}
                         onClick={handleExport}
-                        sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}
                     >
-                        导出Excel
-                    </Button>
-                </Box>
-            </Box>
+                        {"导出Excel"}
+                    </LinkButton>
+                </Grid>
+            </PageHeader>
+
 
             <Paper sx={{p: 3, mb: 3}}>
                 <Grid container spacing={2} alignItems="center">
@@ -224,37 +230,54 @@ const ExchangeRecord: React.FC = () => {
                       <Grid item xs={12} sm={8} md={5}>
                          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                               <Typography variant="body2" sx={{ minWidth: '80px', textAlign: 'right', mr: 1 }}>使用时间:</Typography>
-                             <TextField fullWidth name="useTimeStart" type="datetime-local" value={searchParams.useTimeStart} onChange={handleInputChange} InputLabelProps={{shrink: true}} size="small" sx={{ mr: 1 }} />
-                             <Typography sx={{ mx: 1 }}>至</Typography>
-                             <TextField fullWidth name="useTimeEnd" type="datetime-local" value={searchParams.useTimeEnd} onChange={handleInputChange} InputLabelProps={{ shrink: true }} size="small" sx={{ ml: 1 }} />
+                             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={cnLocale}>
+                                 <DatePickerWrapper>
+                                     <DesktopDatePicker
+                                         inputFormat="yyyy-MM-dd"
+                                         value={searchParams.useTimeStart ? new Date(searchParams.useTimeStart) : null}
+                                         onChange={(val) => handleInputChange({ target: { name: 'useTimeStart', value: val ? val.toISOString().split('T')[0] : '' } } as any)}
+                                         renderInput={(params) => <TextField {...params} size="small" />}
+                                     />
+                                 </DatePickerWrapper>
+                                 <Typography sx={{ mx: 1 }}>至</Typography>
+                                 <DatePickerWrapper>
+                                     <DesktopDatePicker
+                                         inputFormat="yyyy-MM-dd"
+                                         value={searchParams.useTimeEnd ? new Date(searchParams.useTimeEnd) : null}
+                                         onChange={(val) => handleInputChange({ target: { name: 'useTimeEnd', value: val ? val.toISOString().split('T')[0] : '' } } as any)}
+                                         renderInput={(params) => <TextField {...params} size="small" />}
+                                     />
+                                 </DatePickerWrapper>
+                             </LocalizationProvider>
                          </Box>
                      </Grid>
                      <Grid item xs={12} sm={4} md={1} sx={{display: 'flex', justifyContent: 'flex-end'}}>
-                         <Button variant="contained" onClick={handleSearch} startIcon={<Search/>} sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}}}>
+                         <Button variant="contained" onClick={handleSearch}  sx={{bgcolor: '#C01A12', '&:hover': {bgcolor: '#A51710'}, width: '100px', height: '36px'}}>
                              搜索
                          </Button>
                      </Grid>
                 </Grid>
             </Paper>
 
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+
+            <Box sx={{ position: 'relative', minHeight: '300px',bgcolor:'white',pl:'37px' ,pr:'37px',borderRadius:'10px',boxShadow: 'rgb(90 114 123 / 11%) 0px 7px 30px 0px'}}>
+            <Box sx={{ borderBottom: 2, borderColor: 'divider', mb: 0}}>
                 <Tabs value={tabValue} onChange={handleTabChange} aria-label="exchange record tabs">
                     <Tab label="已兑换" {...a11yProps(0)} />
                     <Tab label="未兑换" {...a11yProps(1)} />
                 </Tabs>
             </Box>
 
-            <Box sx={{ position: 'relative', minHeight: '300px' }}>
                 {loading && <Loading />}
                 {errorState ? <Typography color="error">Failed to load records: {errorState.message}</Typography> : null}
                 <TabPanel value={tabValue} index={0} hidden={loading || !!errorState}>
-                     {!loading && !errorState && displayRows.length === 0 && <Empty />} 
+                     {!loading && !errorState && displayRows.length === 0 && <Empty />}
                      {!loading && !errorState && displayRows.length > 0 && (
-                         <TableContainer component={Paper}>
+                         <TableContainer component={Paper} sx={{p: 2,border:0 }}>
                              <Table>
                                  <TableHead>
                                      <TableRow>
-                                         <TableCell>编号</TableCell>
+
                                          <TableCell>景区名称</TableCell>
                                          <TableCell>兑换券名称</TableCell>
                                          <TableCell>有效期时间</TableCell>
@@ -263,12 +286,12 @@ const ExchangeRecord: React.FC = () => {
                                          <TableCell>使用人员</TableCell>
                                          <TableCell>使用人员手机</TableCell>
                                          <TableCell>使用时间</TableCell>
+                                         <TableCell align="center" sx={{ width: '60px' }}>操作</TableCell>
                                      </TableRow>
                                  </TableHead>
                                  <TableBody>
                                      {displayRows.map((row) => (
                                          <TableRow key={row.id}>
-                                             <TableCell>{row.id}</TableCell>
                                              <TableCell>{row.sceneryName}</TableCell>
                                              <TableCell>{row.voucherName}</TableCell>
                                              <TableCell>{row.expireTime}</TableCell>
@@ -277,6 +300,15 @@ const ExchangeRecord: React.FC = () => {
                                              <TableCell>{row.user}</TableCell>
                                              <TableCell>{row.userPhone}</TableCell>
                                              <TableCell>{row.useTime}</TableCell>
+                                             <TableCell align="center">
+                                                 <Button
+                                                     variant="text"
+                                                     size="small"
+                                                     sx={{ color: '#C01A12' }}
+                                                 >
+                                                     查看
+                                                 </Button>
+                                             </TableCell>
                                          </TableRow>
                                      ))}
                                  </TableBody>
