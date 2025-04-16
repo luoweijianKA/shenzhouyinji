@@ -16,8 +16,8 @@ export default [
   },
   {
     icon: 'comment',
-    text: '消息',
-    url: 'pages/conversation/index',
+    text: '潮品礼遇',
+    url: 'pages/coupon/index',
   },
   {
     icon: 'person',

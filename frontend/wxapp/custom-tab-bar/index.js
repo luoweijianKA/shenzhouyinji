@@ -1,5 +1,5 @@
 import TabMenu from './data';
-import { YIN_ICON } from '../constants/index';
+import { YIN_ICON, CHAO_ICON } from '../constants/index';
 
 const app = getApp();
 
@@ -8,6 +8,7 @@ Component({
     active: 0,
     total: 0,
     yinIcon: YIN_ICON,
+    chaoIcon: CHAO_ICON,
     list: TabMenu,
   },
 

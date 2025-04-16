@@ -1,13 +1,16 @@
 <t-tab-bar value="{{active}}" bindchange="onChange" split="{{false}}">
-  <t-tab-bar-item wx:for="{{list}}" wx:for-item="item" wx:for-index="index" wx:key="index">
-    <view class="custom-tab-bar-wrapper">
-      <view wx:if="{{item.text == '印迹打卡'}}">
-        <image src="{{yinIcon}}" mode="aspectFit" class="custom-icon"></image>
-      </view>
-      <view wx:else>
-        <t-icon prefix="wr" name="{{item.icon}}" size="48rpx" />
-      </view>
-      <view class="text">{{ item.text }}</view>
-    </view>
-  </t-tab-bar-item>
+    <t-tab-bar-item wx:for="{{list}}" wx:for-item="item" wx:for-index="index" wx:key="index">
+        <view class="custom-tab-bar-wrapper">
+            <view wx:if="{{item.text == '印迹打卡'}}">
+                <image src="{{yinIcon}}" mode="aspectFit" class="custom-icon"></image>
+            </view>
+            <view wx:elif="{{item.text == '潮品礼遇'}}">
+                <image src="{{chaoIcon}}" mode="aspectFit" class="custom-icon"></image>
+            </view>
+            <view wx:else>
+                <t-icon prefix="wr" name="{{item.icon}}" size="48rpx" />
+            </view>
+            <view class="text">{{ item.text }}</view>
+        </view>
+    </t-tab-bar-item>
 </t-tab-bar>

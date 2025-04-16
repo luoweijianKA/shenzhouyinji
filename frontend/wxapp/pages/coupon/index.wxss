@@ -1,0 +1,95 @@
+.bg {
+  width: 750rpx;
+  min-height: 926rpx;
+  background: url('https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/bg_gift@3x.png')
+    no-repeat 0 0 / 750rpx 926rpx;
+}
+.selector {
+  padding: 60rpx 32rpx 22rpx;
+}
+.t-dropdown-menu__bar {
+  width: 188rpx;
+  height: 64rpx !important;
+  border-radius: 39rpx;
+  overflow: hidden;
+}
+.t-dropdown-menu__title {
+  font-size: 28rpx;
+  color: #333;
+}
+.list {
+  margin: 32rpx 22rpx 0;
+  padding: 32rpx 27rpx;
+  border-radius: 20rpx;
+  background: #fff;
+}
+.list-title {
+  padding-bottom: 12rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 28rpx;
+}
+.list-item {
+  position: relative;
+  margin-top: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 652rpx;
+  height: 222rpx;
+}
+.list-item-exchange {
+  background: url('https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/bg_exchange@3x.png')
+    no-repeat 0 / 652rpx 222rpx;
+}
+.item-top {
+  position: absolute;
+  top: 12rpx;
+  left: 12rpx;
+  height: 38rpx;
+  padding: 0 22rpx;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 38rpx;
+  border-radius: 8rpx 0 20rpx 0;
+  background: linear-gradient(90deg, #fd9c41 0%, #ff8940 128%),
+    linear-gradient(180deg, #ff9d41 0%, rgba(255, 211, 211, 0) 100%);
+}
+.item-left {
+  padding: 0 48rpx;
+}
+.item-title {
+  display: flex;
+  align-items: baseline;
+  color: #333;
+  font-size: 40rpx;
+  font-weight: 500;
+}
+.item-subtitle {
+  padding-top: 16rpx;
+  color: #666;
+  font-size: 24rpx;
+}
+.item-right {
+  padding: 0 60rpx 0 40rpx;
+  font-size: 40rpx;
+  color: #fff;
+}
+.list-item-deduction {
+  background: url('https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/bg_deduction@3x.png')
+    no-repeat 0 / 652rpx 222rpx;
+}
+.itemt-unit {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+.item-price {
+  font-size: 56rpx;
+  font-weight: 500;
+}
+.itemt-desc {
+  padding-left: 11rpx;
+  font-size: 24rpx;
+  color: #666;
+}

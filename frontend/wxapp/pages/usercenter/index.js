@@ -1,6 +1,8 @@
-
 import { RESOURCE_URL, DEFAULT, YIN_ICON } from '../../constants/index';
-const { getUserUnreadMessage, clearUserUnreadMessage } = require('../../model/usercenter');
+const {
+  getUserUnreadMessage,
+  clearUserUnreadMessage,
+} = require('../../model/usercenter');
 import Toast from 'tdesign-miniprogram/toast/index';
 const app = getApp();
 let interval = null;
@@ -72,7 +74,7 @@ const pageMenu = [
       note: '',
       url: '',
       type: 'badge-exchange',
-    }
+    },
   ],
   [
     {
@@ -96,7 +98,9 @@ Page({
   data: {
     userInfo: [],
     tweetMenu: tweetMenu,
-    pageMenu: pageMenu.map(v => v.filter(m => !m.role || m.role === 'USER')),
+    pageMenu: pageMenu.map((v) =>
+      v.filter((m) => !m.role || m.role === 'USER'),
+    ),
     avatarUrl: DEFAULT.AVATAR_URL,
     nickname: DEFAULT.NICKNAME,
     resourceUrl: RESOURCE_URL,
@@ -105,7 +109,7 @@ Page({
   onLoad() {
     this.setData({
       userInfo: app.globalData.user,
-    })
+    });
     this.loadUnreadMessage();
   },
   onHide: function () {
@@ -119,13 +123,15 @@ Page({
       this.getTabBar().setData({
         active: 4,
         yinIcon: YIN_ICON,
-      })
+      });
     }
-    const { user } = app.globalData
+    const { user } = app.globalData;
     if (user) {
       this.setData({
-        pageMenu: pageMenu.map(v => v.filter(m => !m.role || m.role === 'USER' || m.role === user.role))
-      })
+        pageMenu: pageMenu.map((v) =>
+          v.filter((m) => !m.role || m.role === 'USER' || m.role === user.role),
+        ),
+      });
     }
 
     var _this = this;
@@ -140,8 +146,8 @@ Page({
     // tweetMenu[2].notifyNum = result.like;
 
     this.setData({
-      tweetMenu: tweetMenu
-    })
+      tweetMenu: tweetMenu,
+    });
 
     // const total = parseInt(result.conversation) + parseInt(result.notification);
     // this.getTabBar().setData({ total: total });
@@ -155,11 +161,11 @@ Page({
         break;
       }
       case '粉丝': {
-        this.clearMessage("Followers");
+        this.clearMessage('Followers');
         tweetMenu[1].notifyNum = 0;
 
         this.setData({
-          tweetMenu: tweetMenu
+          tweetMenu: tweetMenu,
         });
         wx.navigateTo({ url: '/pages/usercenter/followers/index' });
         break;
@@ -169,7 +175,7 @@ Page({
         // tweetMenu[2].notifyNum = 0;
 
         this.setData({
-          tweetMenu: tweetMenu
+          tweetMenu: tweetMenu,
         });
         wx.navigateTo({ url: '/pages/usercenter/record/index' });
         break;
@@ -247,5 +253,9 @@ Page({
   async clearMessage(type) {
     var result = clearUserUnreadMessage(type);
     console.log(result);
-  }
-})
+  },
+
+  handleCoupon() {
+    wx.navigateTo({ url: '/pages/coupon/list' });
+  },
+});

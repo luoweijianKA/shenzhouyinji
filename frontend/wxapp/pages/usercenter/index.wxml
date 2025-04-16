@@ -1,38 +1,64 @@
 <view class="user-card">
-  <view class="ucc-header">
-    <image wx:if="{{userInfo.wechat_avatar}}" src="{{resourceUrl}}{{userInfo.wechat_avatar}}" class="ucc-header-avatar" mode="widthFix"></image>
-    <image wx:else src="{{avatarUrl}}" class="ucc-header-avatar" mode="widthFix"></image>
-    <view class="ucc-header-name">{{userInfo.wechat_name || '微信用户'}}</view>
-  </view>
-</view>
-
-<view class="tweet-info">
-  <view class="ti-btn-group">
-    <t-cell-group>
-      <t-cell t-class="top" t-class-left="left" t-class-title="title" t-class-note="note" title="我的互动" bordered="{{false}}" />
-    </t-cell-group>
-
-    <view class="content">
-      <view class="item" wx:for="{{tweetMenu}}" wx:for-item="item" wx:key="index" data-item="{{item}}" bindtap="onClickItem">
-        <view class="item-icon">
-          <t-badge count="{{item.notifyNum}}" max-count="{{99}}" color="#FF4646">
-            <t-icon prefix="wr" name="{{item.iconName}}" size="56rpx" customStyle="background-image: -webkit-linear-gradient(90deg, #6a6a6a 0%,#929292 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;" />
-          </t-badge>
-        </view>
-        <view class="item-title">{{item.title}}</view>
-      </view>
+    <view class="ucc-header">
+        <image wx:if="{{userInfo.wechat_avatar}}" src="{{resourceUrl}}{{userInfo.wechat_avatar}}" class="ucc-header-avatar" mode="widthFix"></image>
+        <image wx:else src="{{avatarUrl}}" class="ucc-header-avatar" mode="widthFix"></image>
+        <view class="ucc-header-name">{{userInfo.wechat_name || '微信用户'}}</view>
     </view>
-  </view>
 </view>
-
+<view class="message-card">
+    <view class="card-title">我的消息</view>
+    <view class="msg-list">
+        <view class="msg-item">
+            <view class="msgitem-dot"></view>
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_message@3x.png" />
+            <view class="msgitem-text">系统消息</view>
+        </view>
+        <view class="msg-item">
+            <view class="msgitem-dot"></view>
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_customer @3x.png" />
+            <view class="msgitem-text">客服消息</view>
+        </view>
+        <view class="msg-item">
+            <view class="msgitem-dot"></view>
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_reward@3x.png" />
+            <view class="msgitem-text">奖励消息</view>
+        </view>
+        <view class="msg-item">
+            <view class="msgitem-dot"></view>
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_badge@3x.png" />
+            <view class="msgitem-text">徽章交换</view>
+        </view>
+        <view class="msg-item" bindtap="handleCoupon">
+            <view class="msgitem-dot"></view>
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_gift_my@3x.png" />
+            <view class="msgitem-text">礼遇消息</view>
+        </view>
+    </view>
+</view>
+<view class="tweet-info">
+    <view class="ti-btn-group">
+        <t-cell-group>
+            <t-cell t-class="top" t-class-left="left" t-class-title="title" t-class-note="note" title="我的互动" bordered="{{false}}" />
+        </t-cell-group>
+        <view class="content">
+            <view class="item" wx:for="{{tweetMenu}}" wx:for-item="item" wx:key="index" data-item="{{item}}" bindtap="onClickItem">
+                <view class="item-icon">
+                    <t-badge count="{{item.notifyNum}}" max-count="{{99}}" color="#FF4646">
+                        <t-icon prefix="wr" name="{{item.iconName}}" size="56rpx" customStyle="background-image: -webkit-linear-gradient(90deg, #6a6a6a 0%,#929292 100%);-webkit-background-clip: text;-webkit-text-fill-color: transparent;" />
+                    </t-badge>
+                </view>
+                <view class="item-title">{{item.title}}</view>
+            </view>
+        </view>
+    </view>
+</view>
 <view class="page-menu-container">
-  <view class="page-menu" wx:for="{{pageMenu}}" wx:key="item">
-    <t-cell-group>
-      <t-cell wx:for="{{item}}" wx:for-item="xitem" wx:for-index="xindex" wx:key="xindex" title="{{xitem.title}}" arrow="{{!xitem.icon}}" note="{{xitem.note}}" data-type="{{xitem.type}}" bordered="{{false}}" bind:click="onClickCell" t-class="t-cell-padding">
-        <t-icon name="{{xitem.icon}}" size="48rpx" slot="note" />
-      </t-cell>
-    </t-cell-group>
-  </view>
+    <view class="page-menu" wx:for="{{pageMenu}}" wx:key="item">
+        <t-cell-group>
+            <t-cell wx:for="{{item}}" wx:for-item="xitem" wx:for-index="xindex" wx:key="xindex" title="{{xitem.title}}" arrow="{{!xitem.icon}}" note="{{xitem.note}}" data-type="{{xitem.type}}" bordered="{{false}}" bind:click="onClickCell" t-class="t-cell-padding">
+                <t-icon name="{{xitem.icon}}" size="48rpx" slot="note" />
+            </t-cell>
+        </t-cell-group>
+    </view>
 </view>
-
 <t-toast id="t-toast" />

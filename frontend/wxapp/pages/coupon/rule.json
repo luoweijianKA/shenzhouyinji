@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "潮品礼遇",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "t-button": "tdesign-miniprogram/button/button"
+  }
+}

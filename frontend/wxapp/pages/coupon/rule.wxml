@@ -1,0 +1,14 @@
+<view>
+    <view class="wrapper">
+        <video class="video" src="" show-center-play-btn="{{true}}" />
+        <view class="rule">
+            <view class="title">使用说明</view>
+            <rich-text nodes='<div style="color:red">123</div>' class="rich-text" />
+        </view>
+    </view>
+    <view class="footer">
+        <t-button theme="primary" size="large" variant="outline" block class="button" bindtap="handleButton">
+            上传凭证
+        </t-button>
+    </view>
+</view>

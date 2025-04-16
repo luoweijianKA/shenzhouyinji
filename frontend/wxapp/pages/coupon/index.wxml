@@ -1,0 +1,39 @@
+<view class="bg">
+    <view class="selector">
+        <t-dropdown-menu>
+            <t-dropdown-item label="全部" options="{{product.options}}" placement="right" value="{{product.value}}" bindchange="onChange" />
+        </t-dropdown-menu>
+    </view>
+    <view class="list">
+        <view class="list-title">兑换券</view>
+        <view class="list-item list-item-exchange">
+            <view class="item-top">东方明珠景区</view>
+            <view class="item-left">
+                <view class="item-title">熊猫玩偶</view>
+                <view class="item-subtitle">有效时间：2025年09月16日</view>
+            </view>
+            <view class="item-right" bindtap="handleRule">
+                <view>上传</view>
+                <view>凭证</view>
+            </view>
+        </view>
+    </view>
+    <view class="list">
+        <view class="list-title">抵扣券</view>
+        <view class="list-item list-item-deduction">
+            <view class="item-left">
+                <view class="item-top">东方明珠景区</view>
+                <view class="item-title">
+                    <view class="itemt-unit">￥</view>
+                    <view class="itemt-price">35</view>
+                    <view class="itemt-desc">满100元可用</view>
+                </view>
+                <view class="item-subtitle">有效时间：2025年09月16日</view>
+            </view>
+            <view class="item-right">
+                <view>上传</view>
+                <view>凭证</view>
+            </view>
+        </view>
+    </view>
+</view>

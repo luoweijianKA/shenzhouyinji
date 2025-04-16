@@ -2,6 +2,12 @@
   "pages": [
     "pages/start/index",
     "pages/home/home",
+    "pages/coupon/index",
+    "pages/coupon/rule",
+    "pages/coupon/upload",
+    "pages/coupon/list",
+    "pages/coupon/history",
+    "pages/coupon/check",
     "pages/map/index",
     "pages/tweet/index",
     "pages/conversation/index",
@@ -53,28 +59,19 @@
       "root": "sceneryspot",
       "name": "sceneryspot",
       "independent": true,
-      "pages": [
-        "pages/detail/index",
-        "pages/serviceItem/index"
-      ]
+      "pages": ["pages/detail/index", "pages/serviceItem/index"]
     },
     {
       "root": "message",
       "name": "message",
       "independent": true,
-      "pages": [
-        "pages/detail/index"
-      ]
+      "pages": ["pages/detail/index"]
     },
     {
       "root": "tweet",
       "name": "tweet",
       "independent": true,
-      "pages": [
-        "pages/create/index",
-        "pages/list/index",
-        "pages/details/index"
-      ]
+      "pages": ["pages/create/index", "pages/list/index", "pages/details/index"]
     }
   ],
   "tabBar": {
@@ -99,8 +96,10 @@
         "text": "印迹打卡"
       },
       {
-        "pagePath": "pages/conversation/index",
-        "text": "消息"
+        "pagePath": "pages/coupon/index",
+        "iconPath": "assets/icons/chao.png",
+        "selectedIconPath": "assets/icons/chaook.png",
+        "text": "潮品礼遇"
       },
       {
         "pagePath": "pages/usercenter/index",
@@ -116,9 +115,7 @@
     "navigationBarTextStyle": "black"
   },
   "sitemapLocation": "sitemap.json",
-  "requiredPrivateInfos": [
-    "getLocation"
-  ],
+  "requiredPrivateInfos": ["getLocation"],
   "permission": {
     "scope.userLocation": {
       "desc": "你的位置信息将用于小程序位置接口的效果展示"

@@ -1,0 +1,40 @@
+page {
+  background-color: #f5f5f5;
+}
+.wrapper {
+  height: 100vh;
+  margin: 32rpx 22rpx;
+  border-radius: 20rpx;
+  background-color: #fff;
+}
+.title {
+  padding: 48rpx 32rpx;
+  color: #777777;
+  font-size: 28rpx;
+  line-height: 28rpx;
+}
+.image-wrapper {
+  width: 510rpx;
+  height: 280rpx;
+  margin: auto;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  background: #eef6ff;
+}
+.image-upload {
+  width: 70rpx;
+  height: 70rpx;
+  background: url('https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_up_picture@3x.png')
+    no-repeat 0 0 / 70rpx 70rpx;
+}
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 136rpx;
+  width: 360rpx;
+  margin: 0 auto;
+}
