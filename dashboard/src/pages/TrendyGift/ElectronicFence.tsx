@@ -22,7 +22,7 @@ import {
     Breadcrumbs
 } from '@mui/material';
 import {  Close } from '@mui/icons-material';
-import { gql, useQuery } from '@apollo/client'; // 导入 gql 和 useQuery
+import { gql, useQuery, useMutation } from '@apollo/client'; // 导入 gql, useQuery 和 useMutation
 import Loading from 'components/Loading';
 import Empty from 'components/Empty';
 import QQMap from 'components/QQMap';
@@ -155,7 +155,7 @@ const ElectronicFence: React.FC = () => {
         hasNextPage: false,
     });
 
-    const { first, after, last, before, name, totalCount } = state;
+    const { first, after, last, before,   totalCount } = state;
 
     // 添加/编辑弹窗状态
     const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -165,9 +165,14 @@ const ElectronicFence: React.FC = () => {
 
     // 执行 GraphQL 查询
     const { data, loading, error, refetch } = useQuery<TideSpotListQueryData>(GET_TIDE_SPOT_LIST, {
-        variables: { first: after || !before ? first : null, after, last: last, before, name }, // 根据分页方向调整 first/last
-        fetchPolicy: "network-only", // 或者 "cache-and-network"
-        notifyOnNetworkStatusChange: true,
+        variables: {
+            first: first || 20,
+            after: after || "",
+            last: last || 20,
+            before: before || "",
+            name: state.name || ""
+        },
+        fetchPolicy: "no-cache",
     });
 
     // 处理 GraphQL 返回的数据和分页信息
@@ -200,65 +205,59 @@ const ElectronicFence: React.FC = () => {
 
     // 分页改变处理
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
-        setState(prev => {
-             let newAfter = prev.after;
-             let newBefore = prev.before;
-
-             if (newPage === 0) { // 回到第一页
-                newAfter = undefined;
-                newBefore = undefined;
-            } else if (newPage > prev.page && prev.hasNextPage) { // 下一页
-                newAfter = prev.endCursor;
-                newBefore = undefined;
-            } else if (newPage < prev.page && prev.hasPreviousPage) { // 上一页
-                newAfter = undefined;
-                newBefore = prev.startCursor;
-            } else {
-                 // 如果页码无效或没有更多页，则不改变 after/before
-                 console.warn("Invalid page change attempted or no more pages.");
-                 return prev; // 保持当前状态
-             }
-
-             return {
-                 ...prev,
-                 page: newPage,
-                 after: newAfter,
-                 before: newBefore,
-             };
-        });
-    }, []);
+        if (newPage === 0) {
+            setState(prev => ({
+                ...prev,
+                after: undefined,
+                before: undefined,
+                page: newPage,
+            }));
+        } else if (newPage === state.page - 1) {
+            setState(prev => ({
+                ...prev,
+                after: undefined,
+                before: prev.startCursor,
+                page: newPage,
+            }));
+        } else {
+            setState(prev => ({
+                ...prev,
+                after: prev.endCursor,
+                before: undefined,
+                page: newPage,
+            }));
+        }
+    }, [state.page]);
 
     // 每页行数改变处理
     const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        const newRowsPerPage = parseInt(event.target.value, 10);
+        const val = parseInt(event.target.value, 10);
+        const limit = val === -1 ? state.totalCount : val;
         setState(prev => ({
             ...prev,
-            first: newRowsPerPage,
-            last: newRowsPerPage, // 同步 last
-            page: 0, // 回到第一页
+            first: limit,
             after: undefined,
+            last: limit,
             before: undefined,
+            page: 0,
         }));
+    }, [state.totalCount]);
+
+    // 搜索输入框变化处理，只更新状态，不触发搜索
+    const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setState(prev => ({ ...prev, name: value || undefined }));
     }, []);
 
-    // 搜索处理
     const handleSearch = useCallback(() => {
-        // 搜索时重置分页状态并触发 refetch (通过变量变化自动触发)
         setState(prev => ({
             ...prev,
             page: 0,
             after: undefined,
-            before: undefined,
-            // name 已经在 handleSearchInputChange 中设置
+            before: undefined
         }));
-        // useQuery 会因为 name 变量变化自动重新查询
-    }, []);
-
-    // 搜索输入框变化处理
-    const handleSearchInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setState(prev => ({ ...prev, name: value || undefined })); // 更新搜索名称
-    }, []);
+        refetch(); // 点击搜索按钮时重新获取数据
+    }, [refetch]);
 
     // --- 添加/编辑弹窗相关逻辑 ---
 
@@ -290,23 +289,48 @@ const ElectronicFence: React.FC = () => {
         setEditingId(null);
     }, []);
 
-    const handleAddSubmit = useCallback(async () => { // 假设提交也是异步的
-        console.log(isEditing ? 'Updating electronic fence:' : 'Adding electronic fence:', formData);
-        // TODO: 实现添加或更新的 API 调用逻辑
-        // try {
-        //    if (isEditing && editingId) {
-        //        // await updateFenceMutation({ variables: { id: editingId, input: mapFormDataToInput(formData) } });
-        //    } else {
-        //        // await addFenceMutation({ variables: { input: mapFormDataToInput(formData) } });
-        //    }
-        //    refetch(); // 成功后刷新列表
-        //    handleCloseAddDialog();
-        // } catch (submitError) {
-        //    console.error("Failed to submit fence:", submitError);
-        //    // 处理提交错误，例如显示错误消息
-        // }
-        handleCloseAddDialog(); // 暂时直接关闭
-    }, [formData, isEditing, editingId, handleCloseAddDialog, refetch]);
+    const CREATE_TIDE_SPOT = gql`
+      mutation CreateTideSpot($input: NewTideSpot!) {
+        createTideSpot(input: $input) {
+          id
+        }
+      }
+    `;
+
+const UPDATE_TIDE_SPOT = gql`
+      mutation UpdateTideSpot($input: UpdateTideSpot!) {
+        updateTideSpot(input: $input) {
+          succed
+          message
+        }
+      }
+    `;
+
+    const [createTideSpot] = useMutation(CREATE_TIDE_SPOT);
+    const [updateTideSpot] = useMutation(UPDATE_TIDE_SPOT);
+
+    const handleAddSubmit = useCallback(async () => {
+        if (!formData.sceneryName || !formData.fenceCoordinates) {
+            console.error('景区名称和电子围栏坐标是必填项');
+            return;
+        }
+
+        try {
+            await createTideSpot({
+                variables: {
+                    input: {
+                        name: formData.sceneryName,
+                        positionTolerance: formData.tolerance || '1000',
+                        electricFence: formData.fenceCoordinates
+                    }
+                }
+            });
+            refetch(); // 成功后刷新列表
+            handleCloseAddDialog();
+        } catch (error) {
+            console.error('Failed to submit fence:', error);
+        }
+    }, [formData, createTideSpot, refetch, handleCloseAddDialog]);
 
     const handleViewFence = useCallback((id: string | number) => {
         // TODO: 实现查看逻辑，可能跳转到详情页或打开只读弹窗
@@ -316,18 +340,47 @@ const ElectronicFence: React.FC = () => {
     const handleEditFence = useCallback((fence: TideSpotNode) => {
         console.log("Edit fence:", fence);
         setIsEditing(true);
-        setEditingId(fence.id);
+        setEditingId(fence.id); // 设置正在编辑的ID
         // 将列表数据填充到表单
-        // 注意：fenceName 和 fenceCoordinates 的映射关系需要确认
         setFormData({
            sceneryName: fence.name,
            locationSearch: '', // 编辑时可能不需要或需要重新获取
            fenceName: fence.electricFence, // 假设 electricFence 是名称
-           fenceCoordinates: '', // 需要获取或转换 electricFence 数据
+           fenceCoordinates: fence.electricFence, // 使用已有的围栏坐标
            tolerance: fence.positionTolerance?.toString() || '', // 转换为字符串
         });
         setOpenAddDialog(true); // 打开弹窗进行编辑
     }, []);
+
+    const handleUpdateSubmit = useCallback(async () => {
+        if (!editingId || !formData.sceneryName || !formData.fenceCoordinates) {
+            console.error('景区名称和电子围栏坐标是必填项');
+            return;
+        }
+        try {
+            const result = await updateTideSpot({
+                variables: {
+                    input: {
+                        id: editingId,
+                        name: formData.sceneryName,
+                        positionTolerance: formData.tolerance || '1000',
+                        electricFence: formData.fenceCoordinates
+                    }
+                }
+            });
+
+            if (result.data?.updateTideSpot?.succed) {
+                await refetch(); // 成功后刷新列表
+                handleCloseAddDialog(); // 成功后关闭弹窗
+            } else {
+                console.error('更新失败:', result.data?.updateTideSpot?.message);
+                alert('更新失败: ' + (result.data?.updateTideSpot?.message || '未知错误'));
+            }
+        } catch (error) {
+            console.error('更新电子围栏失败:', error);
+            alert('更新失败: ' + (error instanceof Error ? error.message : '未知错误'));
+        }
+    }, [editingId, formData, updateTideSpot, refetch, handleCloseAddDialog]);
 
     // --- 渲染逻辑 ---
 
@@ -406,7 +459,7 @@ const ElectronicFence: React.FC = () => {
                                     <TableRow key={row.id}>
                                         <TableCell>{row.id}</TableCell>
                                         <TableCell>{row.name}</TableCell>
-                                        <TableCell>{row.electricFence}</TableCell>
+                                        <TableCell sx={{ maxWidth: 200, wordBreak: 'break-all' }}>{row.electricFence.split(',').map(coord => parseInt(coord)).join(',')}</TableCell>
                                         <TableCell>{formattedDateTime(new Date(row.createTime * 1000))}</TableCell>
                                         <TableCell>{formattedDateTime(new Date(row.updateTime * 1000))}</TableCell>
                                         <TableCell>
@@ -503,7 +556,7 @@ const ElectronicFence: React.FC = () => {
                          <Box sx={{ height: 400, width: '100%', mt: 1 }}>
                              {openAddDialog && (
                                  <QQMap
-                                     overlay="marker"
+                                     overlay="polygon"
                                      onChange={handleMapChange}
                                      value={formData.fenceCoordinates}
                                  />
@@ -511,6 +564,7 @@ const ElectronicFence: React.FC = () => {
                          </Box>
 
                          <Box sx={{mt: 15}}>
+
                          </Box>
 
                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -531,9 +585,25 @@ const ElectronicFence: React.FC = () => {
 
                      </Box>
                  </DialogContent>
-                 <DialogActions sx={{ p: 3, pt: 2, borderTop: '1px solid #E0E0E0' }}>
-                     <Button onClick={handleCloseAddDialog} sx={{ mr: 1 }}>取消</Button>
-                     <Button variant="contained" onClick={handleAddSubmit}>{isEditing ? '更新' : '确定'}</Button>
+                 <DialogActions sx={{ p: 2, borderTop: '1px solid #E0E0E0' }}>
+                     <Button onClick={handleCloseAddDialog} variant="outlined" sx={{ mr: 1 }}>取消</Button>
+                     {isEditing ? (
+                         <Button
+                             variant="contained"
+                             onClick={handleUpdateSubmit}
+                             sx={{ bgcolor: '#C01A12', '&:hover': { bgcolor: '#A51710' } }}
+                         >
+                             更新
+                         </Button>
+                     ) : (
+                         <Button
+                             variant="contained"
+                             onClick={handleAddSubmit}
+                             sx={{ bgcolor: '#C01A12', '&:hover': { bgcolor: '#A51710' } }}
+                         >
+                             添加
+                         </Button>
+                     )}
                  </DialogActions>
              </Dialog>
         </Box>

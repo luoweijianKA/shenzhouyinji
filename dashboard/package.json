@@ -133,6 +133,7 @@
         "draft-js": "^0.11.7",
         "graphql": "^16.5.0",
         "immutable": "4.x.x",
+        "lodash": "^4.17.21",
         "qqmap": "^1.0.1",
         "react-bootstrap": "^2.0.2",
         "react-chartjs-2": "^4.0.1",

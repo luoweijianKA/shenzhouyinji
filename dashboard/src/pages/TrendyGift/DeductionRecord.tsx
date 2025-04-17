@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { debounce } from 'lodash';
 import {
     Box,
     Button,
@@ -192,12 +193,20 @@ const DeductionRecord: React.FC = () => {
         // refetch(); // Refetch data for the new tab
     }, []);
 
+    const debouncedSearch = useMemo(
+        () => debounce(() => {
+            setPage(0); // Reset page on new search
+            refetch();
+        }, 500),
+        [refetch]
+    );
+
     const handleSearch = useCallback(() => {
-        setPage(0); // Reset page on new search
-        refetch();
-    }, [refetch]);
+        debouncedSearch();
+    }, [debouncedSearch]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        debouncedSearch();
         const { name, value } = e.target;
         setSearchParams(prev => ({ ...prev, [name]: value }));
     }, []);
