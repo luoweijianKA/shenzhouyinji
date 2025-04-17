@@ -211,6 +211,8 @@ func (r *Resolver) NewAccount(v *aPB.Account) *model.Account {
 		Wechat:       &v.Wechat,
 		WechatName:   &v.WechatName,
 		WechatAvatar: &v.WechatAvatar,
+		Phone:        &v.Phone,
+		City:         &v.City,
 		Role:         model.Role(v.Role),
 		Scopes:       scopes,
 		Status:       int(v.Status),

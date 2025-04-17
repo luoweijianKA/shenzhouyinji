@@ -1,0 +1,23 @@
+<view class="item item-expired">
+    <view class="type">兑换券</view>
+    <!-- <view class="status">待使用</view> -->
+    <!-- <view class="status" style="background:#FD8A4B">已使用</view> -->
+    <view class="status" style="background:#CBCBCB">已过期</view>
+    <view class="left left-deduction">
+        <view class="title">
+            <text class="title-unit">￥</text>
+            <text>1000</text>
+        </view>
+        <view class="subtitle">满3000可用</view>
+    </view>
+    <view class="right">
+        <view class="right-text">
+            <view class="rule">适用于东方明珠景区适用于东方明珠景区</view>
+            <view class="validate">2025年09月16日到期</view>
+        </view>
+        <view class="qrcode">
+            <image bind:tap="handeQrcode" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_badge@3x.png" mode="aspectFit" class="qrcode-image" />
+        </view>
+        <view class="scope">XXXXX景区名</view>
+    </view>
+</view>

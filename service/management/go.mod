@@ -1,4 +1,4 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/management
+module github.com/luoweijianKA/shenzhouyinji/service/management
 
 go 1.19
 replace gitlab.com/annoying-orange/shenzhouyinji/service/management => ../management // 本地相对路径

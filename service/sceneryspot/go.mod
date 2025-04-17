@@ -1,4 +1,4 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/sceneryspot
+module github.com/luoweijianKA/shenzhouyinji/service/sceneryspot
 
 go 1.19
 replace gitlab.com/annoying-orange/shenzhouyinji/service/sceneryspot => ../sceneryspot // 本地相对路径

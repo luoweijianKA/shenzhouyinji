@@ -48,6 +48,8 @@ type ManagementService interface {
 	UpdateTag(ctx context.Context, in *Tag, opts ...client.CallOption) (*MsUpdateRes, error)
 	GetTagByID(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*Tag, error)
 	GetTagByCategoryID(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TagsRes, error)
+	GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackMenuRes, error)
+	GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, opts ...client.CallOption) (*AreaInfosRes, error)
 	CreateAuditing(ctx context.Context, in *Auditing, opts ...client.CallOption) (*AuditingResponse, error)
 	GetAuditings(ctx context.Context, in *AuditingRequest, opts ...client.CallOption) (*AuditingResponse, error)
 	RestoreSceneryspot(ctx context.Context, in *RestoreRequest, opts ...client.CallOption) (*RestoreResponse, error)
@@ -193,6 +195,26 @@ func (c *managementService) GetTagByCategoryID(ctx context.Context, in *MsKeywor
 	return out, nil
 }
 
+func (c *managementService) GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackMenuRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.GetTurtleBackMenuList", in)
+	out := new(TurtleBackMenuRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementService) GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, opts ...client.CallOption) (*AreaInfosRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.GetAreaInfoByParentID", in)
+	out := new(AreaInfosRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementService) CreateAuditing(ctx context.Context, in *Auditing, opts ...client.CallOption) (*AuditingResponse, error) {
 	req := c.c.NewRequest(c.name, "ManagementService.CreateAuditing", in)
 	out := new(AuditingResponse)
@@ -318,6 +340,8 @@ type ManagementServiceHandler interface {
 	UpdateTag(context.Context, *Tag, *MsUpdateRes) error
 	GetTagByID(context.Context, *MsKeyword, *Tag) error
 	GetTagByCategoryID(context.Context, *MsKeyword, *TagsRes) error
+	GetTurtleBackMenuList(context.Context, *MsKeyword, *TurtleBackMenuRes) error
+	GetAreaInfoByParentID(context.Context, *AreaInfoRequest, *AreaInfosRes) error
 	CreateAuditing(context.Context, *Auditing, *AuditingResponse) error
 	GetAuditings(context.Context, *AuditingRequest, *AuditingResponse) error
 	RestoreSceneryspot(context.Context, *RestoreRequest, *RestoreResponse) error
@@ -345,6 +369,8 @@ func RegisterManagementServiceHandler(s server.Server, hdlr ManagementServiceHan
 		UpdateTag(ctx context.Context, in *Tag, out *MsUpdateRes) error
 		GetTagByID(ctx context.Context, in *MsKeyword, out *Tag) error
 		GetTagByCategoryID(ctx context.Context, in *MsKeyword, out *TagsRes) error
+		GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, out *TurtleBackMenuRes) error
+		GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, out *AreaInfosRes) error
 		CreateAuditing(ctx context.Context, in *Auditing, out *AuditingResponse) error
 		GetAuditings(ctx context.Context, in *AuditingRequest, out *AuditingResponse) error
 		RestoreSceneryspot(ctx context.Context, in *RestoreRequest, out *RestoreResponse) error
@@ -414,6 +440,14 @@ func (h *managementServiceHandler) GetTagByID(ctx context.Context, in *MsKeyword
 
 func (h *managementServiceHandler) GetTagByCategoryID(ctx context.Context, in *MsKeyword, out *TagsRes) error {
 	return h.ManagementServiceHandler.GetTagByCategoryID(ctx, in, out)
+}
+
+func (h *managementServiceHandler) GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, out *TurtleBackMenuRes) error {
+	return h.ManagementServiceHandler.GetTurtleBackMenuList(ctx, in, out)
+}
+
+func (h *managementServiceHandler) GetAreaInfoByParentID(ctx context.Context, in *AreaInfoRequest, out *AreaInfosRes) error {
+	return h.ManagementServiceHandler.GetAreaInfoByParentID(ctx, in, out)
 }
 
 func (h *managementServiceHandler) CreateAuditing(ctx context.Context, in *Auditing, out *AuditingResponse) error {

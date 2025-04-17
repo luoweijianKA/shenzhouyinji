@@ -1,4 +1,4 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/account
+module github.com/luoweijianKA/shenzhouyinji/service/account
 
 go 1.19
 

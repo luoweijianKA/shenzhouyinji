@@ -1,0 +1,30 @@
+<view class="message-card">
+    <view class="card-title">我的消息</view>
+    <view class="msg-list">
+        <view class="msg-item" bind:tap="navigateTo" data-url="/pages/conversation/system/index">
+            <view class="msgitem-dot" wx:if="{{system > 0}}" />
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_message@3x.png" />
+            <view class="msgitem-text">系统消息</view>
+        </view>
+        <view class="msg-item" bind:tap="navigateTo" data-url="/pages/conversation/cs/index">
+            <view class="msgitem-dot" wx:if="{{customerService > 0}}" />
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_customer @3x.png" />
+            <view class="msgitem-text">客服消息</view>
+        </view>
+        <view class="msg-item" bind:tap="navigateTo" data-url="/pages/conversation/reward/index">
+            <view class="msgitem-dot" wx:if="{{reward > 0}}" />
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_reward@3x.png" />
+            <view class="msgitem-text">奖励消息</view>
+        </view>
+        <view class="msg-item" bind:tap="navigateTo" data-url="/pages/conversation/list/index">
+            <view class="msgitem-dot" wx:if="{{badge > 0}}" />
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_badge@3x.png" />
+            <view class="msgitem-text">徽章交换</view>
+        </view>
+        <view class="msg-item" bind:tap="navigateTo" data-url="/pages/coupon/list">
+            <view class="msgitem-dot" />
+            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_gift_my@3x.png" />
+            <view class="msgitem-text">礼遇消息</view>
+        </view>
+    </view>
+</view>

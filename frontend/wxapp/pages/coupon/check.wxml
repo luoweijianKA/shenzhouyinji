@@ -1,0 +1,66 @@
+<view class="wrapper">
+    <view class="content">
+        <view class="item">
+            <view class="item-left">优惠券类型</view>
+            <view class="item-right">兑换券</view>
+        </view>
+        <view class="item">
+            <view class="item-left">景区名称</view>
+            <view class="item-right">东方明珠</view>
+        </view>
+        <view class="item">
+            <view class="item-left">优惠券名称</view>
+            <view class="item-right">10元券</view>
+        </view>
+        <view class="item">
+            <view class="item-left">生成关键词</view>
+            <view class="item-right">漂亮</view>
+        </view>
+        <view class="item">
+            <view class="item-left">生成关键图片</view>
+            <image class="item-image" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/bg_gift@3x.png" mode="aspectFit" />
+        </view>
+        <view class="item">
+            <view class="item-left">优惠券生成时间</view>
+            <view class="item-right">2025-03-31 18:00:00</view>
+        </view>
+        <view class="item">
+            <view class="item-left">使用人</view>
+            <view class="item-right">哈哈哈哈哈</view>
+        </view>
+        <view class="item">
+            <view class="item-left">使用人提交关键字</view>
+            <view class="item-right">景秀</view>
+        </view>
+        <view class="item">
+            <view class="item-left">使用人提交图片</view>
+            <image class="item-image" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/bg_gift@3x.png" mode="aspectFit" />
+        </view>
+        <view class="item">
+            <view class="item-left">失效日期</view>
+            <view class="item-right">2025-04-30</view>
+        </view>
+        <view class="item">
+            <view class="item-left">使用说明</view>
+            <view class="item-right">适用于xxx景区</view>
+        </view>
+        <view class="product" wx:for="{{productList}}" wx:key="key">
+            <view class="product-content">
+                <view class="product-title">购买产品名称</view>
+                <input class="product-input" />
+                <image wx:if="{{item.key === 0}}" bind:tap="handleAddProduct" class="product-icon" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_increase@3x.png" mode="aspectFit" />
+                <image wx:else bind:tap="handleMinusProduct" data-key="{{index}}" class="product-icon" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_minus@3x.png" mode="aspectFit" />
+                <view class="product-title">购买产品条码</view>
+                <input class="product-input" />
+            </view>
+        </view>
+    </view>
+    <view class="footer">
+        <view class="button">
+            <t-button theme="primary" block bind:tap="handlePass">通过</t-button>
+        </view>
+        <view class="button">
+            <t-button theme="primary" variant="outline" block bind:tap="handleReject">拒绝</t-button>
+        </view>
+    </view>
+</view>

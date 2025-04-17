@@ -2,13 +2,24 @@ package handler
 
 import (
 	"context"
-
 	pb "gitlab.com/annoying-orange/shenzhouyinji/service/management/proto"
 	repo "gitlab.com/annoying-orange/shenzhouyinji/service/management/repository"
 )
 
 type Handler struct {
 	Repository repo.Repository
+}
+
+func (h *Handler) GetTurtleBackMenuList(ctx context.Context, in *pb.MsKeyword, out *pb.TurtleBackMenuRes) error {
+
+	result, err := h.Repository.GetTurtleBackMenuList(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	out.Data = result.Data
+
+	return nil
 }
 
 // Config
@@ -140,6 +151,17 @@ func (h *Handler) GetTagByID(ctx context.Context, req *pb.MsKeyword, res *pb.Tag
 
 func (h *Handler) GetTagByCategoryID(ctx context.Context, req *pb.MsKeyword, res *pb.TagsRes) error {
 	result, err := h.Repository.GetTagByCategoryID(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	res.Data = result.Data
+
+	return nil
+}
+
+func (h *Handler) GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest, res *pb.AreaInfosRes) error {
+	result, err := h.Repository.GetAreaInfoByParentID(ctx, req)
 	if err != nil {
 		return err
 	}

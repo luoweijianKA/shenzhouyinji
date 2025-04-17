@@ -50,13 +50,22 @@ type ActivateUserPassport struct {
 	PassportCode string `json:"passport_code"`
 }
 
+type AreaInfo struct {
+	ID       string  `json:"id"`
+	Name     string  `json:"name"`
+	ParentID *string `json:"parent_id,omitempty"`
+	Type     string  `json:"type"`
+	Status   int     `json:"status"`
+	Sort     int     `json:"sort"`
+}
+
 type Auditing struct {
-	ID          string                 `json:"id"`
-	Code        string                 `json:"code"`
-	Message     string                 `json:"message"`
-	Data        map[string]interface{} `json:"data,omitempty"`
-	CreatedBy   string                 `json:"createdBy"`
-	CreatedTime int                    `json:"createdTime"`
+	ID          string         `json:"id"`
+	Code        string         `json:"code"`
+	Message     string         `json:"message"`
+	Data        map[string]any `json:"data,omitempty"`
+	CreatedBy   string         `json:"createdBy"`
+	CreatedTime int            `json:"createdTime"`
 }
 
 type AuditingConnection struct {
@@ -1163,6 +1172,13 @@ func (this TrekTask) GetRedone() *bool          { return this.Redone }
 func (this TrekTask) GetCompleted() *bool       { return this.Completed }
 func (this TrekTask) GetElectricFence() *string { return this.ElectricFence }
 
+type TurtleBackMenu struct {
+	ID       string  `json:"id"`
+	MenuName *string `json:"menuName,omitempty"`
+	Path     *string `json:"path,omitempty"`
+	MenuCode *string `json:"menuCode,omitempty"`
+}
+
 type Tweet struct {
 	ID            string  `json:"id"`
 	UserID        string  `json:"user_id"`
@@ -1367,6 +1383,8 @@ type UpdateProfile struct {
 	GuardianName   *string `json:"guardian_name,omitempty"`
 	GuardianNric   *string `json:"guardian_nric,omitempty"`
 	GuardianPhone  *string `json:"guardian_phone,omitempty"`
+	Step           *int    `json:"step,omitempty"`
+	StepTime       *int    `json:"stepTime,omitempty"`
 }
 
 type UpdatePuzzle struct {
@@ -1790,7 +1808,7 @@ func (e AuditingCode) String() string {
 	return string(e)
 }
 
-func (e *AuditingCode) UnmarshalGQL(v interface{}) error {
+func (e *AuditingCode) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1831,7 +1849,7 @@ func (e Export) String() string {
 	return string(e)
 }
 
-func (e *Export) UnmarshalGQL(v interface{}) error {
+func (e *Export) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1882,7 +1900,7 @@ func (e PassportSearch) String() string {
 	return string(e)
 }
 
-func (e *PassportSearch) UnmarshalGQL(v interface{}) error {
+func (e *PassportSearch) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1935,7 +1953,7 @@ func (e Restore) String() string {
 	return string(e)
 }
 
-func (e *Restore) UnmarshalGQL(v interface{}) error {
+func (e *Restore) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -1980,7 +1998,7 @@ func (e Role) String() string {
 	return string(e)
 }
 
-func (e *Role) UnmarshalGQL(v interface{}) error {
+func (e *Role) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2023,7 +2041,7 @@ func (e UserPassportFilterType) String() string {
 	return string(e)
 }
 
-func (e *UserPassportFilterType) UnmarshalGQL(v interface{}) error {
+func (e *UserPassportFilterType) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

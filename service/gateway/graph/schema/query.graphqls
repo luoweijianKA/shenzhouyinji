@@ -15,6 +15,10 @@ type Query {
     last: Int = 20
     before: ID
     search: String
+    phone: String
+    province: String
+    city: String
+    district: String
   ): AccountConnection @auth @hasRole
   profile(user_id: String!): Profile @auth
   claimCode(user_id: String!): ClaimCode @auth
@@ -43,6 +47,13 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  areaInfoByParentID(
+    type: String!
+    parentId: String
+  ): [AreaInfo] @auth
+
+  turtleBackMenuList:[TurtleBackMenu] @auth
+
   configs: Map @auth
 
   category(id: String!): Category

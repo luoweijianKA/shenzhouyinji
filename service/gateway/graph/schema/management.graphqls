@@ -7,6 +7,22 @@ type Category {
   sort: Int!
 }
 
+type AreaInfo {
+  id: ID!
+  name: String!
+  parent_id: String
+  type: String!
+  status: Int!
+  sort: Int!
+}
+
+type TurtleBackMenu {
+  id:ID!
+  menuName: String
+  path: String
+  menuCode: String
+}
+
 input NewCategory {
   name: String!
   parent_id: String

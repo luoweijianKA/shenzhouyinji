@@ -1,0 +1,43 @@
+.message-card {
+  margin: 36rpx 22rpx 08rpx;
+  padding: 32rpx 33rpx 44rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+}
+.card-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 28px;
+  color: #333;
+}
+.msg-list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.msg-item {
+  margin-top: 40rpx;
+  position: relative;
+  width: 96rpx;
+  text-align: center;
+}
+.msgitem-dot {
+  position: absolute;
+  top: -6rpx;
+  right: 6rpx;
+  width: 22rpx;
+  height: 22rpx;
+  box-sizing: border-box;
+  border: 2rpx solid #ffffff;
+  border-radius: 100%;
+  background-color: #fd3535;
+}
+.msgitem-icon {
+  width: 72rpx;
+  height: 72rpx;
+}
+.msgitem-text {
+  color: #666666;
+  font-size: 24rpx;
+  line-height: 28rpx;
+}

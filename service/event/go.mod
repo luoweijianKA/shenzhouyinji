@@ -1,4 +1,4 @@
-module gitlab.com/annoying-orange/shenzhouyinji/service/event
+module github.com/luoweijianKA/shenzhouyinji/service/event
 
 go 1.19
 

@@ -124,6 +124,8 @@ input UpdateProfile {
   guardian_name: String
   guardian_nric: String
   guardian_phone: String
+  step: Int
+  stepTime: Int
 }
 
 input UpdatePassword {

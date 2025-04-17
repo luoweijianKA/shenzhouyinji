@@ -1,0 +1,27 @@
+.content {
+  position: relative;
+  width: 520rpx;
+  height: 520rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.close-btn {
+  position: absolute;
+  left: 50%;
+  margin-left: -32rpx;
+  bottom: calc(-1 * (48rpx + 64rpx));
+}
+.name {
+  padding-bottom: 20rpx;
+  font-size: 28rpx;
+  color: #333;
+  text-align: center;
+}
+.code {
+  width: 420rpx;
+  height: 420rpx;
+}

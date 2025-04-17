@@ -44,6 +44,8 @@ message Account {
     int32 status = 8;
     string scopes = 9;
     int32 create_time = 10;
+    string phone = 11;
+    string city = 12;
 }
 
 message Profile {
@@ -63,6 +65,8 @@ message Profile {
     string guardian_nric = 14;
     string guardian_phone = 15;
     int32 create_time = 16;
+    int32 step = 17;
+    int32 stepTime = 18;
 }
 
 message ClaimCode {
@@ -107,6 +111,10 @@ message PasswordReq {
 message AccountRequest {
     repeated string roles = 1;
     string search = 2;
+    string phone = 3;
+    string province = 4;
+    string city = 5;
+    string district = 6;
 }
 
 message AccountResponse {

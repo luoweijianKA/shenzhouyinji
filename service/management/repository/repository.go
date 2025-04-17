@@ -29,6 +29,9 @@ type Repository interface {
 	GetTagByID(ctx context.Context, req *pb.MsKeyword) (*pb.Tag, error)
 	GetTagByCategoryID(ctx context.Context, req *pb.MsKeyword) (*pb.TagsRes, error)
 
+	GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest) (*pb.AreaInfosRes, error)
+	GetTurtleBackMenuList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackMenuRes, error)
+
 	CreateAuditing(ctx context.Context, in *pb.Auditing, out *pb.AuditingResponse) error
 	GetAuditings(ctx context.Context, in *pb.AuditingRequest, out *pb.AuditingResponse) error
 
@@ -171,6 +174,70 @@ func (r *MySqlRepository) GetTopCategory(ctx context.Context, req *pb.MsEmptyReq
 	return result, nil
 }
 
+// AreaInfo
+func (r *MySqlRepository) CreateAreaInfo(ctx context.Context, item *pb.AreaInfo) (*pb.MsKeyword, error) {
+	var areaInfo pb.AreaInfo
+
+	if err := r.Database.Table("sys_area_info").Where("id = ?", item.Id).First(&areaInfo).Error; err != nil {
+		return nil, errors.New("areaInfo does not exist")
+	}
+
+	item.Id = uuid.NewV4().String()
+
+	if err := r.Database.Table("sys_area_info").Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+func (r *MySqlRepository) UpdateAreaInfo(ctx context.Context, item *pb.AreaInfo) (*pb.MsUpdateRes, error) {
+	if item.Status == StatusDelete {
+		if err := r.Database.Table("sys_area_info").Delete(&pb.AreaInfo{}, "id = ?", item.Id).Error; err != nil {
+			return nil, err
+		}
+		return &pb.MsUpdateRes{Value: true}, nil
+	}
+
+	if err := r.Database.Table("sys_area_info").Where("id = ?", item.Id).Updates(pb.AreaInfo{
+		Name:     item.Name,
+		ParentId: item.ParentId,
+		Type:     item.Type,
+		Status:   item.Status,
+	}).Error; err != nil {
+		return nil, err
+	}
+
+	return &pb.MsUpdateRes{Value: true}, nil
+}
+
+func (r *MySqlRepository) GetAreaInfoByID(ctx context.Context, req *pb.MsKeyword) (*pb.AreaInfo, error) {
+	result := new(pb.AreaInfo)
+	result.Id = req.Value
+
+	if err := r.Database.Table("sys_area_info").First(&result).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MySqlRepository) GetAreaInfoByParentID(ctx context.Context, req *pb.AreaInfoRequest) (*pb.AreaInfosRes, error) {
+	result := new(pb.AreaInfosRes)
+	result.Data = make([]*pb.AreaInfo, 0)
+	db := r.Database.Table("sys_area_info")
+	if len(req.ParentId) > 0 {
+		db = db.Where("parent_id = ?", req.ParentId)
+	}
+	if len(req.Type) > 0 {
+		db = db.Where("type = ?", req.Type)
+	}
+	if err := db.Order("sort ASC ").Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // Tag
 func (r *MySqlRepository) CreateTag(ctx context.Context, item *pb.Tag) (*pb.MsKeyword, error) {
 	var category pb.Category
@@ -222,6 +289,18 @@ func (r *MySqlRepository) GetTagByCategoryID(ctx context.Context, req *pb.MsKeyw
 	result.Data = make([]*pb.Tag, 0)
 
 	if err := r.Database.Table("sys_tag").Where("category_id = ?", req.Value).Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// TurtleBackMenu
+func (r *MySqlRepository) GetTurtleBackMenuList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackMenuRes, error) {
+	result := new(pb.TurtleBackMenuRes)
+	result.Data = make([]*pb.TurtleBackMenu, 0)
+
+	if err := r.Database.Table("turtle_back_menu").Find(&result.Data).Error; err != nil {
 		return nil, err
 	}
 

@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "优惠券",
+  "usingComponents": {
+    "t-tabs": "tdesign-miniprogram/tabs/tabs",
+    "t-tab-panel": "tdesign-miniprogram/tabs/tab-panel",
+    "coupon-item": "./components/coupon-item",
+    "t-button": "tdesign-miniprogram/button/button",
+    "qrcode-popup": "./components/qrcode-popup"
+  }
+}

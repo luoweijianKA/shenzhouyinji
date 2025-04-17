@@ -1,0 +1,11 @@
+<view class="wrapper">
+    <view class="title">上传图片</view>
+    <view class="image-wrapper" bindtap="handleChooseImage">
+        <view class="image-upload"></view>
+    </view>
+    <view class="footer">
+        <t-button theme="primary" size="large" block class="button" bindtap="handleSubmit">
+            提交
+        </t-button>
+    </view>
+</view>

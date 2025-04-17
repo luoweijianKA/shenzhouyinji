@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "潮品礼遇",
+  "usingComponents": {
+    "t-dropdown-menu": "tdesign-miniprogram/dropdown-menu/dropdown-menu",
+    "t-dropdown-item": "tdesign-miniprogram/dropdown-menu/dropdown-item"
+  }
+}

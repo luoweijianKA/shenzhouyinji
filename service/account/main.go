@@ -67,7 +67,9 @@ func main() {
 }
 
 func openMySql(config config.MySqlConfig) (*gorm.DB, error) {
-	db, err := gorm.Open(mysql.Open(config.DataSourceName))
+	db, err := gorm.Open(mysql.Open(config.DataSourceName), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		panic(err.Error())
 	}
