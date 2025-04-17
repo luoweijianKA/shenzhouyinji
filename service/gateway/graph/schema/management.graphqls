@@ -177,6 +177,39 @@ type AuditingConnection {
   pageInfo: PageInfo!
 }
 
+type Coupon {
+  id: ID!
+  type: String
+  typeText: String
+  tideSpotConfigId: String
+  tideSpotId: String
+  tideSpotName: String
+  couponName: String
+  generateWord: String
+  generateImgPath: String
+  createTime: Int
+  userWechat: String
+  userWechatName: String
+  submitWord: String
+  submitImgPath: String
+  effectiveTime: Int
+  desc: String
+  use: Boolean
+  qrCodePath: String
+  state: String
+  stateText: String
+}
+
+input NewCoupon {
+  tideSpotConfigId: String!
+  submitWord: String!
+  submitImgPath: String!
+}
+
+
+
+
+
 type TideSpotConfig {
   id: ID!
   tideSpotName: String

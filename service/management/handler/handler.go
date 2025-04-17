@@ -10,6 +10,44 @@ type Handler struct {
 	Repository repo.Repository
 }
 
+func (h *Handler) GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword, res *pb.TideSpotConfig) error {
+	result, err := h.Repository.GetTideSpotConfigById(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Id = result.Id
+	res.TideSpotId = result.TideSpotId
+	res.TideSpotName = result.TideSpotName
+	res.CouponName = result.CouponName
+	res.CompareWord = result.CompareWord
+	res.CouponImgPath = result.CouponImgPath
+	res.CompareLogoPath = result.CompareLogoPath
+	res.CompareLogoId = result.CompareLogoId
+	res.Desc = result.Desc
+	res.EffectiveTime = result.EffectiveTime
+	res.CouponContent = result.CouponContent
+	res.GenerateNum = result.GenerateNum
+	res.UseNum = result.UseNum
+	res.NotUseNum = result.NotUseNum
+	res.MinimumAmount = result.MinimumAmount
+	res.DeductionAmount = result.DeductionAmount
+	res.UseAmount = result.UseAmount
+	res.GuideDesc = result.GuideDesc
+	res.GuideVideoPath = result.GuideVideoPath
+	res.TideSpotGoodListJson = result.TideSpotGoodListJson
+	res.Type = result.Type
+	res.Enable = result.Enable
+	res.CreateTime = result.CreateTime
+	return nil
+}
+
+func (h *Handler) UpdateCoupon(ctx context.Context, req *pb.Coupon, res *pb.MsUpdateRes) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (h *Handler) CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig, res *pb.MsKeyword) error {
 	result, err := h.Repository.CreateTideSpotConfig(ctx, req)
 
@@ -18,6 +56,18 @@ func (h *Handler) CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConf
 	}
 
 	res.Value = result.Value
+
+	return nil
+}
+
+func (h *Handler) GetTideSpotConfig(ctx context.Context, req *pb.MsKeyword, res *pb.TideSpotConfig) error {
+	result, err := h.Repository.GetTideSpotConfigById(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res = result
 
 	return nil
 }
@@ -44,6 +94,15 @@ func (h *Handler) CreateTideSpot(ctx context.Context, req *pb.TideSpot, res *pb.
 
 	res.Value = result.Value
 
+	return nil
+}
+
+func (h *Handler) CreateCoupon(ctx context.Context, req *pb.Coupon, res *pb.MsKeyword) error {
+	result, err := h.Repository.CreateCoupon(ctx, req)
+	if err != nil {
+		return err
+	}
+	res.Value = result.Value
 	return nil
 }
 

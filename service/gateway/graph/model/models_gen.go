@@ -172,6 +172,29 @@ type Conversation struct {
 	HasNew      bool   `json:"has_new"`
 }
 
+type Coupon struct {
+	ID               string  `json:"id"`
+	Type             *string `json:"type,omitempty"`
+	TypeText         *string `json:"typeText,omitempty"`
+	TideSpotConfigID *string `json:"tideSpotConfigId,omitempty"`
+	TideSpotID       *string `json:"tideSpotId,omitempty"`
+	TideSpotName     *string `json:"tideSpotName,omitempty"`
+	CouponName       *string `json:"couponName,omitempty"`
+	GenerateWord     *string `json:"generateWord,omitempty"`
+	GenerateImgPath  *string `json:"generateImgPath,omitempty"`
+	CreateTime       *int    `json:"createTime,omitempty"`
+	UserWechat       *string `json:"userWechat,omitempty"`
+	UserWechatName   *string `json:"userWechatName,omitempty"`
+	SubmitWord       *string `json:"submitWord,omitempty"`
+	SubmitImgPath    *string `json:"submitImgPath,omitempty"`
+	EffectiveTime    *int    `json:"effectiveTime,omitempty"`
+	Desc             *string `json:"desc,omitempty"`
+	Use              *bool   `json:"use,omitempty"`
+	QRCodePath       *string `json:"qrCodePath,omitempty"`
+	State            *string `json:"state,omitempty"`
+	StateText        *string `json:"stateText,omitempty"`
+}
+
 type Event struct {
 	ID           string              `json:"id"`
 	Code         string              `json:"code"`
@@ -433,6 +456,12 @@ type NewConversation struct {
 	Participant string `json:"participant"`
 	To          string `json:"to"`
 	Content     string `json:"content"`
+}
+
+type NewCoupon struct {
+	TideSpotConfigID string `json:"tideSpotConfigId"`
+	SubmitWord       string `json:"submitWord"`
+	SubmitImgPath    string `json:"submitImgPath"`
 }
 
 type NewEvent struct {

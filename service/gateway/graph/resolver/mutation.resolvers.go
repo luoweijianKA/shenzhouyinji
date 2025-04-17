@@ -22,7 +22,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
+	"sync"
+
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/disintegration/imaging"
@@ -36,6 +37,10 @@ import (
 	merr "go-micro.dev/v4/errors"
 	"go-micro.dev/v4/logger"
 	"go.mongodb.org/mongo-driver/bson"
+)
+
+var (
+	mu sync.Mutex
 )
 
 // Logout is the resolver for the logout field.
@@ -987,6 +992,58 @@ func (r *mutationResolver) UpdateTideSpotConfig(ctx context.Context, input model
 	}
 
 	return &model.Result{Succed: &res.Value}, nil
+}
+
+// CreateCoupon is the resolver for the createCoupon field.
+func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoupon) (*model.ID, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	tideSpotConfigParam := mPB.MsKeyword{
+		Value: input.TideSpotConfigID,
+	}
+	tideSpotConfig, configErr := r.managementService.GetTideSpotConfigById(ctx, &tideSpotConfigParam)
+	if configErr != nil {
+		log.Println(configErr)
+		return nil, configErr
+	}
+	cur := auth.ForContext(ctx)
+	v := model.Token{}
+
+	if cur != nil {
+		r.DB.Collection("session").FindOne(ctx, bson.D{{Key: "key", Value: cur.Token}}).Decode(&v)
+	}
+	u, err := auth.ParseToken(v.Value)
+	account, accountErr := r.accountService.GetAccount(ctx, &aPB.AsKeyword{Value: u.Id})
+	if accountErr != nil {
+		log.Println(accountErr)
+		return nil, accountErr
+	}
+	req := &mPB.Coupon{
+		TideSpotConfigId: input.TideSpotConfigID,
+		SubmitWord:       input.SubmitWord,
+		SubmitImgPath:    input.SubmitImgPath,
+		Type:             tideSpotConfig.Type,
+		TideSpotId:       tideSpotConfig.TideSpotId,
+		TideSpotName:     tideSpotConfig.TideSpotName,
+		CouponName:       tideSpotConfig.CouponName,
+		GenerateWord:     tideSpotConfig.CompareWord,
+		GenerateImgPath:  tideSpotConfig.CouponImgPath,
+		Desc:             tideSpotConfig.Desc,
+		EffectiveTime:    int32(tideSpotConfig.EffectiveTime),
+		UserWechat:       account.GetWechat(),
+		UserWechatName:   account.WechatName,
+	}
+
+	res, err := r.managementService.CreateCoupon(ctx, req)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	// 更新配置
+	mu.Lock()
+
+	return &model.ID{ID: res.Value}, nil
 }
 
 // CreateEvent is the resolver for the createEvent field.

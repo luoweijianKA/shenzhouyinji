@@ -37,9 +37,12 @@ type Repository interface {
 	UpdateTideSpot(ctx context.Context, req *pb.TideSpot) (*pb.MsUpdateRes, error)
 	GetTideSpotList(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotRes, error)
 
+	CreateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsKeyword, error)
+
 	CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsKeyword, error)
 	GetTideSpotConfigList(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigRes, error)
 	UpdateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsUpdateRes, error)
+	GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotConfig, error)
 
 	CreateTideSpotGood(ctx context.Context, req *pb.TideSpotGood) (*pb.MsKeyword, error)
 
@@ -199,6 +202,23 @@ func (r *MySqlRepository) GetTopCategory(ctx context.Context, req *pb.MsEmptyReq
 	return result, nil
 }
 
+// Coupon
+func (r *MySqlRepository) CreateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsKeyword, error) {
+	item.Id = uuid.NewV4().String()
+
+	if err := r.Database.Table("coupon").Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+func (r *MySqlRepository) UpdateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error) {
+	if err := r.Database.Table("coupon").Where("id = ?", item.Id).Updates(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsUpdateRes{Value: true}, nil
+}
+
 // AreaInfo
 func (r *MySqlRepository) CreateAreaInfo(ctx context.Context, item *pb.AreaInfo) (*pb.MsKeyword, error) {
 	var areaInfo pb.AreaInfo
@@ -284,7 +304,7 @@ func (r *MySqlRepository) UpdateTideSpot(ctx context.Context, item *pb.TideSpot)
 		return &pb.MsUpdateRes{Value: true}, nil
 	}
 
-	if err := r.Database.Table("tide_spot").Debug().Where("id = ?", item.Id).Updates(pb.TideSpot{
+	if err := r.Database.Table("tide_spot").Where("id = ?", item.Id).Updates(pb.TideSpot{
 		Name:              item.Name,
 		PositionTolerance: item.PositionTolerance,
 		ElectricFence:     item.ElectricFence,
@@ -357,6 +377,17 @@ func (r *MySqlRepository) GetTideSpotConfigList(ctx context.Context, req *pb.Tid
 		db.Where("type = ?", req.Type)
 	}
 	if err := db.Order(" create_time DESC").Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MySqlRepository) GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotConfig, error) {
+	result := new(pb.TideSpotConfig)
+	result.Id = req.Value
+
+	if err := r.Database.Table("tide_spot_config").First(&result).Error; err != nil {
 		return nil, err
 	}
 

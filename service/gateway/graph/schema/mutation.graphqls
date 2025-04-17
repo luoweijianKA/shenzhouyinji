@@ -50,6 +50,8 @@ type Mutation {
   createTideSpotConfig(input: NewTideSpotConfig!): Id! @auth
   updateTideSpotConfig(input: UpdateTideSpotConfig!): Result! @auth
 
+  createCoupon(input: NewCoupon!) : Id! @auth
+
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole
   updateEvent(input: UpdateEvent!): Result! @auth @hasRole
