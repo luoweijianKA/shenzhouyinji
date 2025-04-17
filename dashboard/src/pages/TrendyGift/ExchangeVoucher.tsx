@@ -784,24 +784,48 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     const displayRows = useMemo(() => {
         if (!data?.tideSpotConfigList?.edges) return [];
         console.log('渲染的数据',data.tideSpotConfigList.edges[0].node.id)
-        return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => ({
-            id: node.id,
-            sceneryName: node.tideSpotName,
-            voucherName: node.couponName,
-            useLimit: node.desc,
-            expireTime: node.effectiveTime,
-            totalCount: node.generateNum,
-            exchangedCount: node.useNum,
-            unexchangedCount: node.notUseNum,
-            exchangedAmount: node.useAmount,
-            triggerRule: node.generateRule,
-            createTime: node.createTime,
-            status: node.stateText as '正常' | '已过期' | '已终止',
-            guidance: node.guideDesc ? {
-                text: node.guideDesc,
-                video: null // We'll need to handle video files differently
-            } : undefined
-        }));
+        return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => {
+            // 格式化创建时间
+            const createTime = new Date(parseInt(node.createTime) * 1000).toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+
+            // 格式化有效期时间
+            const expireTime = new Date(parseInt(node.effectiveTime) * 1000).toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-');
+
+            return {
+                id: node.id,
+                sceneryName: node.tideSpotName,
+                voucherName: node.couponName,
+                useLimit: node.desc,
+                expireTime: expireTime,
+                totalCount: node.generateNum,
+                exchangedCount: node.useNum,
+                unexchangedCount: node.notUseNum,
+                exchangedAmount: node.useAmount,
+                triggerRule: node.generateRule,
+                createTime: createTime,
+                status: node.stateText as '正常' | '已过期' | '已终止',
+                guidance: node.guideDesc ? {
+                    text: node.guideDesc,
+                    video: null
+                } : undefined
+            };
+        });
     }, [data?.tideSpotConfigList?.edges]);
 
     // Update stats from API data
