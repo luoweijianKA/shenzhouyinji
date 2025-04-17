@@ -382,13 +382,34 @@ const VoucherContentItem = React.memo<{
             value={content.value}
             onChange={(e) => onValueChange(index, e.target.value)}
             size="small"
-            sx={{ bgcolor: 'white' }}
+            sx={{
+                bgcolor: 'white',
+                '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                        borderColor: '#E0E0E0',
+                    },
+                    '&:hover fieldset': {
+                        borderColor: '#BDBDBD',
+                    },
+                }
+            }}
         />
         <IconButton
             size="small"
             color="error"
             onClick={() => onRemove(content.id)}
-            sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+            sx={{
+                bgcolor: '#FFF5F5',
+                width: '28px',
+                height: '28px',
+                minWidth: '28px',
+                '&:hover': {
+                    bgcolor: '#FDDAD8'
+                },
+                '&.Mui-disabled': {
+                    bgcolor: '#F5F5F5'
+                }
+            }}
             disabled={total <= 1}
         >
             <RemoveCircleOutline fontSize="small" />
@@ -405,31 +426,47 @@ const VoucherContentsSection = React.memo<{
     onAdd: () => void,
     onRemove: (id: number) => void
 }>(({ contents, onValueChange, onAdd, onRemove }) => (
-    <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1, position: 'relative' }}>
-        {contents.map((content, index) => (
-            <VoucherContentItem
-                key={content.id}
-                content={content}
-                index={index}
-                total={contents.length}
-                onValueChange={onValueChange}
-                onRemove={onRemove}
-            />
-        ))}
-        <IconButton
-            size="small"
-            color="primary"
-            onClick={onAdd}
-            sx={{
-                position: 'absolute',
-                top: '10px',
-                right: contents.length > 1 ? '45px' : '10px',
-                bgcolor: '#E3F2FD',
-                '&:hover': { bgcolor: '#BBDEFB' }
-            }}
-        >
-            <AddCircleOutline fontSize="small" />
-        </IconButton>
+    <Box sx={{
+        bgcolor: '#F5F5F5',
+        p: 2,
+        borderRadius: 1,
+        flexGrow: 1,
+        position: 'relative',
+        border: 'none'
+    }}>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'normal', color: '#333' }}>
+            生成兑换券内容：
+        </Typography>
+        <Box sx={{ mb: 1 }}>
+            {contents.map((content, index) => (
+                <VoucherContentItem
+                    key={content.id}
+                    content={content}
+                    index={index}
+                    total={contents.length}
+                    onValueChange={onValueChange}
+                    onRemove={onRemove}
+                />
+            ))}
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <IconButton
+                size="small"
+                color="error"
+                onClick={onAdd}
+                sx={{
+                    bgcolor: '#FFF5F5',
+                    width: '28px',
+                    height: '28px',
+                    minWidth: '28px',
+                    '&:hover': {
+                        bgcolor: '#FDDAD8'
+                    }
+                }}
+            >
+                <AddCircleOutline fontSize="small" sx={{ color: '#F44336' }} />
+            </IconButton>
+        </Box>
     </Box>
 ));
 
@@ -550,7 +587,7 @@ const AddDialogContent = React.memo<{
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-            <FormLabel required sx={{ ...STYLES.formLabel, pt: 1 }}>*兑换券内容:</FormLabel>
+
             <VoucherContentsSection
                 contents={formData.voucherContents}
                 onValueChange={handleVoucherContentChange}
