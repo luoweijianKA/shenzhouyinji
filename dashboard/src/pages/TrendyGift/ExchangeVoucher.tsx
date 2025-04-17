@@ -172,7 +172,7 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmi
             <DialogContent sx={{ p: 3, pt: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <FormLabel sx={{ mb: 1.5, fontWeight: 'normal' }}>操作指引:</FormLabel>
+                        <FormLabel sx={{ mb: 1.5,mt:3, fontWeight: 'normal' }}>操作指引:</FormLabel>
                         <Editor
                             editorState={editorState}
                             onEditorStateChange={onEditorStateChange}

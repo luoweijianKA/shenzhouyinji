@@ -349,112 +349,138 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-            <FormLabel sx={STYLES.formLabel}>适用于商品:</FormLabel>
-            <Box sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1, flexGrow: 1, position: 'relative' }}>
-                {formData.applicableProducts.map((product, index, arr) => (
-                    <Box key={product.id} sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: index === arr.length - 1 ? 0 : 1.5 }}>
-                        <TextField
-                            label="适用于商品名称"
-                            placeholder="商品名称"
-                            value={product.name}
-                            onChange={(e) => handleProductChange(index, 'name', e.target.value)}
-                            size="small"
-                            sx={{ bgcolor: 'white', flex: 1 }}
-                            InputLabelProps={{ shrink: true }}
-                        />
-                        <TextField
-                            label="适用于商品条码"
-                            placeholder="商品条码"
-                            value={product.barcode}
-                            onChange={(e) => handleProductChange(index, 'barcode', e.target.value)}
-                            size="small"
-                            sx={{ bgcolor: 'white', flex: 1 }}
-                            InputLabelProps={{ shrink: true }}
-                        />
+             
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
+                {formData.applicableProducts.map((product, index) => (
+                    <Box 
+                        key={product.id} 
+                        sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 1.5, 
+                            bgcolor: '#F8F9FA', 
+                            p: 2, 
+                            borderRadius: 1 
+                        }}
+                    >
+                        <Box sx={{ flex: 1, display: 'flex', gap: 2 }}>
+                            <Box sx={{ flex: 1 }}>
+                                <FormLabel sx={{ display: 'block', mb: 0.5, fontSize: '0.875rem' }}>适用于商品名称:</FormLabel>
+                                <TextField
+                                    placeholder="商品名称"
+                                    value={product.name}
+                                    onChange={(e) => handleProductChange(index, 'name', e.target.value)}
+                                    size="small"
+                                    fullWidth
+                                    sx={{ bgcolor: 'white' }}
+                                />
+                            </Box>
+                            <Box sx={{ flex: 1 }}>
+                                <FormLabel sx={{ display: 'block', mb: 0.5, fontSize: '0.875rem' }}>适用于商品条码:</FormLabel>
+                                <TextField
+                                    placeholder="商品条码"
+                                    value={product.barcode}
+                                    onChange={(e) => handleProductChange(index, 'barcode', e.target.value)}
+                                    size="small"
+                                    fullWidth
+                                    sx={{ bgcolor: 'white' }}
+                                />
+                            </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 0.5, minWidth: 72, justifyContent: 'flex-start', mt: 3}}>
+                            <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={addProduct}
+                                sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
+                            >
+                                <AddCircleOutline fontSize="small" />
+                            </IconButton>
+                            {index === formData.applicableProducts.length - 1 && formData.applicableProducts.length > 1 && (
+                                <IconButton
+                                    size="small"
+                                    color="error"
+                                    onClick={() => removeProduct(product.id)}
+                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+                                >
+                                    <RemoveCircleOutline fontSize="small" />
+                                </IconButton>
+                            )}
+                        </Box>
                     </Box>
                 ))}
-                <Box sx={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: 0.5 }}>
-                    <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={addProduct}
-                        sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
-                    >
-                        <AddCircleOutline fontSize="small" />
-                    </IconButton>
-                    {formData.applicableProducts.length > 1 && (
-                        <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => removeProduct(formData.applicableProducts[formData.applicableProducts.length - 1].id)}
-                            sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
-                        >
-                            <RemoveCircleOutline fontSize="small" />
-                        </IconButton>
-                    )}
-                </Box>
             </Box>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-            <FormLabel sx={STYLES.formLabel}>生成抵扣券规则:</FormLabel>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1, position: 'relative' }}>
-                {formData.discountRules.map((rule, index, arr) => (
-                    <Box key={rule.id} sx={{ bgcolor: '#F8F9FA', p: 2, borderRadius: 1 }}>
-                        <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12} sm={5.5}>
-                                <TextField
-                                    fullWidth
-                                    label="生成抵扣券总金额要求"
-                                    placeholder="例如200"
-                                    value={rule.totalAmount}
-                                    onChange={(e) => handleRuleChange(index, 'totalAmount', e.target.value)}
-                                    size="small"
-                                    sx={{ bgcolor: 'white' }}
-                                    type="number"
-                                    InputLabelProps={{ shrink: true }}
-                                />
+        
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
+                {formData.discountRules.map((rule, index) => (
+                    <Box 
+                        key={rule.id} 
+                        sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 1.5, 
+                            bgcolor: '#F8F9FA', 
+                            p: 2, 
+                            borderRadius: 1 
+                        }}
+                    >
+                        <Box sx={{flex: 1}}>
+                            <Grid container spacing={2} alignItems="flex-start">
+                                <Grid item xs={12} sm={6}>
+                                    <FormLabel sx={{ display: 'block', mb: 0.5, fontSize: '0.875rem' }}>生成抵扣券总金额要求:</FormLabel>
+                                    <TextField
+                                        fullWidth
+                                        placeholder="例如200"
+                                        value={rule.totalAmount}
+                                        onChange={(e) => handleRuleChange(index, 'totalAmount', e.target.value)}
+                                        size="small"
+                                        sx={{ bgcolor: 'white' }}
+                                        type="number"
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <FormLabel sx={{ display: 'block', mb: 0.5, fontSize: '0.875rem' }}>生成抵扣券抵扣金额:</FormLabel>
+                                    <TextField
+                                        fullWidth
+                                        required
+                                        placeholder="例如20"
+                                        value={rule.discountAmount}
+                                        onChange={(e) => handleRuleChange(index, 'discountAmount', e.target.value)}
+                                        size="small"
+                                        sx={{ bgcolor: 'white' }}
+                                        type="number"
+                                    />
+                                </Grid>
                             </Grid>
-                            <Grid item xs={12} sm={5.5}>
-                                <TextField
-                                    fullWidth
-                                    required
-                                    label="生成抵扣券抵扣金额"
-                                    placeholder="例如20"
-                                    value={rule.discountAmount}
-                                    onChange={(e) => handleRuleChange(index, 'discountAmount', e.target.value)}
+                            <Typography variant="body2" color="error" sx={{ mt: 1, fontSize: '0.8rem' }}>
+                                满{rule.totalAmount || '__'}抵扣{rule.discountAmount || '__'}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 0.5, minWidth: 72, justifyContent: 'flex-start' }}>
+                            <IconButton
+                                size="small"
+                                color="primary"
+                                onClick={addRule}
+                                sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
+                            >
+                                <AddCircleOutline fontSize="small" />
+                            </IconButton>
+                            {index === formData.discountRules.length - 1 && formData.discountRules.length > 1 && (
+                                <IconButton
                                     size="small"
-                                    sx={{ bgcolor: 'white' }}
-                                    type="number"
-                                    InputLabelProps={{ shrink: true }}
-                                />
-                            </Grid>
-                        </Grid>
-                        <Typography variant="body2" color="error" sx={{ mt: 1, fontSize: '0.8rem' }}>
-                            满{rule.totalAmount || '___'}抵扣{rule.discountAmount || '___'}
-                        </Typography>
+                                    color="error"
+                                    onClick={() => removeRule(rule.id)}
+                                    sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
+                                >
+                                    <RemoveCircleOutline fontSize="small" />
+                                </IconButton>
+                            )}
+                        </Box>
                     </Box>
                 ))}
-                <Box sx={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: 0.5 }}>
-                    <IconButton
-                        size="small"
-                        color="primary"
-                        onClick={addRule}
-                        sx={{ bgcolor: '#E3F2FD', '&:hover': { bgcolor: '#BBDEFB' } }}
-                    >
-                        <AddCircleOutline fontSize="small" />
-                    </IconButton>
-                    {formData.discountRules.length > 1 && (
-                        <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => removeRule(formData.discountRules[formData.discountRules.length - 1].id)}
-                            sx={{ bgcolor: '#FEECEB', '&:hover': { bgcolor: '#FDDAD8' } }}
-                        >
-                            <RemoveCircleOutline fontSize="small" />
-                        </IconButton>
-                    )}
-                </Box>
             </Box>
         </Box>
     </Box>
