@@ -25,13 +25,16 @@ import {
     TablePagination,
     TableRow,
     TextField,
-    Typography
+    Typography,
+    CircularProgress
 } from '@mui/material';
 import { AddCircleOutline, CameraAlt, Close, RemoveCircleOutline } from '@mui/icons-material';
 import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { LinkButton, PageHeader, Title } from "../styled";
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 /**
  * 统计卡片组件
@@ -289,26 +292,48 @@ const mockStats = [
     },
 ];
 
-// 生成模拟数据
-const generateMockRows = (): ExchangeVoucherRow[] =>
-    Array.from({ length: 20 * 15 }, (_, i) => ({
-        id: i + 1,
-        sceneryName: '长隆欢乐世界',
-        voucherName: '快速通行证',
-        useLimit: '指定项目可用',
-        expireTime: '2025-12-31 23:59:59',
-        totalCount: 500,
-        exchangedCount: 250,
-        unexchangedCount: 250,
-        exchangedAmount: 12500,
-        triggerRule: '购买指定套餐',
-        createTime: '2024-01-15 10:00:00',
-        status: i % 4 === 0 ? '正常' : (i % 4 === 1 ? '已过期' : '已终止'),
-        guidance: i % 5 === 0 ? {
-            text: JSON.stringify(convertToRaw(ContentState.createFromText(`这是第 ${i + 1} 行的指引`))),
-            video: null
-        } : undefined,
-    }));
+const TIDE_SPOT_CONFIG_LIST = gql`
+  query TideSpotConfigList($first: Int = 20, $after: ID, $last: Int = 20, $before: ID, $type: String) {
+    tideSpotConfigList(
+      first: $first
+      after: $after
+      last: $last
+      before: $before
+      type: $type
+    ) {
+      totalCount
+      edges {
+        node {
+          id
+          tideSpotName
+          couponName
+          desc
+          effectiveTime
+          generateNum
+          useNum
+          notUseNum
+          useAmount
+          generateRule
+          createTime
+          stateText
+          state
+          guideDesc
+          guideVideoPath
+        }
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalUseNum
+      totalUseAmount
+      totalGenerateNum
+      totalNotUseNum
+    }
+  }
+`;
 
 // 常量样式对象
 const STYLES = {
@@ -631,10 +656,55 @@ const RowActions = React.memo<{
     </>
 ));
 
+interface TideSpotConfigNode {
+    id: string;
+    tideSpotName: string;
+    couponName: string;
+    desc: string;
+    effectiveTime: string;
+    generateNum: number;
+    useNum: number;
+    notUseNum: number;
+    useAmount: number;
+    generateRule: string;
+    createTime: string;
+    stateText: string;
+    state: string;
+    guideDesc: string | null;
+    guideVideoPath: string | null;
+}
+
+interface TideSpotConfigEdge {
+    node: TideSpotConfigNode;
+}
+
+interface TideSpotConfigPageInfo {
+    startCursor: string;
+    endCursor: string;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+}
+
+interface TideSpotConfigList {
+    totalCount: number;
+    edges: TideSpotConfigEdge[];
+    pageInfo: TideSpotConfigPageInfo;
+    totalUseNum: number;
+    totalUseAmount: number;
+    totalGenerateNum: number;
+    totalNotUseNum: number;
+}
+
+interface TideSpotConfigResponse {
+    tideSpotConfigList: TideSpotConfigList;
+}
+
+interface ExchangeVoucherProps {}
+
 /**
  * 兑换券管理页面
  */
-const ExchangeVoucher: React.FC = () => {
+const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -642,7 +712,95 @@ const ExchangeVoucher: React.FC = () => {
     const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
     const [formData, setFormData] = useState<AddFormData>(INITIAL_ADD_FORM_DATA);
-    const [voucherRows, setVoucherRows] = useState<ExchangeVoucherRow[]>(() => generateMockRows());
+
+    const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
+        variables: {
+            first: rowsPerPage,
+            last: rowsPerPage,
+            type: 'Exchange',
+            after: ''
+        },
+        fetchPolicy: 'network-only'
+    });
+
+    // Convert API data to display format
+    const displayRows = useMemo(() => {
+        if (!data?.tideSpotConfigList?.edges) return [];
+        return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => ({
+            id: parseInt(node.id),
+            sceneryName: node.tideSpotName,
+            voucherName: node.couponName,
+            useLimit: node.desc,
+            expireTime: node.effectiveTime,
+            totalCount: node.generateNum,
+            exchangedCount: node.useNum,
+            unexchangedCount: node.notUseNum,
+            exchangedAmount: node.useAmount,
+            triggerRule: node.generateRule,
+            createTime: node.createTime,
+            status: node.stateText as '正常' | '已过期' | '已终止',
+            guidance: node.guideDesc ? {
+                text: node.guideDesc,
+                video: null // We'll need to handle video files differently
+            } : undefined
+        }));
+    }, [data?.tideSpotConfigList?.edges]);
+
+    // Update stats from API data
+    const stats = useMemo(() => {
+        if (!data?.tideSpotConfigList) return mockStats;
+        return [
+            {
+                title: '生成兑换券（张）',
+                value: data.tideSpotConfigList.totalGenerateNum.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png" />,
+                bgColor: '#F41515'
+            },
+            {
+                title: '兑换金额（元）',
+                value: data.tideSpotConfigList.totalUseAmount.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png" />,
+                bgColor: '#FA7202'
+            },
+            {
+                title: '已兑换数（张）',
+                value: data.tideSpotConfigList.totalUseNum.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png" />,
+                bgColor: '#FFCC00'
+            },
+            {
+                title: '未兑换数（张）',
+                value: data.tideSpotConfigList.totalNotUseNum.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png" />,
+                bgColor: '#7DD000'
+            },
+        ];
+    }, [data?.tideSpotConfigList]);
+
+    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+        setPage(newPage);
+        const cursor = newPage > page 
+            ? data?.tideSpotConfigList?.pageInfo?.endCursor 
+            : data?.tideSpotConfigList?.pageInfo?.startCursor;
+        refetch({
+            first: rowsPerPage,
+            last: rowsPerPage,
+            type: 'Exchange',
+            after: cursor || ''
+        });
+    }, [page, data?.tideSpotConfigList?.pageInfo, refetch, rowsPerPage]);
+
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        setRowsPerPage(newRowsPerPage);
+        setPage(0);
+        refetch({
+            first: newRowsPerPage,
+            last: newRowsPerPage,
+            type: 'Exchange',
+            after: ''
+        });
+    }, [refetch]);
 
     const handleOpenAddDialog = useCallback(() => {
         setFormData(INITIAL_ADD_FORM_DATA);
@@ -665,12 +823,18 @@ const ExchangeVoucher: React.FC = () => {
         setSelectedRowId(null);
     }, []);
 
-    const handleGuidanceSubmit = useCallback((guidance: { text: string; video: File | null }) => {
-        setVoucherRows(prevRows => prevRows.map(row =>
-            row.id === selectedRowId ? { ...row, guidance } : row
-        ));
-        handleCloseGuidanceDialog();
-    }, [selectedRowId, handleCloseGuidanceDialog]);
+    const handleGuidanceSubmit = useCallback(async () => {
+        if (!selectedRowId || !currentGuidanceData) return;
+        
+        try {
+            // TODO: Implement guidance submission
+            setOpenGuidanceDialog(false);
+            setCurrentGuidanceData(null);
+            await refetch();
+        } catch (error) {
+            console.error('Failed to submit guidance:', error);
+        }
+    }, [selectedRowId, currentGuidanceData, refetch]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -711,20 +875,6 @@ const ExchangeVoucher: React.FC = () => {
         console.log("Submitting New Voucher:", formData);
         handleCloseAddDialog();
     }, [formData, handleCloseAddDialog]);
-
-    const handleChangePage = useCallback((event: unknown, newPage: number) => {
-        setPage(newPage);
-    }, []);
-
-    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    }, []);
-
-    const displayRows = useMemo(() =>
-        voucherRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-        [voucherRows, page, rowsPerPage]
-    );
 
     const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => {
         if (event.target.files && event.target.files[0]) {
@@ -801,7 +951,7 @@ const ExchangeVoucher: React.FC = () => {
             {/* 统计卡片 */}
             <Paper sx={STYLES.statsContainer}>
                 <Grid item container justifyContent="space-evenly">
-                    {mockStats.map((stat, index) => (
+                    {stats.map((stat, index) => (
                         <Grid item sm={3} md={3} key={index}>
                             <StatCard {...stat} />
                         </Grid>
@@ -817,8 +967,27 @@ const ExchangeVoucher: React.FC = () => {
                 boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                 '& .MuiTable-root': {
                     p: 2
-                }
+                },
+                position: 'relative'
             }}>
+                {loading && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            bgcolor: 'rgba(255, 255, 255, 0.7)',
+                            zIndex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                )}
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -862,7 +1031,7 @@ const ExchangeVoucher: React.FC = () => {
                 <TablePagination
                     rowsPerPageOptions={[20, 50, 100]}
                     component="div"
-                    count={voucherRows.length}
+                    count={data?.tideSpotConfigList?.totalCount || 0}
                     labelRowsPerPage="页面数量:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}
