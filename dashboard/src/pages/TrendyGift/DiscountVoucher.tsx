@@ -35,7 +35,7 @@ import {
     CameraAlt
 } from '@mui/icons-material';
 import { LinkButton, PageHeader, Title } from "../styled";
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
 
 /**
@@ -132,6 +132,7 @@ interface ApplicableProduct {
  */
 interface FormData {
     sceneryId: string;
+    sceneryName: string;
     voucherName: string;
     keywordMatch: string;
     voucherImage: File | null;
@@ -144,6 +145,7 @@ interface FormData {
 
 const INITIAL_FORM_DATA: FormData = {
     sceneryId: '',
+    sceneryName: '',
     voucherName: '',
     keywordMatch: '',
     voucherImage: null,
@@ -236,6 +238,35 @@ const TIDE_SPOT_CONFIG_LIST = gql`
       totalUseAmount
       totalGenerateNum
       totalNotUseNum
+    }
+  }
+`;
+
+interface NewTideSpotConfig {
+    tideSpotId: string;
+    tideSpotName: string;
+    couponName: string;
+    type: 'Deduction';
+    compareWord: string;
+    couponImgPath: string;
+    compareLogoPath: string;
+    desc: string;
+    effectiveTime: number;
+    tideSpotGoodListJson: string;
+    minimumAmount: number;
+    deductionAmount: number;
+}
+
+interface CreateTideSpotConfigResponse {
+    createTideSpotConfig: {
+        id: string;
+    };
+}
+
+const CREATE_TIDE_SPOT_CONFIG = gql`
+  mutation CreateTideSpotConfig($input: NewTideSpotConfig!) {
+    createTideSpotConfig(input: $input) {
+      id
     }
   }
 `;
@@ -569,6 +600,8 @@ const DiscountVoucher: React.FC = () => {
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
+    const [submitting, setSubmitting] = useState(false);
+    const [createTideSpotConfig] = useMutation<CreateTideSpotConfigResponse>(CREATE_TIDE_SPOT_CONFIG);
 
     const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
         variables: {
@@ -706,10 +739,44 @@ const DiscountVoucher: React.FC = () => {
         event.target.value = '';
     }, []);
 
-    const handleSubmit = useCallback(() => {
-        console.log("Submitting Discount Voucher:", formData);
-        handleClose();
-    }, [formData, handleClose]);
+    const handleSubmit = useCallback(async () => {
+        if (!formData.sceneryId || !formData.voucherName) {
+            console.error('Required fields are missing');
+            return;
+        }
+
+        try {
+            setSubmitting(true);
+            const input: NewTideSpotConfig = {
+                tideSpotId: formData.sceneryId,
+                tideSpotName: formData.sceneryId === '1' ? '丹霞山风景区' : '未知景区',
+                couponName: formData.voucherName,
+                type: 'Deduction',
+                compareWord: formData.keywordMatch || '',
+                couponImgPath: formData.voucherImage ? await uploadFile(formData.voucherImage) : '/',
+                compareLogoPath: formData.matchImage ? await uploadFile(formData.matchImage) : '/',
+                desc: formData.useLimit || '',
+                effectiveTime: formData.expireTime ? Math.floor(new Date(formData.expireTime).getTime() / 1000) : Math.floor(Date.now() / 1000),
+                tideSpotGoodListJson: JSON.stringify(formData.applicableProducts.map(product => ({
+                    goodName: product.name || '',
+                    goodBarCode: product.barcode || ''
+                }))).replace(/"/g, '\\"'),
+                minimumAmount: formData.discountRules[0]?.totalAmount ? parseFloat(formData.discountRules[0].totalAmount) : 0,
+                deductionAmount: formData.discountRules[0]?.discountAmount ? parseFloat(formData.discountRules[0].discountAmount) : 0
+            };
+
+            await createTideSpotConfig({
+                variables: { input }
+            });
+
+            handleClose();
+            await refetch();
+        } catch (error) {
+            console.error('Failed to create discount voucher:', error);
+        } finally {
+            setSubmitting(false);
+        }
+    }, [formData, createTideSpotConfig, handleClose, refetch]);
 
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
@@ -806,7 +873,13 @@ const DiscountVoucher: React.FC = () => {
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
                     <Button onClick={handleClose} sx={{ mr: 1 }}>取消</Button>
-                    <Button variant="contained" onClick={handleSubmit}>确定</Button>
+                    <Button 
+                        variant="contained" 
+                        onClick={handleSubmit}
+                        disabled={submitting}
+                    >
+                        {submitting ? '提交中...' : '确定'}
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -903,6 +976,12 @@ const DiscountVoucher: React.FC = () => {
             </TableContainer>
         </Box>
     );
+};
+
+// Helper function to upload files
+const uploadFile = async (file: File): Promise<string> => {
+    // TODO: Implement file upload logic
+    return '/';
 };
 
 export default DiscountVoucher;
