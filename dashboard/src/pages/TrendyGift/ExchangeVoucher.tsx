@@ -77,7 +77,7 @@ const StatCard = React.memo<StatCardProps>(({ title, value, icon, bgColor }) => 
  * 兑换券表格行数据结构
  */
 interface ExchangeVoucherRow {
-    id: number;
+    id: string;
     sceneryName: string;
     voucherName: string;
     useLimit: string;
@@ -156,8 +156,10 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmi
         const contentState = editorState.getCurrentContent();
         const hasText = contentState.hasText();
         const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
+        console.log('Submitting guidance:', { text: rawContent, video: videoFile });
         onSubmit({ text: rawContent, video: videoFile });
-    }, [editorState, videoFile, onSubmit]);
+        onClose();
+    }, [editorState, videoFile, onSubmit, onClose]);
 
     const DIALOG_STYLES = {
         title: { m: 0, p: 2, borderBottom: '1px solid #E0E0E0' },
@@ -720,10 +722,34 @@ interface CreateTideSpotConfigResponse {
     };
 }
 
+interface UpdateTideSpotConfig {
+    id: string;
+    guideVideoPath?: string;
+    guideDesc?: string;
+}
+
+interface UpdateTideSpotConfigResponse {
+    updateTideSpotConfig: {
+        succed: boolean;
+        message: string;
+        __typename: string;
+    };
+}
+
 const CREATE_TIDE_SPOT_CONFIG = gql`
   mutation CreateTideSpotConfig($input: NewTideSpotConfig!) {
     createTideSpotConfig(input: $input) {
       id
+    }
+  }
+`;
+
+const UPDATE_TIDE_SPOT_CONFIG = gql`
+  mutation updateTideSpotConfig($input: UpdateTideSpotConfig!) {
+    updateTideSpotConfig(input: $input) {
+      succed
+      message
+      __typename
     }
   }
 `;
@@ -739,9 +765,10 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openGuidanceDialog, setOpenGuidanceDialog] = useState(false);
     const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
-    const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
     const [formData, setFormData] = useState<AddFormData>(INITIAL_ADD_FORM_DATA);
     const [createTideSpotConfig, { loading: submitting }] = useMutation<CreateTideSpotConfigResponse>(CREATE_TIDE_SPOT_CONFIG);
+    const [updateTideSpotConfig] = useMutation<UpdateTideSpotConfigResponse>(UPDATE_TIDE_SPOT_CONFIG);
 
     const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
         variables: {
@@ -756,8 +783,9 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     // Convert API data to display format
     const displayRows = useMemo(() => {
         if (!data?.tideSpotConfigList?.edges) return [];
+        console.log('渲染的数据',data.tideSpotConfigList.edges[0].node.id)
         return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => ({
-            id: parseInt(node.id),
+            id: node.id,
             sceneryName: node.tideSpotName,
             voucherName: node.couponName,
             useLimit: node.desc,
@@ -844,6 +872,7 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     const handleOpenGuidanceDialog = useCallback((rowData: ExchangeVoucherRow) => {
         setCurrentGuidanceData(rowData.guidance || { text: '', video: null });
         setSelectedRowId(rowData.id);
+        console.log(rowData)
         setOpenGuidanceDialog(true);
     }, []);
 
@@ -853,18 +882,38 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
         setSelectedRowId(null);
     }, []);
 
-    const handleGuidanceSubmit = useCallback(async () => {
-        if (!selectedRowId || !currentGuidanceData) return;
+    const handleGuidanceSubmit = useCallback(async (guidance: { text: string; video: File | null }) => {
+        if (!selectedRowId) {
+            console.error('No selected row ID');
+            return;
+        }
         
         try {
-            // TODO: Implement guidance submission
-            setOpenGuidanceDialog(false);
-            setCurrentGuidanceData(null);
-            await refetch();
+            const input: UpdateTideSpotConfig = {
+                id: selectedRowId.toString(),
+                guideDesc: guidance.text,
+                guideVideoPath: guidance.video ? await uploadFile(guidance.video) : undefined
+            };
+
+            console.log('Submitting guidance update:', input);
+
+            const result = await updateTideSpotConfig({
+                variables: { input }
+            });
+
+            console.log('Guidance update result:', result);
+
+            if (result.data?.updateTideSpotConfig.succed) {
+                setOpenGuidanceDialog(false);
+                setCurrentGuidanceData(null);
+                await refetch();
+            } else {
+                console.error('Failed to update guidance:', result.data?.updateTideSpotConfig.message);
+            }
         } catch (error) {
-            console.error('Failed to submit guidance:', error);
+            console.error('Failed to update guidance:', error);
         }
-    }, [selectedRowId, currentGuidanceData, refetch]);
+    }, [selectedRowId, updateTideSpotConfig, refetch]);
 
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
