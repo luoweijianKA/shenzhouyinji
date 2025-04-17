@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
     Box,
     Button,
@@ -25,7 +25,8 @@ import {
     TableRow,
     TextField,
     Typography,
-    Breadcrumbs
+    Breadcrumbs,
+    CircularProgress
 } from '@mui/material';
 import {
     AddCircleOutline,
@@ -34,6 +35,8 @@ import {
     CameraAlt
 } from '@mui/icons-material';
 import { LinkButton, PageHeader, Title } from "../styled";
+import { useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 
 /**
  * 自定义图标组件
@@ -151,6 +154,91 @@ const INITIAL_FORM_DATA: FormData = {
     applicableProducts: [{ id: Date.now(), name: '', barcode: '' }],
 };
 
+interface TideSpotConfigNode {
+    id: string;
+    tideSpotName: string;
+    couponName: string;
+    desc: string;
+    effectiveTime: string;
+    generateNum: number;
+    useNum: number;
+    notUseNum: number;
+    useAmount: number;
+    generateRule: string;
+    createTime: string;
+    stateText: string;
+    state: string;
+    guideDesc: string | null;
+    guideVideoPath: string | null;
+}
+
+interface TideSpotConfigEdge {
+    node: TideSpotConfigNode;
+}
+
+interface TideSpotConfigPageInfo {
+    startCursor: string;
+    endCursor: string;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+}
+
+interface TideSpotConfigList {
+    totalCount: number;
+    edges: TideSpotConfigEdge[];
+    pageInfo: TideSpotConfigPageInfo;
+    totalUseNum: number;
+    totalUseAmount: number;
+    totalGenerateNum: number;
+    totalNotUseNum: number;
+}
+
+interface TideSpotConfigResponse {
+    tideSpotConfigList: TideSpotConfigList;
+}
+
+const TIDE_SPOT_CONFIG_LIST = gql`
+  query TideSpotConfigList($first: Int = 20, $after: ID, $last: Int = 20, $before: ID, $type: String) {
+    tideSpotConfigList(
+      first: $first
+      after: $after
+      last: $last
+      before: $before
+      type: $type
+    ) {
+      totalCount
+      edges {
+        node {
+          id
+          tideSpotName
+          couponName
+          desc
+          effectiveTime
+          generateNum
+          useNum
+          notUseNum
+          useAmount
+          generateRule
+          createTime
+          stateText
+          state
+          guideDesc
+          guideVideoPath
+        }
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalUseNum
+      totalUseAmount
+      totalGenerateNum
+      totalNotUseNum
+    }
+  }
+`;
 
 // Mock data - consider moving or fetching
 // TODO: 考虑将模拟数据移出或通过API获取
@@ -180,20 +268,7 @@ const mockStats = [
         bgColor: '#7DD000'
     },
 ];
-const mockRows: DiscountVoucherRow[] = Array.from({ length: 579 * 20 }, (_, i) => ({
-    id: i + 1,
-    sceneryName: '丹霞山风景区',
-    voucherName: '玩偶兑换券',
-    useLimit: '只能在景区使用',
-    expireTime: '2026-03-14 12:00:00',
-    totalCount: 1000,
-    discountedCount: 300,
-    undiscountedCount: 700,
-    discountAmount: 700,
-    triggerRule: '关键字: 丹霞山, 上传图片: 图片, 关键字: 丹霞山, 图标: logo',
-    createTime: '2026-03-14 12:00:00',
-    status: i % 3 === 0 ? '正常' : (i % 3 === 1 ? '已过期' : '已终止'),
-}));
+
 // 常量样式对象
 const STYLES = {
     formLabel: { minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px' },
@@ -495,6 +570,66 @@ const DiscountVoucher: React.FC = () => {
     const [open, setOpen] = useState(false);
     const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
 
+    const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
+        variables: {
+            first: rowsPerPage,
+            last: rowsPerPage,
+            type: 'Deduction',
+            after: ''
+        },
+        fetchPolicy: 'network-only'
+    });
+
+    // Convert API data to display format
+    const displayRows = useMemo(() => {
+        if (!data?.tideSpotConfigList?.edges) return [];
+        return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => ({
+            id: parseInt(node.id),
+            sceneryName: node.tideSpotName,
+            voucherName: node.couponName,
+            useLimit: node.desc,
+            expireTime: node.effectiveTime,
+            totalCount: node.generateNum,
+            discountedCount: node.useNum,
+            undiscountedCount: node.notUseNum,
+            discountAmount: node.useAmount,
+            triggerRule: node.generateRule,
+            createTime: node.createTime,
+            status: node.stateText as '正常' | '已过期' | '已终止'
+        }));
+    }, [data?.tideSpotConfigList?.edges]);
+
+    // Update stats from API data
+    const stats = useMemo(() => {
+        if (!data?.tideSpotConfigList) return mockStats;
+        return [
+            {
+                title: '生成抵扣券（张）',
+                value: data.tideSpotConfigList.totalGenerateNum.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png" />,
+                bgColor: '#F41515'
+            },
+            {
+                title: '抵扣金额（元）',
+                value: data.tideSpotConfigList.totalUseAmount.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png" />,
+                bgColor: '#FA7202'
+            },
+            {
+                title: '已抵扣数（张）',
+                value: data.tideSpotConfigList.totalUseNum.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png" />,
+                bgColor: '#FFCC00'
+            },
+            {
+                title: '未抵扣数（张）',
+                value: data.tideSpotConfigList.totalNotUseNum.toString(),
+                icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png" />,
+                bgColor: '#7DD000'
+            },
+        ];
+    }, [data?.tideSpotConfigList]);
+
     const handleOpen = useCallback(() => {
         setFormData(INITIAL_FORM_DATA);
         setOpen(true);
@@ -576,14 +711,30 @@ const DiscountVoucher: React.FC = () => {
         handleClose();
     }, [formData, handleClose]);
 
-    const handleChangePage = useCallback((event: unknown, newPage: number) => setPage(newPage), []);
+    const handleChangePage = useCallback((event: unknown, newPage: number) => {
+        setPage(newPage);
+        const cursor = newPage > page 
+            ? data?.tideSpotConfigList?.pageInfo?.endCursor 
+            : data?.tideSpotConfigList?.pageInfo?.startCursor;
+        refetch({
+            first: rowsPerPage,
+            last: rowsPerPage,
+            type: 'Deduction',
+            after: cursor || ''
+        });
+    }, [page, data?.tideSpotConfigList?.pageInfo, refetch, rowsPerPage]);
 
     const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
+        const newRowsPerPage = parseInt(event.target.value, 10);
+        setRowsPerPage(newRowsPerPage);
         setPage(0);
-    }, []);
-
-    const displayRows = mockRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+        refetch({
+            first: newRowsPerPage,
+            last: newRowsPerPage,
+            type: 'Deduction',
+            after: ''
+        });
+    }, [refetch]);
 
     const getStatusChipColor = useCallback((status: DiscountVoucherRow['status']) => {
         switch (status) {
@@ -661,7 +812,7 @@ const DiscountVoucher: React.FC = () => {
 
             <Paper sx={STYLES.statsContainer}>
                 <Grid item container justifyContent="space-evenly">
-                    {mockStats.map((stat, index) => (
+                    {stats.map((stat: StatCardProps, index: number) => (
                         <Grid item sm={3} md={3} key={index}>
                             <StatCard {...stat} />
                         </Grid>
@@ -676,8 +827,27 @@ const DiscountVoucher: React.FC = () => {
                 boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                 '& .MuiTable-root': {
                     p: 2
-                }
+                },
+                position: 'relative'
             }}>
+                {loading && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            bgcolor: 'rgba(255, 255, 255, 0.7)',
+                            zIndex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                )}
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -722,7 +892,7 @@ const DiscountVoucher: React.FC = () => {
                 <TablePagination
                     rowsPerPageOptions={[20, 50, 100]}
                     component="div"
-                    count={mockRows.length}
+                    count={data?.tideSpotConfigList?.totalCount || 0}
                     labelRowsPerPage="页面数量:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}

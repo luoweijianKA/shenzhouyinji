@@ -33,7 +33,7 @@ import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorStat
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { LinkButton, PageHeader, Title } from "../styled";
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
 
 /**
@@ -231,6 +231,7 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmi
  */
 interface AddFormData {
     sceneryId: string;
+    sceneryName: string;
     voucherName: string;
     keywordMatch: string;
     voucherImage: File | null;
@@ -242,6 +243,7 @@ interface AddFormData {
 
 const INITIAL_ADD_FORM_DATA: AddFormData = {
     sceneryId: '',
+    sceneryName: '',
     voucherName: '',
     keywordMatch: '',
     voucherImage: null,
@@ -699,6 +701,33 @@ interface TideSpotConfigResponse {
     tideSpotConfigList: TideSpotConfigList;
 }
 
+interface NewTideSpotConfig {
+    tideSpotId: string;
+    tideSpotName: string;
+    couponName: string;
+    type: string;
+    compareWord: string;
+    couponImgPath: string;
+    compareLogoPath: string;
+    desc: string;
+    effectiveTime: number;
+    couponContent: string;
+}
+
+interface CreateTideSpotConfigResponse {
+    createTideSpotConfig: {
+        id: string;
+    };
+}
+
+const CREATE_TIDE_SPOT_CONFIG = gql`
+  mutation CreateTideSpotConfig($input: NewTideSpotConfig!) {
+    createTideSpotConfig(input: $input) {
+      id
+    }
+  }
+`;
+
 interface ExchangeVoucherProps {}
 
 /**
@@ -712,6 +741,7 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
     const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
     const [formData, setFormData] = useState<AddFormData>(INITIAL_ADD_FORM_DATA);
+    const [createTideSpotConfig, { loading: submitting }] = useMutation<CreateTideSpotConfigResponse>(CREATE_TIDE_SPOT_CONFIG);
 
     const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
         variables: {
@@ -843,7 +873,20 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
 
     const handleSelectChange = useCallback((e: SelectChangeEvent<string>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name as keyof AddFormData]: value }));
+        if (name === 'sceneryId') {
+            // 根据选择的景区ID设置景区名称
+            const selectedSceneryName = value === '1' ? '长隆欢乐世界' : '';
+            setFormData((prevState: AddFormData) => ({ 
+                ...prevState, 
+                sceneryId: value,
+                sceneryName: selectedSceneryName
+            }));
+        } else {
+            setFormData((prevState: AddFormData) => ({ 
+                ...prevState, 
+                [name as keyof AddFormData]: value 
+            }));
+        }
     }, []);
 
     const handleVoucherContentChange = useCallback((index: number, value: string) => {
@@ -871,10 +914,31 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
         }));
     }, []);
 
-    const handleAddSubmit = useCallback(() => {
-        console.log("Submitting New Voucher:", formData);
-        handleCloseAddDialog();
-    }, [formData, handleCloseAddDialog]);
+    const handleAddSubmit = useCallback(async () => {
+        try {
+            const input: NewTideSpotConfig = {
+                tideSpotId: formData.sceneryId,
+                tideSpotName: formData.sceneryName,
+                couponName: formData.voucherName,
+                type: 'Exchange',
+                compareWord: formData.keywordMatch,
+                couponImgPath: formData.voucherImage ? await uploadFile(formData.voucherImage) : '/',
+                compareLogoPath: formData.matchImage ? await uploadFile(formData.matchImage) : '/',
+                desc: formData.useLimit,
+                effectiveTime: Math.floor(new Date(formData.expireTime).getTime() / 1000),
+                couponContent: formData.voucherContents.map(content => content.value).join(',')
+            };
+
+            await createTideSpotConfig({
+                variables: { input }
+            });
+
+            handleCloseAddDialog();
+            await refetch();
+        } catch (error) {
+            console.error('Failed to create exchange voucher:', error);
+        }
+    }, [formData, createTideSpotConfig, handleCloseAddDialog, refetch]);
 
     const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => {
         if (event.target.files && event.target.files[0]) {
@@ -936,7 +1000,13 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
                     <Button onClick={handleCloseAddDialog} sx={{ mr: 1 }}>取消</Button>
-                    <Button variant="contained" onClick={handleAddSubmit}>确定</Button>
+                    <Button 
+                        variant="contained" 
+                        onClick={handleAddSubmit}
+                        disabled={submitting}
+                    >
+                        {submitting ? '提交中...' : '确定'}
+                    </Button>
                 </DialogActions>
             </Dialog>
 
@@ -1042,6 +1112,12 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
             </TableContainer>
         </Box>
     );
+};
+
+// Helper function to upload files
+const uploadFile = async (file: File): Promise<string> => {
+    // TODO: Implement file upload logic
+    return '/';
 };
 
 export default ExchangeVoucher;
