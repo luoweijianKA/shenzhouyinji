@@ -254,8 +254,4 @@ Page({
     var result = clearUserUnreadMessage(type);
     console.log(result);
   },
-
-  handleCoupon() {
-    wx.navigateTo({ url: '/pages/coupon/list' });
-  },
 });

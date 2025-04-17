@@ -1,7 +1,7 @@
 <view class="bg">
     <view class="selector">
         <t-dropdown-menu>
-            <t-dropdown-item label="全部" options="{{product.options}}" placement="right" value="{{product.value}}" bindchange="onChange" />
+            <t-dropdown-item label="{{product.name}}" options="{{product.options}}" placement="right" value="{{product.value}}" bindchange="onChange" />
         </t-dropdown-menu>
     </view>
     <view class="list">

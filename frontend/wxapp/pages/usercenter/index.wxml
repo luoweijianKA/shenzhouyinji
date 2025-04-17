@@ -5,36 +5,7 @@
         <view class="ucc-header-name">{{userInfo.wechat_name || '微信用户'}}</view>
     </view>
 </view>
-<view class="message-card">
-    <view class="card-title">我的消息</view>
-    <view class="msg-list">
-        <view class="msg-item">
-            <view class="msgitem-dot"></view>
-            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_message@3x.png" />
-            <view class="msgitem-text">系统消息</view>
-        </view>
-        <view class="msg-item">
-            <view class="msgitem-dot"></view>
-            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_customer @3x.png" />
-            <view class="msgitem-text">客服消息</view>
-        </view>
-        <view class="msg-item">
-            <view class="msgitem-dot"></view>
-            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_reward@3x.png" />
-            <view class="msgitem-text">奖励消息</view>
-        </view>
-        <view class="msg-item">
-            <view class="msgitem-dot"></view>
-            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_badge@3x.png" />
-            <view class="msgitem-text">徽章交换</view>
-        </view>
-        <view class="msg-item" bindtap="handleCoupon">
-            <view class="msgitem-dot"></view>
-            <image class="msgitem-icon" mode="aspectFit" src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_gift_my@3x.png" />
-            <view class="msgitem-text">礼遇消息</view>
-        </view>
-    </view>
-</view>
+<message />
 <view class="tweet-info">
     <view class="ti-btn-group">
         <t-cell-group>

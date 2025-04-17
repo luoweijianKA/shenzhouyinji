@@ -3,6 +3,7 @@ import { CHAO_SELECTED_ICON } from '../../constants/index';
 Page({
   data: {
     product: {
+      name: '全部',
       value: 'all',
       options: [
         {
@@ -29,8 +30,13 @@ Page({
     }
   },
   onChange(e) {
+    const selectedItem = this.data.product.options.find(
+      (item) => item.value === e.detail.value,
+    );
+
     this.setData({
       'product.value': e.detail.value,
+      'product.name': selectedItem?.label || '',
     });
   },
   handleRule() {
