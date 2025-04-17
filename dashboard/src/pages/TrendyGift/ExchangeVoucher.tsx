@@ -367,8 +367,9 @@ const VoucherContentItem = React.memo<{
     index: number,
     total: number,
     onValueChange: (index: number, value: string) => void,
-    onRemove: (id: number) => void
-}>(({ content, index, total, onValueChange, onRemove }) => (
+    onRemove: (id: number) => void,
+    onAdd: () => void
+}>(({ content, index, total, onValueChange, onRemove, onAdd }) => (
     <Box sx={{
         display: 'flex',
         gap: 1,
@@ -394,26 +395,51 @@ const VoucherContentItem = React.memo<{
                 }
             }}
         />
-        <IconButton
-            size="small"
-            color="error"
-            onClick={() => onRemove(content.id)}
-            sx={{
-                bgcolor: '#FFF5F5',
-                width: '28px',
-                height: '28px',
-                minWidth: '28px',
-                '&:hover': {
-                    bgcolor: '#FDDAD8'
-                },
-                '&.Mui-disabled': {
-                    bgcolor: '#F5F5F5'
-                }
-            }}
-            disabled={total <= 1}
-        >
-            <RemoveCircleOutline fontSize="small" />
-        </IconButton>
+        <Box sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            minWidth: '65px',
+            justifyContent: 'flex-start'
+        }}>
+            <IconButton
+                size="small"
+                color="error"
+                onClick={() => onRemove(content.id)}
+                sx={{
+                    bgcolor: '#FFF5F5',
+                    width: '28px',
+                    height: '28px',
+                    minWidth: '28px',
+                    '&:hover': {
+                        bgcolor: '#FDDAD8'
+                    },
+                    '&.Mui-disabled': {
+                        bgcolor: '#F5F5F5'
+                    }
+                }}
+                disabled={total <= 1}
+            >
+                <RemoveCircleOutline fontSize="small" />
+            </IconButton>
+            {index === total - 1 && (
+                <IconButton
+                    size="small"
+                    color="error"
+                    onClick={onAdd}
+                    sx={{
+                        bgcolor: '#FFF5F5',
+                        width: '28px',
+                        height: '28px',
+                        minWidth: '28px',
+                        '&:hover': {
+                            bgcolor: '#FDDAD8'
+                        }
+                    }}
+                >
+                    <AddCircleOutline fontSize="small" sx={{ color: '#F44336' }} />
+                </IconButton>
+            )}
+        </Box>
     </Box>
 ));
 
@@ -446,26 +472,9 @@ const VoucherContentsSection = React.memo<{
                     total={contents.length}
                     onValueChange={onValueChange}
                     onRemove={onRemove}
+                    onAdd={onAdd}
                 />
             ))}
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <IconButton
-                size="small"
-                color="error"
-                onClick={onAdd}
-                sx={{
-                    bgcolor: '#FFF5F5',
-                    width: '28px',
-                    height: '28px',
-                    minWidth: '28px',
-                    '&:hover': {
-                        bgcolor: '#FDDAD8'
-                    }
-                }}
-            >
-                <AddCircleOutline fontSize="small" sx={{ color: '#F44336' }} />
-            </IconButton>
         </Box>
     </Box>
 ));

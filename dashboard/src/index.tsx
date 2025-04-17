@@ -43,7 +43,9 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 })
 
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem('accessToken')
+  // 优先从Redux store中获取token
+  const state = store.getState();
+  const token = state.account?.account?.accessToken || localStorage.getItem('accessToken')
   
   // return the headers to the context so httpLink can read them
   return {
