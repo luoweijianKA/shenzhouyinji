@@ -1,16 +1,16 @@
-import { 
+import {
   Bell,
-  Image, 
-  Trash, 
+  Image,
+  Trash,
   User,
   Map,
-  MapPin, 
-  Navigation, 
-  Package, 
-  File, 
-  Plus, 
+  MapPin,
+  Navigation,
+  Package,
+  File,
+  Plus,
   List,
-  Menu, 
+  Menu,
   Award,
   Link,
   Edit,
@@ -21,8 +21,9 @@ import {
   Tag,
   Gift,
   CreditCard,
-  FileText,
   MapPin as FenceIcon,
+  Clock,
+  FileText,
 } from 'react-feather'
 
 export const KEYS = {
@@ -113,7 +114,7 @@ export const MENUS = [
     childrens: [
       { label: "MENU_EXCHANGE_VOUCHER", value: 65536, url: "/trendy-gift/exchange-voucher", icon: Gift },
       { label: "MENU_DISCOUNT_VOUCHER", value: 65536, url: "/trendy-gift/discount-voucher", icon: CreditCard },
-      { label: "MENU_EXCHANGE_RECORD", value: 65536, url: "/trendy-gift/exchange-record", icon: FileText },
+      { label: "MENU_EXCHANGE_RECORD", value: 65536, url: "/trendy-gift/exchange-record", icon: Clock },
       { label: "MENU_DISCOUNT_RECORD", value: 65536, url: "/trendy-gift/discount-record", icon: FileText },
       { label: "MENU_GEO_FENCE", value: 65536, url: "/trendy-gift/geo-fence", icon: FenceIcon },
     ]
