@@ -47,6 +47,15 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  tideSpotConfigList(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    type: String
+    tideSpotId: String
+  ): TideSpotConfigConnection @auth
+
   tideSpotList(
     first: Int = 20
     after: ID

@@ -69,6 +69,5 @@ func openMySql(config config.MySqlConfig) (*gorm.DB, error) {
 	if err != nil {
 		panic(err.Error())
 	}
-
 	return db, nil
 }

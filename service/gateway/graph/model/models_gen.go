@@ -637,23 +637,22 @@ type NewTideSpot struct {
 }
 
 type NewTideSpotConfig struct {
-	ID               string             `json:"id"`
-	TideSpotID       string             `json:"tideSpotId"`
-	TideSpotName     string             `json:"tideSpotName"`
-	CouponName       string             `json:"couponName"`
-	Type             string             `json:"type"`
-	CompareWord      *string            `json:"compareWord,omitempty"`
-	CouponImgPath    *string            `json:"couponImgPath,omitempty"`
-	CompareLogoPath  *string            `json:"compareLogoPath,omitempty"`
-	Desc             *string            `json:"desc,omitempty"`
-	EffectiveTime    *int               `json:"effectiveTime,omitempty"`
-	CouponContent    *string            `json:"couponContent,omitempty"`
-	MinimumAmount    *int               `json:"minimumAmount,omitempty"`
-	DeductionAmount  *int               `json:"deductionAmount,omitempty"`
-	GuideDesc        *string            `json:"guideDesc,omitempty"`
-	GuideVideoPath   *string            `json:"guideVideoPath,omitempty"`
-	Enable           *bool              `json:"enable,omitempty"`
-	TideSpotGoodList []*NewTideSpotGood `json:"tideSpotGoodList,omitempty"`
+	TideSpotID           string  `json:"tideSpotId"`
+	TideSpotName         string  `json:"tideSpotName"`
+	CouponName           string  `json:"couponName"`
+	Type                 string  `json:"type"`
+	CompareWord          *string `json:"compareWord,omitempty"`
+	CouponImgPath        *string `json:"couponImgPath,omitempty"`
+	CompareLogoPath      *string `json:"compareLogoPath,omitempty"`
+	Desc                 *string `json:"desc,omitempty"`
+	EffectiveTime        *int    `json:"effectiveTime,omitempty"`
+	CouponContent        *string `json:"couponContent,omitempty"`
+	MinimumAmount        *int    `json:"minimumAmount,omitempty"`
+	DeductionAmount      *int    `json:"deductionAmount,omitempty"`
+	GuideDesc            *string `json:"guideDesc,omitempty"`
+	GuideVideoPath       *string `json:"guideVideoPath,omitempty"`
+	Enable               *bool   `json:"enable,omitempty"`
+	TideSpotGoodListJSON *string `json:"tideSpotGoodListJson,omitempty"`
 }
 
 type NewTideSpotGood struct {
@@ -1166,6 +1165,42 @@ type TideSpot struct {
 	Status            *int    `json:"status,omitempty"`
 }
 
+type TideSpotConfig struct {
+	ID              string  `json:"id"`
+	TideSpotName    *string `json:"tideSpotName,omitempty"`
+	CouponName      *string `json:"couponName,omitempty"`
+	CompareWord     *string `json:"compareWord,omitempty"`
+	Desc            *string `json:"desc,omitempty"`
+	EffectiveTime   *int    `json:"effectiveTime,omitempty"`
+	GenerateNum     *int    `json:"generateNum,omitempty"`
+	UseNum          *int    `json:"useNum,omitempty"`
+	NotUseNum       *int    `json:"notUseNum,omitempty"`
+	UseAmount       *int    `json:"useAmount,omitempty"`
+	GenerateRule    *string `json:"generateRule,omitempty"`
+	CompareLogoPath *string `json:"compareLogoPath,omitempty"`
+	CompareLogoID   *string `json:"compareLogoId,omitempty"`
+	CreateTime      *int    `json:"createTime,omitempty"`
+	StateText       *string `json:"stateText,omitempty"`
+	State           *string `json:"state,omitempty"`
+	GuideDesc       *string `json:"guideDesc,omitempty"`
+	GuideVideoPath  *string `json:"guideVideoPath,omitempty"`
+}
+
+type TideSpotConfigConnection struct {
+	TotalCount       int                   `json:"totalCount"`
+	Edges            []*TideSpotConfigEdge `json:"edges"`
+	PageInfo         *PageInfo             `json:"pageInfo"`
+	TotalGenerateNum int                   `json:"totalGenerateNum"`
+	TotalUseAmount   int                   `json:"totalUseAmount"`
+	TotalUseNum      int                   `json:"totalUseNum"`
+	TotalNotUseNum   int                   `json:"totalNotUseNum"`
+}
+
+type TideSpotConfigEdge struct {
+	Cursor string          `json:"cursor"`
+	Node   *TideSpotConfig `json:"node,omitempty"`
+}
+
 type TideSpotConnection struct {
 	TotalCount int             `json:"totalCount"`
 	Edges      []*TideSpotEdge `json:"edges"`
@@ -1555,6 +1590,13 @@ type UpdateTideSpot struct {
 	PositionTolerance *string `json:"positionTolerance,omitempty"`
 	ElectricFence     *string `json:"electricFence,omitempty"`
 	Status            *int    `json:"status,omitempty"`
+}
+
+type UpdateTideSpotConfig struct {
+	ID             string  `json:"id"`
+	GuideDesc      *string `json:"guideDesc,omitempty"`
+	Enable         *bool   `json:"enable,omitempty"`
+	GuideVideoPath *string `json:"guideVideoPath,omitempty"`
 }
 
 type UpdateTrek struct {

@@ -37,6 +37,12 @@ type Repository interface {
 	UpdateTideSpot(ctx context.Context, req *pb.TideSpot) (*pb.MsUpdateRes, error)
 	GetTideSpotList(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotRes, error)
 
+	CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsKeyword, error)
+	GetTideSpotConfigList(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigRes, error)
+	UpdateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsUpdateRes, error)
+
+	CreateTideSpotGood(ctx context.Context, req *pb.TideSpotGood) (*pb.MsKeyword, error)
+
 	GetTurtleBackConfigList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfigRes, error)
 	GetTurtleBackConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfig, error)
 	UpdateTurtleBackConfig(ctx context.Context, req *pb.TurtleBackConfig) (*pb.MsUpdateRes, error)
@@ -278,7 +284,7 @@ func (r *MySqlRepository) UpdateTideSpot(ctx context.Context, item *pb.TideSpot)
 		return &pb.MsUpdateRes{Value: true}, nil
 	}
 
-	if err := r.Database.Table("tide_spot").Where("id = ?", item.Id).Updates(pb.TideSpot{
+	if err := r.Database.Table("tide_spot").Debug().Where("id = ?", item.Id).Updates(pb.TideSpot{
 		Name:              item.Name,
 		PositionTolerance: item.PositionTolerance,
 		ElectricFence:     item.ElectricFence,
@@ -300,6 +306,57 @@ func (r *MySqlRepository) GetTideSpotList(ctx context.Context, req *pb.MsKeyword
 	}
 
 	if err := db.Order("create_time DESC").Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// TideSpotGood
+func (r *MySqlRepository) CreateTideSpotGood(ctx context.Context, item *pb.TideSpotGood) (*pb.MsKeyword, error) {
+	item.Id = uuid.NewV4().String()
+
+	if err := r.Database.Table("tide_spot_good").Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+// TideSpotConfig
+func (r *MySqlRepository) CreateTideSpotConfig(ctx context.Context, item *pb.TideSpotConfig) (*pb.MsKeyword, error) {
+
+	item.Id = uuid.NewV4().String()
+	item.CreateTime = int32(time.Now().Unix())
+	if err := r.Database.Table("tide_spot_config").Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+func (r *MySqlRepository) UpdateTideSpotConfig(ctx context.Context, item *pb.TideSpotConfig) (*pb.MsUpdateRes, error) {
+
+	if err := r.Database.Table("tide_spot_config").Where("id = ?", item.Id).Updates(&item).Error; err != nil {
+		return nil, err
+	}
+	if !item.Enable {
+		r.Database.Table("tide_spot_config").Where("id = ?", item.Id).Select("enable").Updates(pb.TideSpotConfig{Enable: false})
+	}
+
+	return &pb.MsUpdateRes{Value: true}, nil
+}
+
+func (r *MySqlRepository) GetTideSpotConfigList(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigRes, error) {
+	result := new(pb.TideSpotConfigRes)
+	result.Data = make([]*pb.TideSpotConfig, 0)
+	db := r.Database.Table("tide_spot_config")
+
+	if len(req.TideSpotId) > 0 {
+		db.Where("tide_spot_id = ?", req.TideSpotId)
+	}
+	if len(req.Type) > 0 {
+		db.Where("type = ?", req.Type)
+	}
+	if err := db.Order(" create_time DESC").Find(&result.Data).Error; err != nil {
 		return nil, err
 	}
 

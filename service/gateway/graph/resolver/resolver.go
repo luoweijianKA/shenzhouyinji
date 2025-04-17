@@ -328,6 +328,45 @@ func (r *Resolver) NewTideSpot(v *mPB.TideSpot) *model.TideSpot {
 		Status:            &status,
 	}
 }
+func (r *Resolver) NewTideSpotConfig(v *mPB.TideSpotConfig) *model.TideSpotConfig {
+	ct := int(v.CreateTime)
+	et := int(v.EffectiveTime)
+	useNum := int(v.UseNum)
+	generateNum := int(v.GenerateNum)
+	notUseNum := int(v.NotUseNum)
+	useAmount := int(v.UseAmount)
+	state := ""
+	stateText := ""
+	generateRule := ""
+	// 大于有效时间
+	if int(time.Now().Unix()) > et {
+		state = "Expired"
+		stateText = "已过期"
+	} else if !v.Enable {
+		state = "Aborted"
+		stateText = "已中止"
+	} else {
+		state = "Normal"
+		stateText = "正常"
+	}
+	return &model.TideSpotConfig{
+		ID:             v.Id,
+		CreateTime:     &ct,
+		TideSpotName:   &v.TideSpotName,
+		CouponName:     &v.CouponName,
+		Desc:           &v.Desc,
+		EffectiveTime:  &et,
+		UseNum:         &useNum,
+		GenerateNum:    &generateNum,
+		NotUseNum:      &notUseNum,
+		UseAmount:      &useAmount,
+		State:          &state,
+		StateText:      &stateText,
+		GenerateRule:   &generateRule,
+		GuideDesc:      &v.GuideDesc,
+		GuideVideoPath: &v.GuideVideoPath,
+	}
+}
 
 func (r *Resolver) auditing(ctx context.Context, code AuditingCode, msg string, v ...any) {
 	uc := auth.ForContext(ctx)

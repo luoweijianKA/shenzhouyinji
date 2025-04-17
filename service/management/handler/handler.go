@@ -10,6 +10,31 @@ type Handler struct {
 	Repository repo.Repository
 }
 
+func (h *Handler) CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig, res *pb.MsKeyword) error {
+	result, err := h.Repository.CreateTideSpotConfig(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
+}
+
+func (h *Handler) CreateTideSpotGood(ctx context.Context, req *pb.TideSpotGood, res *pb.MsKeyword) error {
+	//TODO implement me
+	result, err := h.Repository.CreateTideSpotGood(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
+}
+
 func (h *Handler) CreateTideSpot(ctx context.Context, req *pb.TideSpot, res *pb.MsKeyword) error {
 	result, err := h.Repository.CreateTideSpot(ctx, req)
 
@@ -80,6 +105,30 @@ func (h *Handler) GetTurtleBackConfigList(ctx context.Context, in *pb.MsKeyword,
 	}
 
 	out.Data = result.Data
+
+	return nil
+}
+
+func (h *Handler) GetTideSpotConfigList(ctx context.Context, in *pb.TideSpotConfigRequest, out *pb.TideSpotConfigRes) error {
+
+	result, err := h.Repository.GetTideSpotConfigList(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	out.Data = result.Data
+
+	return nil
+}
+
+func (h *Handler) UpdateTideSpotConfig(ctx context.Context, in *pb.TideSpotConfig, out *pb.MsUpdateRes) error {
+
+	result, err := h.Repository.UpdateTideSpotConfig(ctx, in)
+	if err != nil {
+		return err
+	}
+
+	out.Value = result.Value
 
 	return nil
 }

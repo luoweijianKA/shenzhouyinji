@@ -493,6 +493,7 @@ type ComplexityRoot struct {
 		UpdateStamp               func(childComplexity int, input model.UpdateStamp) int
 		UpdateTag                 func(childComplexity int, input model.UpdateTag) int
 		UpdateTideSpot            func(childComplexity int, input *model.UpdateTideSpot) int
+		UpdateTideSpotConfig      func(childComplexity int, input model.UpdateTideSpotConfig) int
 		UpdateTrek                func(childComplexity int, input model.UpdateTrek) int
 		UpdateTurtleBackConfig    func(childComplexity int, input model.UpdateTurtleBackConfig) int
 		UpdateTweet               func(childComplexity int, input model.UpdateTweet) int
@@ -746,6 +747,7 @@ type ComplexityRoot struct {
 		Task                       func(childComplexity int, id string, categoryID string, userID string, eventID string, campID *string, sceneryspotID *string) int
 		Tasks                      func(childComplexity int, userID string, eventID string, campID string, sceneryspotID string) int
 		TemporaryTasks             func(childComplexity int, userID string, eventID string, campID string) int
+		TideSpotConfigList         func(childComplexity int, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string) int
 		TideSpotList               func(childComplexity int, first *int, after *string, last *int, before *string, name *string) int
 		TopCategories              func(childComplexity int) int
 		Trek                       func(childComplexity int, id string) int
@@ -949,6 +951,42 @@ type ComplexityRoot struct {
 		PositionTolerance func(childComplexity int) int
 		Status            func(childComplexity int) int
 		UpdateTime        func(childComplexity int) int
+	}
+
+	TideSpotConfig struct {
+		CompareLogoID   func(childComplexity int) int
+		CompareLogoPath func(childComplexity int) int
+		CompareWord     func(childComplexity int) int
+		CouponName      func(childComplexity int) int
+		CreateTime      func(childComplexity int) int
+		Desc            func(childComplexity int) int
+		EffectiveTime   func(childComplexity int) int
+		GenerateNum     func(childComplexity int) int
+		GenerateRule    func(childComplexity int) int
+		GuideDesc       func(childComplexity int) int
+		GuideVideoPath  func(childComplexity int) int
+		ID              func(childComplexity int) int
+		NotUseNum       func(childComplexity int) int
+		State           func(childComplexity int) int
+		StateText       func(childComplexity int) int
+		TideSpotName    func(childComplexity int) int
+		UseAmount       func(childComplexity int) int
+		UseNum          func(childComplexity int) int
+	}
+
+	TideSpotConfigConnection struct {
+		Edges            func(childComplexity int) int
+		PageInfo         func(childComplexity int) int
+		TotalCount       func(childComplexity int) int
+		TotalGenerateNum func(childComplexity int) int
+		TotalNotUseNum   func(childComplexity int) int
+		TotalUseAmount   func(childComplexity int) int
+		TotalUseNum      func(childComplexity int) int
+	}
+
+	TideSpotConfigEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	TideSpotConnection struct {
@@ -1387,6 +1425,7 @@ type MutationResolver interface {
 	CreateTideSpot(ctx context.Context, input model.NewTideSpot) (*model.ID, error)
 	UpdateTideSpot(ctx context.Context, input *model.UpdateTideSpot) (*model.Result, error)
 	CreateTideSpotConfig(ctx context.Context, input model.NewTideSpotConfig) (*model.ID, error)
+	UpdateTideSpotConfig(ctx context.Context, input model.UpdateTideSpotConfig) (*model.Result, error)
 	CreateEvent(ctx context.Context, input model.NewEvent) (*model.ID, error)
 	UpdateEvent(ctx context.Context, input model.UpdateEvent) (*model.Result, error)
 	CreateEventScenerySpots(ctx context.Context, input model.InputEventSceneryspot) (*model.EventSceneryspot, error)
@@ -1495,6 +1534,7 @@ type QueryResolver interface {
 	UserStampByStampID(ctx context.Context, id string) ([]*model.UserStamp, error)
 	UserShare(ctx context.Context, userID string, eventID string, sceneryspotID string) (*model.Tweet, error)
 	UserStampPointsRecord(ctx context.Context, input model.NewUserStampPointsRecord) ([]*model.UserStampPointsRecord, error)
+	TideSpotConfigList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string) (*model.TideSpotConfigConnection, error)
 	TideSpotList(ctx context.Context, first *int, after *string, last *int, before *string, name *string) (*model.TideSpotConnection, error)
 	AreaInfoByParentID(ctx context.Context, typeArg string, parentID *string) ([]*model.AreaInfo, error)
 	TurtleBackMenuList(ctx context.Context) ([]*model.TurtleBackMenu, error)
@@ -3597,12 +3637,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateTideSpot(childComplexity, args["input"].(model.NewTideSpot)), true
 
-	case "Mutation.CreateTideSpotConfig":
+	case "Mutation.createTideSpotConfig":
 		if e.complexity.Mutation.CreateTideSpotConfig == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_CreateTideSpotConfig_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createTideSpotConfig_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -4378,6 +4418,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTideSpot(childComplexity, args["input"].(*model.UpdateTideSpot)), true
+
+	case "Mutation.updateTideSpotConfig":
+		if e.complexity.Mutation.UpdateTideSpotConfig == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTideSpotConfig_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTideSpotConfig(childComplexity, args["input"].(model.UpdateTideSpotConfig)), true
 
 	case "Mutation.updateTrek":
 		if e.complexity.Mutation.UpdateTrek == nil {
@@ -6203,6 +6255,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.TemporaryTasks(childComplexity, args["user_id"].(string), args["event_id"].(string), args["camp_id"].(string)), true
 
+	case "Query.tideSpotConfigList":
+		if e.complexity.Query.TideSpotConfigList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_tideSpotConfigList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.TideSpotConfigList(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string), args["type"].(*string), args["tideSpotId"].(*string)), true
+
 	case "Query.tideSpotList":
 		if e.complexity.Query.TideSpotList == nil {
 			break
@@ -7631,6 +7695,195 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TideSpot.UpdateTime(childComplexity), true
+
+	case "TideSpotConfig.compareLogoId":
+		if e.complexity.TideSpotConfig.CompareLogoID == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.CompareLogoID(childComplexity), true
+
+	case "TideSpotConfig.compareLogoPath":
+		if e.complexity.TideSpotConfig.CompareLogoPath == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.CompareLogoPath(childComplexity), true
+
+	case "TideSpotConfig.compareWord":
+		if e.complexity.TideSpotConfig.CompareWord == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.CompareWord(childComplexity), true
+
+	case "TideSpotConfig.couponName":
+		if e.complexity.TideSpotConfig.CouponName == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.CouponName(childComplexity), true
+
+	case "TideSpotConfig.createTime":
+		if e.complexity.TideSpotConfig.CreateTime == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.CreateTime(childComplexity), true
+
+	case "TideSpotConfig.desc":
+		if e.complexity.TideSpotConfig.Desc == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.Desc(childComplexity), true
+
+	case "TideSpotConfig.effectiveTime":
+		if e.complexity.TideSpotConfig.EffectiveTime == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.EffectiveTime(childComplexity), true
+
+	case "TideSpotConfig.generateNum":
+		if e.complexity.TideSpotConfig.GenerateNum == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.GenerateNum(childComplexity), true
+
+	case "TideSpotConfig.generateRule":
+		if e.complexity.TideSpotConfig.GenerateRule == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.GenerateRule(childComplexity), true
+
+	case "TideSpotConfig.guideDesc":
+		if e.complexity.TideSpotConfig.GuideDesc == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.GuideDesc(childComplexity), true
+
+	case "TideSpotConfig.guideVideoPath":
+		if e.complexity.TideSpotConfig.GuideVideoPath == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.GuideVideoPath(childComplexity), true
+
+	case "TideSpotConfig.id":
+		if e.complexity.TideSpotConfig.ID == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.ID(childComplexity), true
+
+	case "TideSpotConfig.notUseNum":
+		if e.complexity.TideSpotConfig.NotUseNum == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.NotUseNum(childComplexity), true
+
+	case "TideSpotConfig.state":
+		if e.complexity.TideSpotConfig.State == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.State(childComplexity), true
+
+	case "TideSpotConfig.stateText":
+		if e.complexity.TideSpotConfig.StateText == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.StateText(childComplexity), true
+
+	case "TideSpotConfig.tideSpotName":
+		if e.complexity.TideSpotConfig.TideSpotName == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.TideSpotName(childComplexity), true
+
+	case "TideSpotConfig.useAmount":
+		if e.complexity.TideSpotConfig.UseAmount == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.UseAmount(childComplexity), true
+
+	case "TideSpotConfig.useNum":
+		if e.complexity.TideSpotConfig.UseNum == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.UseNum(childComplexity), true
+
+	case "TideSpotConfigConnection.edges":
+		if e.complexity.TideSpotConfigConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.Edges(childComplexity), true
+
+	case "TideSpotConfigConnection.pageInfo":
+		if e.complexity.TideSpotConfigConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.PageInfo(childComplexity), true
+
+	case "TideSpotConfigConnection.totalCount":
+		if e.complexity.TideSpotConfigConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.TotalCount(childComplexity), true
+
+	case "TideSpotConfigConnection.totalGenerateNum":
+		if e.complexity.TideSpotConfigConnection.TotalGenerateNum == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.TotalGenerateNum(childComplexity), true
+
+	case "TideSpotConfigConnection.totalNotUseNum":
+		if e.complexity.TideSpotConfigConnection.TotalNotUseNum == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.TotalNotUseNum(childComplexity), true
+
+	case "TideSpotConfigConnection.totalUseAmount":
+		if e.complexity.TideSpotConfigConnection.TotalUseAmount == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.TotalUseAmount(childComplexity), true
+
+	case "TideSpotConfigConnection.totalUseNum":
+		if e.complexity.TideSpotConfigConnection.TotalUseNum == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigConnection.TotalUseNum(childComplexity), true
+
+	case "TideSpotConfigEdge.cursor":
+		if e.complexity.TideSpotConfigEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigEdge.Cursor(childComplexity), true
+
+	case "TideSpotConfigEdge.node":
+		if e.complexity.TideSpotConfigEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfigEdge.Node(childComplexity), true
 
 	case "TideSpotConnection.edges":
 		if e.complexity.TideSpotConnection.Edges == nil {
@@ -9665,6 +9918,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateStamp,
 		ec.unmarshalInputUpdateTag,
 		ec.unmarshalInputUpdateTideSpot,
+		ec.unmarshalInputUpdateTideSpotConfig,
 		ec.unmarshalInputUpdateTrek,
 		ec.unmarshalInputUpdateTurtleBackConfig,
 		ec.unmarshalInputUpdateTweet,
@@ -10623,7 +10877,6 @@ type TideSpot {
 }
 
 input NewTideSpotConfig {
-  id: ID!
   tideSpotId: String!
   tideSpotName: String!
   couponName: String!
@@ -10639,8 +10892,16 @@ input NewTideSpotConfig {
   guideDesc: String
   guideVideoPath: String
   enable: Boolean
-  tideSpotGoodList: [NewTideSpotGood]
+  tideSpotGoodListJson: String
 }
+
+input UpdateTideSpotConfig {
+  id: ID!
+  guideDesc: String
+  enable: Boolean
+  guideVideoPath: String
+}
+
 
 input NewTideSpotGood {
   goodName: String
@@ -10676,6 +10937,7 @@ input AuditingFilter {
   endTime: Int
 }
 
+
 type AuditingEdge {
   cursor: ID!
   node: Auditing
@@ -10696,6 +10958,42 @@ type AuditingConnection {
   totalCount: Int!
   edges: [AuditingEdge!]!
   pageInfo: PageInfo!
+}
+
+type TideSpotConfig {
+  id: ID!
+  tideSpotName: String
+  couponName: String
+  compareWord: String
+  desc: String
+  effectiveTime: Int
+  generateNum:Int
+  useNum: Int
+  notUseNum: Int
+  useAmount: Int
+  generateRule: String
+  compareLogoPath: String
+  compareLogoId: String
+  createTime: Int
+  stateText: String
+  state: String
+  guideDesc: String
+  guideVideoPath: String
+}
+
+type TideSpotConfigEdge {
+  cursor: ID!
+  node: TideSpotConfig
+}
+
+type TideSpotConfigConnection {
+  totalCount: Int!
+  edges: [TideSpotConfigEdge!]!
+  pageInfo: PageInfo!
+  totalGenerateNum: Int!
+  totalUseAmount: Int!
+  totalUseNum: Int!
+  totalNotUseNum: Int!
 }
 
 enum Restore {
@@ -10981,7 +11279,9 @@ type Mutation {
   createTideSpot(input: NewTideSpot!): Id! @auth
   updateTideSpot(input: UpdateTideSpot): Result! @auth
 
-  CreateTideSpotConfig(input: NewTideSpotConfig!): Id! @auth
+  createTideSpotConfig(input: NewTideSpotConfig!): Id! @auth
+  updateTideSpotConfig(input: UpdateTideSpotConfig!): Result! @auth
+
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole
   updateEvent(input: UpdateEvent!): Result! @auth @hasRole
@@ -11302,6 +11602,15 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  tideSpotConfigList(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    type: String
+    tideSpotId: String
+  ): TideSpotConfigConnection @auth
+
   tideSpotList(
     first: Int = 20
     after: ID
@@ -12280,34 +12589,6 @@ func (ec *executionContext) dir_auditing_argsCode(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_CreateTideSpotConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Mutation_CreateTideSpotConfig_argsInput(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["input"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_CreateTideSpotConfig_argsInput(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (model.NewTideSpotConfig, error) {
-	if _, ok := rawArgs["input"]; !ok {
-		var zeroVal model.NewTideSpotConfig
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalNNewTideSpotConfig2gatewayᚋgraphᚋmodelᚐNewTideSpotConfig(ctx, tmp)
-	}
-
-	var zeroVal model.NewTideSpotConfig
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Mutation_activateUserEventPassport_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -13168,6 +13449,34 @@ func (ec *executionContext) field_Mutation_createTag_argsInput(
 	}
 
 	var zeroVal model.NewTag
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_createTideSpotConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_createTideSpotConfig_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_createTideSpotConfig_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.NewTideSpotConfig, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.NewTideSpotConfig
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNNewTideSpotConfig2gatewayᚋgraphᚋmodelᚐNewTideSpotConfig(ctx, tmp)
+	}
+
+	var zeroVal model.NewTideSpotConfig
 	return zeroVal, nil
 }
 
@@ -15196,6 +15505,34 @@ func (ec *executionContext) field_Mutation_updateTag_argsInput(
 	}
 
 	var zeroVal model.UpdateTag
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTideSpotConfig_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_updateTideSpotConfig_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_updateTideSpotConfig_argsInput(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.UpdateTideSpotConfig, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal model.UpdateTideSpotConfig
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNUpdateTideSpotConfig2gatewayᚋgraphᚋmodelᚐUpdateTideSpotConfig(ctx, tmp)
+	}
+
+	var zeroVal model.UpdateTideSpotConfig
 	return zeroVal, nil
 }
 
@@ -19411,6 +19748,149 @@ func (ec *executionContext) field_Query_temporaryTasks_argsCampID(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_tideSpotConfigList_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Query_tideSpotConfigList_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Query_tideSpotConfigList_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Query_tideSpotConfigList_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := ec.field_Query_tideSpotConfigList_argsType(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["type"] = arg4
+	arg5, err := ec.field_Query_tideSpotConfigList_argsTideSpotID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["tideSpotId"] = arg5
+	return args, nil
+}
+func (ec *executionContext) field_Query_tideSpotConfigList_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOID2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOID2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_argsType(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["type"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+	if tmp, ok := rawArgs["type"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_argsTideSpotID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["tideSpotId"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotId"))
+	if tmp, ok := rawArgs["tideSpotId"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -34537,8 +35017,8 @@ func (ec *executionContext) fieldContext_Mutation_updateTideSpot(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_CreateTideSpotConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_CreateTideSpotConfig(ctx, field)
+func (ec *executionContext) _Mutation_createTideSpotConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTideSpotConfig(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -34590,7 +35070,7 @@ func (ec *executionContext) _Mutation_CreateTideSpotConfig(ctx context.Context, 
 	return ec.marshalNId2ᚖgatewayᚋgraphᚋmodelᚐID(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_CreateTideSpotConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createTideSpotConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -34611,7 +35091,90 @@ func (ec *executionContext) fieldContext_Mutation_CreateTideSpotConfig(ctx conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_CreateTideSpotConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createTideSpotConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTideSpotConfig(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTideSpotConfig(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateTideSpotConfig(rctx, fc.Args["input"].(model.UpdateTideSpotConfig))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.Result
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Result); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.Result`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Result)
+	fc.Result = res
+	return ec.marshalNResult2ᚖgatewayᚋgraphᚋmodelᚐResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTideSpotConfig(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "succed":
+				return ec.fieldContext_Result_succed(ctx, field)
+			case "message":
+				return ec.fieldContext_Result_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Result", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTideSpotConfig_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -48494,6 +49057,96 @@ func (ec *executionContext) fieldContext_Query_userStampPointsRecord(ctx context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_userStampPointsRecord_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_tideSpotConfigList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_tideSpotConfigList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().TideSpotConfigList(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string), fc.Args["type"].(*string), fc.Args["tideSpotId"].(*string))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.TideSpotConfigConnection
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.TideSpotConfigConnection); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.TideSpotConfigConnection`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.TideSpotConfigConnection)
+	fc.Result = res
+	return ec.marshalOTideSpotConfigConnection2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConfigConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_tideSpotConfigList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_TideSpotConfigConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_TideSpotConfigConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_TideSpotConfigConnection_pageInfo(ctx, field)
+			case "totalGenerateNum":
+				return ec.fieldContext_TideSpotConfigConnection_totalGenerateNum(ctx, field)
+			case "totalUseAmount":
+				return ec.fieldContext_TideSpotConfigConnection_totalUseAmount(ctx, field)
+			case "totalUseNum":
+				return ec.fieldContext_TideSpotConfigConnection_totalUseNum(ctx, field)
+			case "totalNotUseNum":
+				return ec.fieldContext_TideSpotConfigConnection_totalNotUseNum(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TideSpotConfigConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_tideSpotConfigList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -62722,6 +63375,1194 @@ func (ec *executionContext) fieldContext_TideSpot_status(_ context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_id(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_tideSpotName(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_tideSpotName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TideSpotName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_tideSpotName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_couponName(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_couponName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CouponName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_couponName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_compareWord(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_compareWord(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompareWord, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_compareWord(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_desc(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_desc(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Desc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_desc(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_effectiveTime(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_effectiveTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EffectiveTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_effectiveTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_generateNum(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_generateNum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GenerateNum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_generateNum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_useNum(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_useNum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UseNum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_useNum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_notUseNum(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_notUseNum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NotUseNum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_notUseNum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_useAmount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_useAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UseAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_useAmount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_generateRule(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_generateRule(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GenerateRule, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_generateRule(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_compareLogoPath(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_compareLogoPath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompareLogoPath, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_compareLogoPath(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_compareLogoId(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_compareLogoId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CompareLogoID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_compareLogoId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_createTime(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_createTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreateTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_createTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_stateText(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_stateText(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StateText, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_stateText(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_state(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_state(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.State, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_state(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_guideDesc(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_guideDesc(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GuideDesc, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_guideDesc(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_guideVideoPath(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_guideVideoPath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GuideVideoPath, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_guideVideoPath(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.TideSpotConfigEdge)
+	fc.Result = res
+	return ec.marshalNTideSpotConfigEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐTideSpotConfigEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_TideSpotConfigEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_TideSpotConfigEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TideSpotConfigEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgatewayᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_totalGenerateNum(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_totalGenerateNum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalGenerateNum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_totalGenerateNum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_totalUseAmount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_totalUseAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalUseAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_totalUseAmount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_totalUseNum(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_totalUseNum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalUseNum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_totalUseNum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigConnection_totalNotUseNum(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigConnection_totalNotUseNum(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalNotUseNum, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigConnection_totalNotUseNum(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfigEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfigEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.TideSpotConfig)
+	fc.Result = res
+	return ec.marshalOTideSpotConfig2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConfig(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfigEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfigEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TideSpotConfig_id(ctx, field)
+			case "tideSpotName":
+				return ec.fieldContext_TideSpotConfig_tideSpotName(ctx, field)
+			case "couponName":
+				return ec.fieldContext_TideSpotConfig_couponName(ctx, field)
+			case "compareWord":
+				return ec.fieldContext_TideSpotConfig_compareWord(ctx, field)
+			case "desc":
+				return ec.fieldContext_TideSpotConfig_desc(ctx, field)
+			case "effectiveTime":
+				return ec.fieldContext_TideSpotConfig_effectiveTime(ctx, field)
+			case "generateNum":
+				return ec.fieldContext_TideSpotConfig_generateNum(ctx, field)
+			case "useNum":
+				return ec.fieldContext_TideSpotConfig_useNum(ctx, field)
+			case "notUseNum":
+				return ec.fieldContext_TideSpotConfig_notUseNum(ctx, field)
+			case "useAmount":
+				return ec.fieldContext_TideSpotConfig_useAmount(ctx, field)
+			case "generateRule":
+				return ec.fieldContext_TideSpotConfig_generateRule(ctx, field)
+			case "compareLogoPath":
+				return ec.fieldContext_TideSpotConfig_compareLogoPath(ctx, field)
+			case "compareLogoId":
+				return ec.fieldContext_TideSpotConfig_compareLogoId(ctx, field)
+			case "createTime":
+				return ec.fieldContext_TideSpotConfig_createTime(ctx, field)
+			case "stateText":
+				return ec.fieldContext_TideSpotConfig_stateText(ctx, field)
+			case "state":
+				return ec.fieldContext_TideSpotConfig_state(ctx, field)
+			case "guideDesc":
+				return ec.fieldContext_TideSpotConfig_guideDesc(ctx, field)
+			case "guideVideoPath":
+				return ec.fieldContext_TideSpotConfig_guideVideoPath(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TideSpotConfig", field.Name)
 		},
 	}
 	return fc, nil
@@ -79060,20 +80901,13 @@ func (ec *executionContext) unmarshalInputNewTideSpotConfig(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "tideSpotId", "tideSpotName", "couponName", "type", "compareWord", "couponImgPath", "compareLogoPath", "desc", "effectiveTime", "couponContent", "minimumAmount", "deductionAmount", "guideDesc", "guideVideoPath", "enable", "tideSpotGoodList"}
+	fieldsInOrder := [...]string{"tideSpotId", "tideSpotName", "couponName", "type", "compareWord", "couponImgPath", "compareLogoPath", "desc", "effectiveTime", "couponContent", "minimumAmount", "deductionAmount", "guideDesc", "guideVideoPath", "enable", "tideSpotGoodListJson"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ID = data
 		case "tideSpotId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotId"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -79179,13 +81013,13 @@ func (ec *executionContext) unmarshalInputNewTideSpotConfig(ctx context.Context,
 				return it, err
 			}
 			it.Enable = data
-		case "tideSpotGoodList":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotGoodList"))
-			data, err := ec.unmarshalONewTideSpotGood2ᚕᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx, v)
+		case "tideSpotGoodListJson":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotGoodListJson"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.TideSpotGoodList = data
+			it.TideSpotGoodListJSON = data
 		}
 	}
 
@@ -81965,6 +83799,54 @@ func (ec *executionContext) unmarshalInputUpdateTideSpot(ctx context.Context, ob
 				return it, err
 			}
 			it.Status = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpdateTideSpotConfig(ctx context.Context, obj any) (model.UpdateTideSpotConfig, error) {
+	var it model.UpdateTideSpotConfig
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "guideDesc", "enable", "guideVideoPath"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "guideDesc":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("guideDesc"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GuideDesc = data
+		case "enable":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enable"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enable = data
+		case "guideVideoPath":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("guideVideoPath"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.GuideVideoPath = data
 		}
 	}
 
@@ -85411,9 +87293,16 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "CreateTideSpotConfig":
+		case "createTideSpotConfig":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_CreateTideSpotConfig(ctx, field)
+				return ec._Mutation_createTideSpotConfig(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateTideSpotConfig":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTideSpotConfig(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -87414,6 +89303,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_userStampPointsRecord(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "tideSpotConfigList":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_tideSpotConfigList(ctx, field)
 				return res
 			}
 
@@ -90353,6 +92261,189 @@ func (ec *executionContext) _TideSpot(ctx context.Context, sel ast.SelectionSet,
 			out.Values[i] = ec._TideSpot_updateTime(ctx, field, obj)
 		case "status":
 			out.Values[i] = ec._TideSpot_status(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tideSpotConfigImplementors = []string{"TideSpotConfig"}
+
+func (ec *executionContext) _TideSpotConfig(ctx context.Context, sel ast.SelectionSet, obj *model.TideSpotConfig) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tideSpotConfigImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TideSpotConfig")
+		case "id":
+			out.Values[i] = ec._TideSpotConfig_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "tideSpotName":
+			out.Values[i] = ec._TideSpotConfig_tideSpotName(ctx, field, obj)
+		case "couponName":
+			out.Values[i] = ec._TideSpotConfig_couponName(ctx, field, obj)
+		case "compareWord":
+			out.Values[i] = ec._TideSpotConfig_compareWord(ctx, field, obj)
+		case "desc":
+			out.Values[i] = ec._TideSpotConfig_desc(ctx, field, obj)
+		case "effectiveTime":
+			out.Values[i] = ec._TideSpotConfig_effectiveTime(ctx, field, obj)
+		case "generateNum":
+			out.Values[i] = ec._TideSpotConfig_generateNum(ctx, field, obj)
+		case "useNum":
+			out.Values[i] = ec._TideSpotConfig_useNum(ctx, field, obj)
+		case "notUseNum":
+			out.Values[i] = ec._TideSpotConfig_notUseNum(ctx, field, obj)
+		case "useAmount":
+			out.Values[i] = ec._TideSpotConfig_useAmount(ctx, field, obj)
+		case "generateRule":
+			out.Values[i] = ec._TideSpotConfig_generateRule(ctx, field, obj)
+		case "compareLogoPath":
+			out.Values[i] = ec._TideSpotConfig_compareLogoPath(ctx, field, obj)
+		case "compareLogoId":
+			out.Values[i] = ec._TideSpotConfig_compareLogoId(ctx, field, obj)
+		case "createTime":
+			out.Values[i] = ec._TideSpotConfig_createTime(ctx, field, obj)
+		case "stateText":
+			out.Values[i] = ec._TideSpotConfig_stateText(ctx, field, obj)
+		case "state":
+			out.Values[i] = ec._TideSpotConfig_state(ctx, field, obj)
+		case "guideDesc":
+			out.Values[i] = ec._TideSpotConfig_guideDesc(ctx, field, obj)
+		case "guideVideoPath":
+			out.Values[i] = ec._TideSpotConfig_guideVideoPath(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tideSpotConfigConnectionImplementors = []string{"TideSpotConfigConnection"}
+
+func (ec *executionContext) _TideSpotConfigConnection(ctx context.Context, sel ast.SelectionSet, obj *model.TideSpotConfigConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tideSpotConfigConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TideSpotConfigConnection")
+		case "totalCount":
+			out.Values[i] = ec._TideSpotConfigConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._TideSpotConfigConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._TideSpotConfigConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalGenerateNum":
+			out.Values[i] = ec._TideSpotConfigConnection_totalGenerateNum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalUseAmount":
+			out.Values[i] = ec._TideSpotConfigConnection_totalUseAmount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalUseNum":
+			out.Values[i] = ec._TideSpotConfigConnection_totalUseNum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "totalNotUseNum":
+			out.Values[i] = ec._TideSpotConfigConnection_totalNotUseNum(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var tideSpotConfigEdgeImplementors = []string{"TideSpotConfigEdge"}
+
+func (ec *executionContext) _TideSpotConfigEdge(ctx context.Context, sel ast.SelectionSet, obj *model.TideSpotConfigEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, tideSpotConfigEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TideSpotConfigEdge")
+		case "cursor":
+			out.Values[i] = ec._TideSpotConfigEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._TideSpotConfigEdge_node(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -94492,6 +96583,60 @@ func (ec *executionContext) marshalNTask2ᚕgatewayᚋgraphᚋmodelᚐTaskᚄ(ct
 	return ret
 }
 
+func (ec *executionContext) marshalNTideSpotConfigEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐTideSpotConfigEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TideSpotConfigEdge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTideSpotConfigEdge2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConfigEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTideSpotConfigEdge2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConfigEdge(ctx context.Context, sel ast.SelectionSet, v *model.TideSpotConfigEdge) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TideSpotConfigEdge(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNTideSpotEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐTideSpotEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TideSpotEdge) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -94653,6 +96798,11 @@ func (ec *executionContext) unmarshalNUpdateStamp2gatewayᚋgraphᚋmodelᚐUpda
 
 func (ec *executionContext) unmarshalNUpdateTag2gatewayᚋgraphᚋmodelᚐUpdateTag(ctx context.Context, v any) (model.UpdateTag, error) {
 	res, err := ec.unmarshalInputUpdateTag(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpdateTideSpotConfig2gatewayᚋgraphᚋmodelᚐUpdateTideSpotConfig(ctx context.Context, v any) (model.UpdateTideSpotConfig, error) {
+	res, err := ec.unmarshalInputUpdateTideSpotConfig(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -96308,32 +98458,6 @@ func (ec *executionContext) unmarshalONewActivateUserEventPassport2ᚖgatewayᚋ
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalONewTideSpotGood2ᚕᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx context.Context, v any) ([]*model.NewTideSpotGood, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []any
-	vSlice = graphql.CoerceList(v)
-	var err error
-	res := make([]*model.NewTideSpotGood, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalONewTideSpotGood2ᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalONewTideSpotGood2ᚖgatewayᚋgraphᚋmodelᚐNewTideSpotGood(ctx context.Context, v any) (*model.NewTideSpotGood, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputNewTideSpotGood(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalONewUserEventPassport2ᚖgatewayᚋgraphᚋmodelᚐNewUserEventPassport(ctx context.Context, v any) (*model.NewUserEventPassport, error) {
 	if v == nil {
 		return nil, nil
@@ -97185,6 +99309,20 @@ func (ec *executionContext) marshalOTideSpot2ᚖgatewayᚋgraphᚋmodelᚐTideSp
 		return graphql.Null
 	}
 	return ec._TideSpot(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTideSpotConfig2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConfig(ctx context.Context, sel ast.SelectionSet, v *model.TideSpotConfig) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TideSpotConfig(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOTideSpotConfigConnection2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConfigConnection(ctx context.Context, sel ast.SelectionSet, v *model.TideSpotConfigConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TideSpotConfigConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOTideSpotConnection2ᚖgatewayᚋgraphᚋmodelᚐTideSpotConnection(ctx context.Context, sel ast.SelectionSet, v *model.TideSpotConnection) graphql.Marshaler {

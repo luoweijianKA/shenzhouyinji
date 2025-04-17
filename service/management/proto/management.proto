@@ -26,6 +26,10 @@ service ManagementService {
     rpc GetTurtleBackMenuList(MsKeyword) returns (TurtleBackMenuRes){}
 
     rpc CreateTideSpotConfig(TideSpotConfig) returns (MsKeyword) {}
+    rpc UpdateTideSpotConfig(TideSpotConfig) returns (MsUpdateRes) {}
+
+    rpc GetTideSpotConfigList(TideSpotConfigRequest) returns (TideSpotConfigRes) {}
+
     rpc CreateTideSpotGood(TideSpotGood) returns (MsKeyword) {}
 
     rpc GetTurtleBackConfigList(MsKeyword) returns (TurtleBackConfigRes){}
@@ -65,6 +69,11 @@ message Tag {
     int32 status = 4;
 }
 
+message TideSpotConfigRequest {
+    string type = 1;
+    string tideSpotId = 2;
+}
+
 message AreaInfo {
     string id = 1;
     string name = 2;
@@ -87,6 +96,26 @@ message TideSpotRes {
     repeated TideSpot data = 1;
 }
 
+message coupon {
+    string id = 1;
+    string type = 2;
+    string tide_spot_config_id = 3;
+    string tide_spot_id = 4;
+    string tide_spot_name = 5;
+    string coupon_name = 6;
+    string generate_word = 7;
+    string generate_img_path = 8;
+    int32 create_time = 9;
+    string user_wechat = 10;
+    string user_wechat_name = 11;
+    string submit_word = 12;
+    string submit_img_path = 13;
+    int32 effectiveTime = 14;
+    string desc = 15;
+    bool use = 16;
+    string qr_code_path = 17;
+}
+
 message TideSpotConfig {
     string id = 1;
     string tide_spot_id = 2;
@@ -107,14 +136,19 @@ message TideSpotConfig {
     int32 use_amount = 17;
     string guide_desc = 18;
     string guide_video_path = 19;
-    repeated TideSpotGood tide_spot_good_list = 20;
+    string tide_spot_good_list_json = 20;
     string type = 21;
     bool enable = 22;
+    int32 create_time = 23;
 }
 
+message TideSpotConfigRes {
+    repeated TideSpotConfig data = 1;
+}
 message TideSpotGood {
-    string good_name = 1;
-    string good_barcode = 2;
+    string id = 1;
+    string good_name = 2;
+    string good_barcode = 3;
 }
 
 

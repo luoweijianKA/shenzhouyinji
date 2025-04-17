@@ -53,6 +53,8 @@ type ManagementService interface {
 	GetTagByCategoryID(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TagsRes, error)
 	GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackMenuRes, error)
 	CreateTideSpotConfig(ctx context.Context, in *TideSpotConfig, opts ...client.CallOption) (*MsKeyword, error)
+	UpdateTideSpotConfig(ctx context.Context, in *TideSpotConfig, opts ...client.CallOption) (*MsUpdateRes, error)
+	GetTideSpotConfigList(ctx context.Context, in *TideSpotConfigRequest, opts ...client.CallOption) (*TideSpotConfigRes, error)
 	CreateTideSpotGood(ctx context.Context, in *TideSpotGood, opts ...client.CallOption) (*MsKeyword, error)
 	GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfigRes, error)
 	UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, opts ...client.CallOption) (*MsUpdateRes, error)
@@ -253,6 +255,26 @@ func (c *managementService) CreateTideSpotConfig(ctx context.Context, in *TideSp
 	return out, nil
 }
 
+func (c *managementService) UpdateTideSpotConfig(ctx context.Context, in *TideSpotConfig, opts ...client.CallOption) (*MsUpdateRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.UpdateTideSpotConfig", in)
+	out := new(MsUpdateRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementService) GetTideSpotConfigList(ctx context.Context, in *TideSpotConfigRequest, opts ...client.CallOption) (*TideSpotConfigRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.GetTideSpotConfigList", in)
+	out := new(TideSpotConfigRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementService) CreateTideSpotGood(ctx context.Context, in *TideSpotGood, opts ...client.CallOption) (*MsKeyword, error) {
 	req := c.c.NewRequest(c.name, "ManagementService.CreateTideSpotGood", in)
 	out := new(MsKeyword)
@@ -433,6 +455,8 @@ type ManagementServiceHandler interface {
 	GetTagByCategoryID(context.Context, *MsKeyword, *TagsRes) error
 	GetTurtleBackMenuList(context.Context, *MsKeyword, *TurtleBackMenuRes) error
 	CreateTideSpotConfig(context.Context, *TideSpotConfig, *MsKeyword) error
+	UpdateTideSpotConfig(context.Context, *TideSpotConfig, *MsUpdateRes) error
+	GetTideSpotConfigList(context.Context, *TideSpotConfigRequest, *TideSpotConfigRes) error
 	CreateTideSpotGood(context.Context, *TideSpotGood, *MsKeyword) error
 	GetTurtleBackConfigList(context.Context, *MsKeyword, *TurtleBackConfigRes) error
 	UpdateTurtleBackConfig(context.Context, *TurtleBackConfig, *MsUpdateRes) error
@@ -470,6 +494,8 @@ func RegisterManagementServiceHandler(s server.Server, hdlr ManagementServiceHan
 		GetTagByCategoryID(ctx context.Context, in *MsKeyword, out *TagsRes) error
 		GetTurtleBackMenuList(ctx context.Context, in *MsKeyword, out *TurtleBackMenuRes) error
 		CreateTideSpotConfig(ctx context.Context, in *TideSpotConfig, out *MsKeyword) error
+		UpdateTideSpotConfig(ctx context.Context, in *TideSpotConfig, out *MsUpdateRes) error
+		GetTideSpotConfigList(ctx context.Context, in *TideSpotConfigRequest, out *TideSpotConfigRes) error
 		CreateTideSpotGood(ctx context.Context, in *TideSpotGood, out *MsKeyword) error
 		GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, out *TurtleBackConfigRes) error
 		UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, out *MsUpdateRes) error
@@ -564,6 +590,14 @@ func (h *managementServiceHandler) GetTurtleBackMenuList(ctx context.Context, in
 
 func (h *managementServiceHandler) CreateTideSpotConfig(ctx context.Context, in *TideSpotConfig, out *MsKeyword) error {
 	return h.ManagementServiceHandler.CreateTideSpotConfig(ctx, in, out)
+}
+
+func (h *managementServiceHandler) UpdateTideSpotConfig(ctx context.Context, in *TideSpotConfig, out *MsUpdateRes) error {
+	return h.ManagementServiceHandler.UpdateTideSpotConfig(ctx, in, out)
+}
+
+func (h *managementServiceHandler) GetTideSpotConfigList(ctx context.Context, in *TideSpotConfigRequest, out *TideSpotConfigRes) error {
+	return h.ManagementServiceHandler.GetTideSpotConfigList(ctx, in, out)
 }
 
 func (h *managementServiceHandler) CreateTideSpotGood(ctx context.Context, in *TideSpotGood, out *MsKeyword) error {

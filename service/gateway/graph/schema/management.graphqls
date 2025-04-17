@@ -94,7 +94,6 @@ type TideSpot {
 }
 
 input NewTideSpotConfig {
-  id: ID!
   tideSpotId: String!
   tideSpotName: String!
   couponName: String!
@@ -110,8 +109,16 @@ input NewTideSpotConfig {
   guideDesc: String
   guideVideoPath: String
   enable: Boolean
-  tideSpotGoodList: [NewTideSpotGood]
+  tideSpotGoodListJson: String
 }
+
+input UpdateTideSpotConfig {
+  id: ID!
+  guideDesc: String
+  enable: Boolean
+  guideVideoPath: String
+}
+
 
 input NewTideSpotGood {
   goodName: String
@@ -147,6 +154,7 @@ input AuditingFilter {
   endTime: Int
 }
 
+
 type AuditingEdge {
   cursor: ID!
   node: Auditing
@@ -167,6 +175,42 @@ type AuditingConnection {
   totalCount: Int!
   edges: [AuditingEdge!]!
   pageInfo: PageInfo!
+}
+
+type TideSpotConfig {
+  id: ID!
+  tideSpotName: String
+  couponName: String
+  compareWord: String
+  desc: String
+  effectiveTime: Int
+  generateNum:Int
+  useNum: Int
+  notUseNum: Int
+  useAmount: Int
+  generateRule: String
+  compareLogoPath: String
+  compareLogoId: String
+  createTime: Int
+  stateText: String
+  state: String
+  guideDesc: String
+  guideVideoPath: String
+}
+
+type TideSpotConfigEdge {
+  cursor: ID!
+  node: TideSpotConfig
+}
+
+type TideSpotConfigConnection {
+  totalCount: Int!
+  edges: [TideSpotConfigEdge!]!
+  pageInfo: PageInfo!
+  totalGenerateNum: Int!
+  totalUseAmount: Int!
+  totalUseNum: Int!
+  totalNotUseNum: Int!
 }
 
 enum Restore {

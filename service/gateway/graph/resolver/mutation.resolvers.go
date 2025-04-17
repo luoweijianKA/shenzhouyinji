@@ -909,6 +909,7 @@ func (r *mutationResolver) UpdateTideSpot(ctx context.Context, input *model.Upda
 	defer cancel()
 
 	req := &mPB.TideSpot{
+		Id:                input.ID,
 		Name:              NotNilString(input.Name, ""),
 		PositionTolerance: NotNilString(input.PositionTolerance, ""),
 		ElectricFence:     NotNilString(input.ElectricFence, ""),
@@ -930,16 +931,27 @@ func (r *mutationResolver) CreateTideSpotConfig(ctx context.Context, input model
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	req := &mPB.TideSpotConfig{
-		TideSpotId:   NotNilString(&input.TideSpotID, ""),
-		TideSpotName: NotNilString(&input.TideSpotName, ""),
-		CouponName:   NotNilString(&input.CouponName, ""),
+		TideSpotId:      NotNilString(&input.TideSpotID, ""),
+		TideSpotName:    NotNilString(&input.TideSpotName, ""),
+		CouponName:      NotNilString(&input.CouponName, ""),
+		CompareWord:     NotNilString(input.CompareWord, ""),
+		CouponImgPath:   NotNilString(input.CouponImgPath, ""),
+		CompareLogoPath: NotNilString(input.CompareLogoPath, ""),
+		Desc:            NotNilString(input.Desc, ""),
+		EffectiveTime:   int32(NotNilInt(input.EffectiveTime, 0)),
+		CouponContent:   NotNilString(input.CouponContent, ""),
+		Type:            NotNilString(&input.Type, ""),
 	}
 	res, err := r.managementService.CreateTideSpotConfig(ctx, req)
-	if len(input.TideSpotGoodList) > 0 {
-		for _, good := range input.TideSpotGoodList {
+
+	if input.TideSpotGoodListJSON != nil && len(*input.TideSpotGoodListJSON) > 0 {
+		// tideSpotGoodList := make([]*mPB.TideSpotGood, 0)
+		tideSpotGoodList := make([]map[string]interface{}, 0)
+		json.Unmarshal([]byte(*input.TideSpotGoodListJSON), &tideSpotGoodList)
+		for _, good := range tideSpotGoodList {
 			goodReq := &mPB.TideSpotGood{
-				GoodName:    *good.GoodName,
-				GoodBarcode: *good.GoodBarcode,
+				GoodName:    good["goodName"].(string),
+				GoodBarcode: good["goodBarcode"].(string),
 			}
 			_, goodErr := r.managementService.CreateTideSpotGood(ctx, goodReq)
 			if goodErr != nil {
@@ -953,7 +965,28 @@ func (r *mutationResolver) CreateTideSpotConfig(ctx context.Context, input model
 		return nil, err
 	}
 	return &model.ID{ID: res.Value}, nil
+}
 
+// UpdateTideSpotConfig is the resolver for the updateTideSpotConfig field.
+func (r *mutationResolver) UpdateTideSpotConfig(ctx context.Context, input model.UpdateTideSpotConfig) (*model.Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	req := &mPB.TideSpotConfig{
+		Id:             input.ID,
+		GuideDesc:      NotNilString(input.GuideDesc, ""),
+		GuideVideoPath: NotNilString(input.GuideVideoPath, ""),
+		Enable:         NotNilBool(input.Enable, false),
+	}
+
+	res, err := r.managementService.UpdateTideSpotConfig(ctx, req)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return &model.Result{Succed: &res.Value}, nil
 }
 
 // CreateEvent is the resolver for the createEvent field.
