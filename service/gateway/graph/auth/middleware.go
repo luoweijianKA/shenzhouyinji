@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"sync"
 
 	"gateway/graph/model"
 
@@ -27,6 +28,7 @@ type UserContext struct {
 var (
 	userCtxKey = &contextKey{"user"}
 	// remoteAddrCtxKey = &contextKey{"remoteAddr"}
+	Mu sync.Mutex
 )
 
 func Middleware(db *mongo.Database) func(http.Handler) http.Handler {

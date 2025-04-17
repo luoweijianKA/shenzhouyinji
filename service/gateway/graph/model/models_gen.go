@@ -1213,6 +1213,8 @@ type TideSpotConfig struct {
 	State           *string `json:"state,omitempty"`
 	GuideDesc       *string `json:"guideDesc,omitempty"`
 	GuideVideoPath  *string `json:"guideVideoPath,omitempty"`
+	MinimumAmount   *int    `json:"minimumAmount,omitempty"`
+	DeductionAmount *int    `json:"deductionAmount,omitempty"`
 }
 
 type TideSpotConfigConnection struct {

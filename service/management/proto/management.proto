@@ -120,6 +120,8 @@ message Coupon {
     string desc = 15;
     bool use = 16;
     string qr_code_path = 17;
+    int32 minimum_amount = 18;
+    int32 deduction_amount = 19;
 }
 
 message TideSpotConfig {

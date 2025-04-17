@@ -229,6 +229,8 @@ type TideSpotConfig {
   state: String
   guideDesc: String
   guideVideoPath: String
+  minimumAmount: Int
+  deductionAmount: Int
 }
 
 type TideSpotConfigEdge {

@@ -22,8 +22,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
-
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/disintegration/imaging"
@@ -37,10 +36,6 @@ import (
 	merr "go-micro.dev/v4/errors"
 	"go-micro.dev/v4/logger"
 	"go.mongodb.org/mongo-driver/bson"
-)
-
-var (
-	mu sync.Mutex
 )
 
 // Logout is the resolver for the logout field.
@@ -1041,8 +1036,21 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 		return nil, err
 	}
 	// 更新配置
-	mu.Lock()
+	auth.Mu.Lock()
+	generateNum := tideSpotConfig.GenerateNum + 1
+	notUseNum := tideSpotConfig.NotUseNum + 1
 
+	tideSpotConfigReq := &mPB.TideSpotConfig{
+		Id:          tideSpotConfig.Id,
+		GenerateNum: generateNum,
+		NotUseNum:   notUseNum,
+	}
+	_, updateConfigErr := r.managementService.UpdateTideSpotConfig(ctx, tideSpotConfigReq)
+	if updateConfigErr != nil {
+		log.Println(updateConfigErr)
+		return nil, updateConfigErr
+	}
+	auth.Mu.Unlock()
 	return &model.ID{ID: res.Value}, nil
 }
 

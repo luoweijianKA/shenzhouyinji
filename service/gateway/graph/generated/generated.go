@@ -983,6 +983,7 @@ type ComplexityRoot struct {
 		CompareWord     func(childComplexity int) int
 		CouponName      func(childComplexity int) int
 		CreateTime      func(childComplexity int) int
+		DeductionAmount func(childComplexity int) int
 		Desc            func(childComplexity int) int
 		EffectiveTime   func(childComplexity int) int
 		GenerateNum     func(childComplexity int) int
@@ -990,6 +991,7 @@ type ComplexityRoot struct {
 		GuideDesc       func(childComplexity int) int
 		GuideVideoPath  func(childComplexity int) int
 		ID              func(childComplexity int) int
+		MinimumAmount   func(childComplexity int) int
 		NotUseNum       func(childComplexity int) int
 		State           func(childComplexity int) int
 		StateText       func(childComplexity int) int
@@ -7908,6 +7910,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TideSpotConfig.CreateTime(childComplexity), true
 
+	case "TideSpotConfig.deductionAmount":
+		if e.complexity.TideSpotConfig.DeductionAmount == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.DeductionAmount(childComplexity), true
+
 	case "TideSpotConfig.desc":
 		if e.complexity.TideSpotConfig.Desc == nil {
 			break
@@ -7956,6 +7965,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TideSpotConfig.ID(childComplexity), true
+
+	case "TideSpotConfig.minimumAmount":
+		if e.complexity.TideSpotConfig.MinimumAmount == nil {
+			break
+		}
+
+		return e.complexity.TideSpotConfig.MinimumAmount(childComplexity), true
 
 	case "TideSpotConfig.notUseNum":
 		if e.complexity.TideSpotConfig.NotUseNum == nil {
@@ -11190,6 +11206,8 @@ type TideSpotConfig {
   state: String
   guideDesc: String
   guideVideoPath: String
+  minimumAmount: Int
+  deductionAmount: Int
 }
 
 type TideSpotConfigEdge {
@@ -65266,6 +65284,88 @@ func (ec *executionContext) fieldContext_TideSpotConfig_guideVideoPath(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _TideSpotConfig_minimumAmount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_minimumAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MinimumAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_minimumAmount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TideSpotConfig_deductionAmount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfig) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TideSpotConfig_deductionAmount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeductionAmount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TideSpotConfig_deductionAmount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TideSpotConfig",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _TideSpotConfigConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.TideSpotConfigConnection) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_TideSpotConfigConnection_totalCount(ctx, field)
 	if err != nil {
@@ -65706,6 +65806,10 @@ func (ec *executionContext) fieldContext_TideSpotConfigEdge_node(_ context.Conte
 				return ec.fieldContext_TideSpotConfig_guideDesc(ctx, field)
 			case "guideVideoPath":
 				return ec.fieldContext_TideSpotConfig_guideVideoPath(ctx, field)
+			case "minimumAmount":
+				return ec.fieldContext_TideSpotConfig_minimumAmount(ctx, field)
+			case "deductionAmount":
+				return ec.fieldContext_TideSpotConfig_deductionAmount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TideSpotConfig", field.Name)
 		},
@@ -93604,6 +93708,10 @@ func (ec *executionContext) _TideSpotConfig(ctx context.Context, sel ast.Selecti
 			out.Values[i] = ec._TideSpotConfig_guideDesc(ctx, field, obj)
 		case "guideVideoPath":
 			out.Values[i] = ec._TideSpotConfig_guideVideoPath(ctx, field, obj)
+		case "minimumAmount":
+			out.Values[i] = ec._TideSpotConfig_minimumAmount(ctx, field, obj)
+		case "deductionAmount":
+			out.Values[i] = ec._TideSpotConfig_deductionAmount(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
