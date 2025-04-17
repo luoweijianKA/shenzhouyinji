@@ -1,18 +1,21 @@
+const { getCouponList } = require('../../model/coupon');
+
 Page({
   data: {
     visible: false,
+    qrcode: null,
   },
-  showPopup() {
-    this.setData(
-      {
-        visible: true,
-      },
-      () => {
-        const tabs = this.selectComponent('tabs');
-
-        tabs.setTrack(); // 这一步很重要，因为小程序的无法正确执行生命周期，所以需要手动设置下 tabs 的滑块
-      },
-    );
+  onLoad() {
+    this.getList();
+  },
+  async getList() {
+    const { edges } = await getCouponList(50, null, null, null, { status: 1 });
+    // console.log({ swaps: edges.map(v => v.node) })
+    // this.setData({
+    //   badge: {
+    //     swaps: edges.map((v) => v.node),
+    //   },
+    // });
   },
   onTabsChange(event) {
     console.log(`Change tab, tab-panel value is ${event.detail.value}.`);
