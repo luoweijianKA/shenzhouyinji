@@ -34,9 +34,13 @@ import {
     RemoveCircleOutline,
     CameraAlt
 } from '@mui/icons-material';
-import { LinkButton, PageHeader, Title } from "../styled";
+import { LinkButton, PageHeader, Title, DatePickerWrapper } from "../styled";
 import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import zhCN from 'date-fns/locale/zh-CN';
 
 /**
  * 自定义图标组件
@@ -271,6 +275,20 @@ const CREATE_TIDE_SPOT_CONFIG = gql`
   }
 `;
 
+const UPDATE_TIDE_SPOT_CONFIG = gql`
+  mutation updateTideSpotConfig($input: UpdateTideSpotConfig!) {
+    updateTideSpotConfig(input: $input) {
+      succed
+      message
+    }
+  }
+`;
+
+interface UpdateTideSpotConfig {
+    id: string;
+    enable: boolean;
+}
+
 // Mock data - consider moving or fetching
 // TODO: 考虑将模拟数据移出或通过API获取
 const mockStats = [
@@ -451,7 +469,32 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel sx={STYLES.formLabel}>有效时间:</FormLabel>
-            <TextField fullWidth name="expireTime" type="text" value={formData.expireTime} onChange={handleInputChange} size="small" placeholder="例如：2024-12-31" />
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={zhCN}>
+                <DatePickerWrapper>
+                    <DesktopDatePicker
+                        value={formData.expireTime ? new Date(formData.expireTime) : null}
+                        onChange={(newValue) => {
+                            if (newValue) {
+                                handleInputChange({
+                                    target: {
+                                        name: 'expireTime',
+                                        value: newValue.toISOString()
+                                    }
+                                } as React.ChangeEvent<HTMLInputElement>);
+                            }
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                fullWidth
+                                size="small"
+                                error={false}
+                                helperText={null}
+                            />
+                        )}
+                    />
+                </DatePickerWrapper>
+            </LocalizationProvider>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
@@ -602,6 +645,7 @@ const DiscountVoucher: React.FC = () => {
     const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
     const [submitting, setSubmitting] = useState(false);
     const [createTideSpotConfig] = useMutation<CreateTideSpotConfigResponse>(CREATE_TIDE_SPOT_CONFIG);
+    const [updateTideSpotConfig] = useMutation(UPDATE_TIDE_SPOT_CONFIG);
 
     const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
         variables: {
@@ -618,10 +662,18 @@ const DiscountVoucher: React.FC = () => {
         if (!data?.tideSpotConfigList?.edges) return [];
         return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => ({
             id: parseInt(node.id),
-            sceneryName: node.tideSpotName,
+            sceneryName: node.tideSpotName || '未知景区',
             voucherName: node.couponName,
             useLimit: node.desc,
-            expireTime: node.effectiveTime,
+            expireTime: new Date(parseInt(node.effectiveTime) * 1000).toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).replace(/\//g, '-'),
             totalCount: node.generateNum,
             discountedCount: node.useNum,
             undiscountedCount: node.notUseNum,
@@ -816,6 +868,22 @@ const DiscountVoucher: React.FC = () => {
         }
     }, []);
 
+    const handleTerminate = useCallback(async (id: number) => {
+        try {
+            const input: UpdateTideSpotConfig = {
+                id: id.toString(),
+                enable: false
+            };
+            
+            await updateTideSpotConfig({
+                variables: { input }
+            });
+            await refetch();
+        } catch (error) {
+            console.error('Failed to terminate discount voucher:', error);
+        }
+    }, [updateTideSpotConfig, refetch]);
+
     return (
         <Box sx={{ pt: 8 }}>
             <PageHeader container>
@@ -955,8 +1023,23 @@ const DiscountVoucher: React.FC = () => {
                                     <Chip label={row.status} color={getStatusChipColor(row.status)} size="small" />
                                 </TableCell>
                                 <TableCell>
-                                    {row.status === '正常' && <Button size="small" color="error" sx={{ minWidth: 'auto', p: 0.5 }}>中止</Button>}
-                                    <Button size="small" color="info" sx={{ minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0 }}>指引</Button>
+                                    {row.status === '正常' && (
+                                        <Button 
+                                            size="small" 
+                                            color="error" 
+                                            sx={{ minWidth: 'auto', p: 0.5 }}
+                                            onClick={() => handleTerminate(row.id)}
+                                        >
+                                            中止
+                                        </Button>
+                                    )}
+                                    <Button 
+                                        size="small" 
+                                        color="info" 
+                                        sx={{ minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0 }}
+                                    >
+                                        指引
+                                    </Button>
                                 </TableCell>
                             </TableRow>
                         ))}
