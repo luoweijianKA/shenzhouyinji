@@ -162,6 +162,7 @@ const ElectronicFence: React.FC = () => {
     const [formData, setFormData] = useState<FenceFormData>(INITIAL_FENCE_FORM_DATA);
     const [isEditing, setIsEditing] = useState(false); // 标记是否为编辑状态
     const [editingId, setEditingId] = useState<string | null>(null); // 标记正在编辑的ID
+    const [isViewing, setIsViewing] = useState(false); // 标记是否为查看状态
 
     // 执行 GraphQL 查询
     const { data, loading, error, refetch } = useQuery<TideSpotListQueryData>(GET_TIDE_SPOT_LIST, {
@@ -286,6 +287,7 @@ const ElectronicFence: React.FC = () => {
     const handleCloseAddDialog = useCallback(() => {
         setOpenAddDialog(false);
         setIsEditing(false);
+        setIsViewing(false);
         setEditingId(null);
     }, []);
 
@@ -332,10 +334,23 @@ const UPDATE_TIDE_SPOT = gql`
         }
     }, [formData, createTideSpot, refetch, handleCloseAddDialog]);
 
-    const handleViewFence = useCallback((id: string | number) => {
-        // TODO: 实现查看逻辑，可能跳转到详情页或打开只读弹窗
-        console.log("View fence:", id);
-    }, []);
+    const handleViewFence = useCallback((id: string) => {
+        const fence = fenceData.find(f => f.id === id);
+        if (!fence) return;
+        
+        setIsViewing(true);
+        setIsEditing(false);
+        setEditingId(null);
+        // 将列表数据填充到表单
+        setFormData({
+           sceneryName: fence.name,
+           locationSearch: '', // 查看时不需要搜索
+           fenceName: fence.electricFence,
+           fenceCoordinates: fence.electricFence,
+           tolerance: fence.positionTolerance?.toString() || '',
+        });
+        setOpenAddDialog(true);
+    }, [fenceData]);
 
     const handleEditFence = useCallback((fence: TideSpotNode) => {
         console.log("Edit fence:", fence);
@@ -487,7 +502,7 @@ const UPDATE_TIDE_SPOT = gql`
 
             <Dialog open={openAddDialog} onClose={handleCloseAddDialog} maxWidth="md" fullWidth>
                  <DialogTitle sx={{ m: 0, p: 2, borderBottom: '1px solid #E0E0E0' }}>
-                     {isEditing ? '编辑电子围栏' : '添加电子围栏'}
+                     {isViewing ? '查看电子围栏' : (isEditing ? '编辑电子围栏' : '添加电子围栏')}
                      <IconButton
                          aria-label="close"
                          onClick={handleCloseAddDialog}
@@ -511,6 +526,7 @@ const UPDATE_TIDE_SPOT = gql`
                                  onChange={handleDialogInputChange}
                                  placeholder="输入景区名称"
                                  size="small"
+                                 disabled={isViewing}
                              />
                          </Box>
 
@@ -524,6 +540,7 @@ const UPDATE_TIDE_SPOT = gql`
                                  size="small"
                                  sx={{ mr: 1 }}
                                  placeholder="输入地址搜索地图位置"
+                                 disabled={isViewing}
                              />
                              <Button
                                  variant="contained"
@@ -535,6 +552,7 @@ const UPDATE_TIDE_SPOT = gql`
                                  }}
                                  onClick={handleSearchLocation}
                                  size="medium"
+                                 disabled={isViewing}
                              >
                                  搜索
                              </Button>
@@ -550,6 +568,7 @@ const UPDATE_TIDE_SPOT = gql`
                                  onChange={handleDialogInputChange}
                                  size="small"
                                  placeholder="输入电子围栏名称"
+                                 disabled={isViewing}
                              />
                          </Box>
 
@@ -577,6 +596,7 @@ const UPDATE_TIDE_SPOT = gql`
                                  type="number"
                                  placeholder="请填写整数，单位KM"
                                  InputProps={{ sx: { width: '200px' } }}
+                                 disabled={isViewing}
                              />
                              <Typography variant="body2" color="text.secondary" sx={{ml: 1}}>
                                  请填写整数，单位KM
@@ -586,23 +606,25 @@ const UPDATE_TIDE_SPOT = gql`
                      </Box>
                  </DialogContent>
                  <DialogActions sx={{ p: 2, borderTop: '1px solid #E0E0E0' }}>
-                     <Button onClick={handleCloseAddDialog} variant="outlined" sx={{ mr: 1 }}>取消</Button>
-                     {isEditing ? (
-                         <Button
-                             variant="contained"
-                             onClick={handleUpdateSubmit}
-                             sx={{ bgcolor: '#C01A12', '&:hover': { bgcolor: '#A51710' } }}
-                         >
-                             更新
-                         </Button>
-                     ) : (
-                         <Button
-                             variant="contained"
-                             onClick={handleAddSubmit}
-                             sx={{ bgcolor: '#C01A12', '&:hover': { bgcolor: '#A51710' } }}
-                         >
-                             添加
-                         </Button>
+                     <Button onClick={handleCloseAddDialog} variant="outlined" sx={{ mr: 1 }}>关闭</Button>
+                     {!isViewing && (
+                         isEditing ? (
+                             <Button
+                                 variant="contained"
+                                 onClick={handleUpdateSubmit}
+                                 sx={{ bgcolor: '#C01A12', '&:hover': { bgcolor: '#A51710' } }}
+                             >
+                                 更新
+                             </Button>
+                         ) : (
+                             <Button
+                                 variant="contained"
+                                 onClick={handleAddSubmit}
+                                 sx={{ bgcolor: '#C01A12', '&:hover': { bgcolor: '#A51710' } }}
+                             >
+                                 添加
+                             </Button>
+                         )
                      )}
                  </DialogActions>
              </Dialog>
