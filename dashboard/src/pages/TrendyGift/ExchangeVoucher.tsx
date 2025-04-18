@@ -424,9 +424,9 @@ const VoucherContentItem = React.memo<{
                 }
             }}
         />
-        <Box sx={{ 
-            display: 'flex', 
-            gap: 1, 
+        <Box sx={{
+            display: 'flex',
+            gap: 1,
             minWidth: '65px',
             justifyContent: 'flex-start'
         }}>
@@ -641,11 +641,17 @@ const AddDialogContent = React.memo<{
  */
 const RowActions = React.memo<{
     row: ExchangeVoucherRow,
-    onOpenGuidance: (row: ExchangeVoucherRow) => void
-}>(({ row, onOpenGuidance }) => (
+    onOpenGuidance: (row: ExchangeVoucherRow) => void,
+    onTerminate: (id: string) => void
+}>(({ row, onOpenGuidance, onTerminate }) => (
     <>
         {row.status === '正常' &&
-            <Button size="small" color="error" sx={{ minWidth: 'auto', p: 0.5 }}>
+            <Button 
+                size="small" 
+                color="error" 
+                sx={{ minWidth: 'auto', p: 0.5 }}
+                onClick={() => onTerminate(row.id)}
+            >
                 中止
             </Button>
         }
@@ -861,8 +867,8 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
 
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
-        const cursor = newPage > page 
-            ? data?.tideSpotConfigList?.pageInfo?.endCursor 
+        const cursor = newPage > page
+            ? data?.tideSpotConfigList?.pageInfo?.endCursor
             : data?.tideSpotConfigList?.pageInfo?.startCursor;
         refetch({
             first: rowsPerPage,
@@ -911,7 +917,7 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
             console.error('No selected row ID');
             return;
         }
-        
+
         try {
             const input: UpdateTideSpotConfig = {
                 id: selectedRowId.toString(),
@@ -949,15 +955,15 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
         if (name === 'sceneryId') {
             // 根据选择的景区ID设置景区名称
             const selectedSceneryName = value === '1' ? '长隆欢乐世界' : '';
-            setFormData((prevState: AddFormData) => ({ 
-                ...prevState, 
+            setFormData((prevState: AddFormData) => ({
+                ...prevState,
                 sceneryId: value,
                 sceneryName: selectedSceneryName
             }));
         } else {
-            setFormData((prevState: AddFormData) => ({ 
-                ...prevState, 
-                [name as keyof AddFormData]: value 
+            setFormData((prevState: AddFormData) => ({
+                ...prevState,
+                [name as keyof AddFormData]: value
             }));
         }
     }, []);
@@ -1022,6 +1028,27 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
         event.target.value = '';
     }, []);
 
+    const handleTerminate = useCallback(async (id: string) => {
+        try {
+            const result = await updateTideSpotConfig({
+                variables: {
+                    input: {
+                        id,
+                        enable: false
+                    }
+                }
+            });
+
+            if (result.data?.updateTideSpotConfig.succed) {
+                await refetch();
+            } else {
+                console.error('Failed to terminate voucher:', result.data?.updateTideSpotConfig.message);
+            }
+        } catch (error) {
+            console.error('Failed to terminate voucher:', error);
+        }
+    }, [updateTideSpotConfig, refetch]);
+
     return (
         <Box sx={{ pt: 8 }}>
             <PageHeader container>
@@ -1073,8 +1100,8 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
                     <Button onClick={handleCloseAddDialog} sx={{ mr: 1 }}>取消</Button>
-                    <Button 
-                        variant="contained" 
+                    <Button
+                        variant="contained"
                         onClick={handleAddSubmit}
                         disabled={submitting}
                     >
@@ -1165,7 +1192,11 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                                     <Chip label={row.status} color={getStatusChipColor(row.status)} size="small" />
                                 </TableCell>
                                 <TableCell>
-                                    <RowActions row={row} onOpenGuidance={handleOpenGuidanceDialog} />
+                                    <RowActions 
+                                        row={row} 
+                                        onOpenGuidance={handleOpenGuidanceDialog} 
+                                        onTerminate={handleTerminate}
+                                    />
                                 </TableCell>
                             </TableRow>
                         ))}
