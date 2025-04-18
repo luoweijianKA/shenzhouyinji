@@ -2,11 +2,9 @@ package auth
 
 import (
 	"context"
+	"gateway/graph/model"
 	"net/http"
 	"strings"
-	"sync"
-
-	"gateway/graph/model"
 
 	pb "gitlab.com/annoying-orange/shenzhouyinji/service/account/proto"
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,7 +26,6 @@ type UserContext struct {
 var (
 	userCtxKey = &contextKey{"user"}
 	// remoteAddrCtxKey = &contextKey{"remoteAddr"}
-	Mu sync.Mutex
 )
 
 func Middleware(db *mongo.Database) func(http.Handler) http.Handler {

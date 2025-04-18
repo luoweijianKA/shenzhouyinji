@@ -1024,33 +1024,32 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 		GenerateWord:     tideSpotConfig.CompareWord,
 		GenerateImgPath:  tideSpotConfig.CouponImgPath,
 		Desc:             tideSpotConfig.Desc,
+		DeductionAmount:  tideSpotConfig.DeductionAmount,
+		MinimumAmount:    tideSpotConfig.MinimumAmount,
 		EffectiveTime:    int32(tideSpotConfig.EffectiveTime),
 		UserWechat:       account.GetWechat(),
 		UserWechatName:   account.WechatName,
 	}
 
 	res, err := r.managementService.CreateCoupon(ctx, req)
-
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	// 更新配置
-	auth.Mu.Lock()
-	generateNum := tideSpotConfig.GenerateNum + 1
-	notUseNum := tideSpotConfig.NotUseNum + 1
+	req.Id = res.Value
 
-	tideSpotConfigReq := &mPB.TideSpotConfig{
-		Id:          tideSpotConfig.Id,
-		GenerateNum: generateNum,
-		NotUseNum:   notUseNum,
+	// 更新配置
+	r.UpdateTideSpotConfigFromGenerateCoupon(ctx, tideSpotConfig)
+	code := r.UpdateQRCode(req)
+	updateReq := &mPB.Coupon{
+		Id:         res.Value,
+		QrCodePath: code,
 	}
-	_, updateConfigErr := r.managementService.UpdateTideSpotConfig(ctx, tideSpotConfigReq)
-	if updateConfigErr != nil {
-		log.Println(updateConfigErr)
-		return nil, updateConfigErr
+	_, err = r.managementService.UpdateCoupon(ctx, updateReq)
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
-	auth.Mu.Unlock()
 	return &model.ID{ID: res.Value}, nil
 }
 

@@ -194,26 +194,41 @@ type ComplexityRoot struct {
 	}
 
 	Coupon struct {
-		CouponName       func(childComplexity int) int
-		CreateTime       func(childComplexity int) int
-		Desc             func(childComplexity int) int
-		EffectiveTime    func(childComplexity int) int
-		GenerateImgPath  func(childComplexity int) int
-		GenerateWord     func(childComplexity int) int
-		ID               func(childComplexity int) int
-		QRCodePath       func(childComplexity int) int
-		State            func(childComplexity int) int
-		StateText        func(childComplexity int) int
-		SubmitImgPath    func(childComplexity int) int
-		SubmitWord       func(childComplexity int) int
-		TideSpotConfigID func(childComplexity int) int
-		TideSpotID       func(childComplexity int) int
-		TideSpotName     func(childComplexity int) int
-		Type             func(childComplexity int) int
-		TypeText         func(childComplexity int) int
-		Use              func(childComplexity int) int
-		UserWechat       func(childComplexity int) int
-		UserWechatName   func(childComplexity int) int
+		BuyGoodName            func(childComplexity int) int
+		CouponName             func(childComplexity int) int
+		CreateTime             func(childComplexity int) int
+		Desc                   func(childComplexity int) int
+		EffectiveTime          func(childComplexity int) int
+		GenerateImgPath        func(childComplexity int) int
+		GenerateWord           func(childComplexity int) int
+		ID                     func(childComplexity int) int
+		QRCodePath             func(childComplexity int) int
+		State                  func(childComplexity int) int
+		StateText              func(childComplexity int) int
+		SubmitImgPath          func(childComplexity int) int
+		SubmitWord             func(childComplexity int) int
+		TideSpotConfigID       func(childComplexity int) int
+		TideSpotID             func(childComplexity int) int
+		TideSpotName           func(childComplexity int) int
+		Type                   func(childComplexity int) int
+		TypeText               func(childComplexity int) int
+		Use                    func(childComplexity int) int
+		UseTime                func(childComplexity int) int
+		UserPhone              func(childComplexity int) int
+		UserWechat             func(childComplexity int) int
+		UserWechatName         func(childComplexity int) int
+		VerificationWechatName func(childComplexity int) int
+	}
+
+	CouponConnection struct {
+		Edges      func(childComplexity int) int
+		PageInfo   func(childComplexity int) int
+		TotalCount func(childComplexity int) int
+	}
+
+	CouponEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
 	}
 
 	Event struct {
@@ -716,6 +731,7 @@ type ComplexityRoot struct {
 		Configs                    func(childComplexity int) int
 		Conversation               func(childComplexity int, id string) int
 		ConversationByParticipant  func(childComplexity int, participant string, from *string) int
+		CouponList                 func(childComplexity int, first *int, after *string, last *int, before *string, typeArg *string, stateCode *string, tideSpotName *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool) int
 		Event                      func(childComplexity int, id string) int
 		EventAwards                func(childComplexity int, first *int, after *string, last *int, before *string, eventID *string, sceneryspotID *string, code *string) int
 		EventHonours               func(childComplexity int, eventID string) int
@@ -771,7 +787,7 @@ type ComplexityRoot struct {
 		Task                       func(childComplexity int, id string, categoryID string, userID string, eventID string, campID *string, sceneryspotID *string) int
 		Tasks                      func(childComplexity int, userID string, eventID string, campID string, sceneryspotID string) int
 		TemporaryTasks             func(childComplexity int, userID string, eventID string, campID string) int
-		TideSpotConfigList         func(childComplexity int, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string) int
+		TideSpotConfigList         func(childComplexity int, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string, enable *bool) int
 		TideSpotList               func(childComplexity int, first *int, after *string, last *int, before *string, name *string) int
 		TopCategories              func(childComplexity int) int
 		Trek                       func(childComplexity int, id string) int
@@ -1561,7 +1577,8 @@ type QueryResolver interface {
 	UserStampByStampID(ctx context.Context, id string) ([]*model.UserStamp, error)
 	UserShare(ctx context.Context, userID string, eventID string, sceneryspotID string) (*model.Tweet, error)
 	UserStampPointsRecord(ctx context.Context, input model.NewUserStampPointsRecord) ([]*model.UserStampPointsRecord, error)
-	TideSpotConfigList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string) (*model.TideSpotConfigConnection, error)
+	CouponList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, stateCode *string, tideSpotName *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool) (*model.CouponConnection, error)
+	TideSpotConfigList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string, enable *bool) (*model.TideSpotConfigConnection, error)
 	TideSpotList(ctx context.Context, first *int, after *string, last *int, before *string, name *string) (*model.TideSpotConnection, error)
 	AreaInfoByParentID(ctx context.Context, typeArg string, parentID *string) ([]*model.AreaInfo, error)
 	TurtleBackMenuList(ctx context.Context) ([]*model.TurtleBackMenu, error)
@@ -2319,6 +2336,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Conversation.UserName(childComplexity), true
 
+	case "Coupon.buyGoodName":
+		if e.complexity.Coupon.BuyGoodName == nil {
+			break
+		}
+
+		return e.complexity.Coupon.BuyGoodName(childComplexity), true
+
 	case "Coupon.couponName":
 		if e.complexity.Coupon.CouponName == nil {
 			break
@@ -2445,6 +2469,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Coupon.Use(childComplexity), true
 
+	case "Coupon.useTime":
+		if e.complexity.Coupon.UseTime == nil {
+			break
+		}
+
+		return e.complexity.Coupon.UseTime(childComplexity), true
+
+	case "Coupon.userPhone":
+		if e.complexity.Coupon.UserPhone == nil {
+			break
+		}
+
+		return e.complexity.Coupon.UserPhone(childComplexity), true
+
 	case "Coupon.userWechat":
 		if e.complexity.Coupon.UserWechat == nil {
 			break
@@ -2458,6 +2496,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Coupon.UserWechatName(childComplexity), true
+
+	case "Coupon.verificationWechatName":
+		if e.complexity.Coupon.VerificationWechatName == nil {
+			break
+		}
+
+		return e.complexity.Coupon.VerificationWechatName(childComplexity), true
+
+	case "CouponConnection.edges":
+		if e.complexity.CouponConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.CouponConnection.Edges(childComplexity), true
+
+	case "CouponConnection.pageInfo":
+		if e.complexity.CouponConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.CouponConnection.PageInfo(childComplexity), true
+
+	case "CouponConnection.totalCount":
+		if e.complexity.CouponConnection.TotalCount == nil {
+			break
+		}
+
+		return e.complexity.CouponConnection.TotalCount(childComplexity), true
+
+	case "CouponEdge.cursor":
+		if e.complexity.CouponEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.CouponEdge.Cursor(childComplexity), true
+
+	case "CouponEdge.node":
+		if e.complexity.CouponEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.CouponEdge.Node(childComplexity), true
 
 	case "Event.category_id":
 		if e.complexity.Event.CategoryID == nil {
@@ -5799,6 +5879,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ConversationByParticipant(childComplexity, args["participant"].(string), args["from"].(*string)), true
 
+	case "Query.couponList":
+		if e.complexity.Query.CouponList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_couponList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CouponList(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string), args["type"].(*string), args["stateCode"].(*string), args["tideSpotName"].(*string), args["generateRule"].(*string), args["buyGoodName"].(*string), args["verificationWechatName"].(*string), args["userWechatName"].(*string), args["userPhone"].(*string), args["useTimeStart"].(*int), args["useTimeEnd"].(*int), args["userWechat"].(*string), args["backSearch"].(*bool)), true
+
 	case "Query.event":
 		if e.complexity.Query.Event == nil {
 			break
@@ -6444,7 +6536,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.TideSpotConfigList(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string), args["type"].(*string), args["tideSpotId"].(*string)), true
+		return e.complexity.Query.TideSpotConfigList(childComplexity, args["first"].(*int), args["after"].(*string), args["last"].(*int), args["before"].(*string), args["type"].(*string), args["tideSpotId"].(*string), args["enable"].(*bool)), true
 
 	case "Query.tideSpotList":
 		if e.complexity.Query.TideSpotList == nil {
@@ -11167,6 +11259,7 @@ type Coupon {
   createTime: Int
   userWechat: String
   userWechatName: String
+  userPhone: String
   submitWord: String
   submitImgPath: String
   effectiveTime: Int
@@ -11175,7 +11268,21 @@ type Coupon {
   qrCodePath: String
   state: String
   stateText: String
+  buyGoodName: String
+  verificationWechatName: String
+  useTime: Int
 }
+
+type CouponEdge {
+  cursor: ID!
+  node: Coupon
+}
+type CouponConnection {
+  totalCount: Int!
+  edges: [CouponEdge!]!
+  pageInfo: PageInfo!
+}
+
 
 input NewCoupon {
   tideSpotConfigId: String!
@@ -11833,6 +11940,26 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  couponList(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    type: String
+    stateCode: String
+    tideSpotName: String
+    generateRule: String
+    buyGoodName: String
+    verificationWechatName: String
+    userWechatName: String
+    userPhone: String
+    useTimeStart: Int
+    useTimeEnd: Int
+    userWechat: String
+    backSearch: Boolean
+  ): CouponConnection @auth
+
+
   tideSpotConfigList(
     first: Int = 20
     after: ID
@@ -11840,6 +11967,7 @@ type Query {
     before: ID
     type: String
     tideSpotId: String
+    enable: Boolean
   ): TideSpotConfigConnection @auth
 
   tideSpotList(
@@ -17230,6 +17358,379 @@ func (ec *executionContext) field_Query_conversation_argsID(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Query_couponList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_couponList_argsFirst(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := ec.field_Query_couponList_argsAfter(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["after"] = arg1
+	arg2, err := ec.field_Query_couponList_argsLast(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["last"] = arg2
+	arg3, err := ec.field_Query_couponList_argsBefore(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["before"] = arg3
+	arg4, err := ec.field_Query_couponList_argsType(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["type"] = arg4
+	arg5, err := ec.field_Query_couponList_argsStateCode(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["stateCode"] = arg5
+	arg6, err := ec.field_Query_couponList_argsTideSpotName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["tideSpotName"] = arg6
+	arg7, err := ec.field_Query_couponList_argsGenerateRule(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["generateRule"] = arg7
+	arg8, err := ec.field_Query_couponList_argsBuyGoodName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["buyGoodName"] = arg8
+	arg9, err := ec.field_Query_couponList_argsVerificationWechatName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["verificationWechatName"] = arg9
+	arg10, err := ec.field_Query_couponList_argsUserWechatName(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["userWechatName"] = arg10
+	arg11, err := ec.field_Query_couponList_argsUserPhone(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["userPhone"] = arg11
+	arg12, err := ec.field_Query_couponList_argsUseTimeStart(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["useTimeStart"] = arg12
+	arg13, err := ec.field_Query_couponList_argsUseTimeEnd(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["useTimeEnd"] = arg13
+	arg14, err := ec.field_Query_couponList_argsUserWechat(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["userWechat"] = arg14
+	arg15, err := ec.field_Query_couponList_argsBackSearch(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["backSearch"] = arg15
+	return args, nil
+}
+func (ec *executionContext) field_Query_couponList_argsFirst(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["first"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("first"))
+	if tmp, ok := rawArgs["first"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsAfter(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["after"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("after"))
+	if tmp, ok := rawArgs["after"]; ok {
+		return ec.unmarshalOID2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsLast(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["last"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("last"))
+	if tmp, ok := rawArgs["last"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsBefore(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["before"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+	if tmp, ok := rawArgs["before"]; ok {
+		return ec.unmarshalOID2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsType(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["type"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+	if tmp, ok := rawArgs["type"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsStateCode(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["stateCode"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("stateCode"))
+	if tmp, ok := rawArgs["stateCode"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsTideSpotName(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["tideSpotName"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("tideSpotName"))
+	if tmp, ok := rawArgs["tideSpotName"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsGenerateRule(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["generateRule"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("generateRule"))
+	if tmp, ok := rawArgs["generateRule"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsBuyGoodName(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["buyGoodName"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("buyGoodName"))
+	if tmp, ok := rawArgs["buyGoodName"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsVerificationWechatName(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["verificationWechatName"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("verificationWechatName"))
+	if tmp, ok := rawArgs["verificationWechatName"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsUserWechatName(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["userWechatName"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userWechatName"))
+	if tmp, ok := rawArgs["userWechatName"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsUserPhone(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["userPhone"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userPhone"))
+	if tmp, ok := rawArgs["userPhone"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsUseTimeStart(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["useTimeStart"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("useTimeStart"))
+	if tmp, ok := rawArgs["useTimeStart"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsUseTimeEnd(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*int, error) {
+	if _, ok := rawArgs["useTimeEnd"]; !ok {
+		var zeroVal *int
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("useTimeEnd"))
+	if tmp, ok := rawArgs["useTimeEnd"]; ok {
+		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+	}
+
+	var zeroVal *int
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsUserWechat(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*string, error) {
+	if _, ok := rawArgs["userWechat"]; !ok {
+		var zeroVal *string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userWechat"))
+	if tmp, ok := rawArgs["userWechat"]; ok {
+		return ec.unmarshalOString2ᚖstring(ctx, tmp)
+	}
+
+	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_couponList_argsBackSearch(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*bool, error) {
+	if _, ok := rawArgs["backSearch"]; !ok {
+		var zeroVal *bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("backSearch"))
+	if tmp, ok := rawArgs["backSearch"]; ok {
+		return ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+	}
+
+	var zeroVal *bool
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query_eventAwards_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -20043,6 +20544,11 @@ func (ec *executionContext) field_Query_tideSpotConfigList_args(ctx context.Cont
 		return nil, err
 	}
 	args["tideSpotId"] = arg5
+	arg6, err := ec.field_Query_tideSpotConfigList_argsEnable(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["enable"] = arg6
 	return args, nil
 }
 func (ec *executionContext) field_Query_tideSpotConfigList_argsFirst(
@@ -20150,6 +20656,24 @@ func (ec *executionContext) field_Query_tideSpotConfigList_argsTideSpotID(
 	}
 
 	var zeroVal *string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_tideSpotConfigList_argsEnable(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*bool, error) {
+	if _, ok := rawArgs["enable"]; !ok {
+		var zeroVal *bool
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("enable"))
+	if tmp, ok := rawArgs["enable"]; ok {
+		return ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+	}
+
+	var zeroVal *bool
 	return zeroVal, nil
 }
 
@@ -27139,6 +27663,47 @@ func (ec *executionContext) fieldContext_Coupon_userWechatName(_ context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Coupon_userPhone(ctx context.Context, field graphql.CollectedField, obj *model.Coupon) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Coupon_userPhone(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserPhone, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Coupon_userPhone(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Coupon",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Coupon_submitWord(ctx context.Context, field graphql.CollectedField, obj *model.Coupon) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Coupon_submitWord(ctx, field)
 	if err != nil {
@@ -27462,6 +28027,412 @@ func (ec *executionContext) fieldContext_Coupon_stateText(_ context.Context, fie
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Coupon_buyGoodName(ctx context.Context, field graphql.CollectedField, obj *model.Coupon) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Coupon_buyGoodName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BuyGoodName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Coupon_buyGoodName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Coupon",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Coupon_verificationWechatName(ctx context.Context, field graphql.CollectedField, obj *model.Coupon) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Coupon_verificationWechatName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VerificationWechatName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Coupon_verificationWechatName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Coupon",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Coupon_useTime(ctx context.Context, field graphql.CollectedField, obj *model.Coupon) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Coupon_useTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UseTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Coupon_useTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Coupon",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CouponConnection_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.CouponConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CouponConnection_totalCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CouponConnection_totalCount(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CouponConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CouponConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.CouponConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CouponConnection_edges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.CouponEdge)
+	fc.Result = res
+	return ec.marshalNCouponEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐCouponEdgeᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CouponConnection_edges(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CouponConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "cursor":
+				return ec.fieldContext_CouponEdge_cursor(ctx, field)
+			case "node":
+				return ec.fieldContext_CouponEdge_node(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CouponEdge", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CouponConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.CouponConnection) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CouponConnection_pageInfo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖgatewayᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CouponConnection_pageInfo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CouponConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "startCursor":
+				return ec.fieldContext_PageInfo_startCursor(ctx, field)
+			case "endCursor":
+				return ec.fieldContext_PageInfo_endCursor(ctx, field)
+			case "hasPreviousPage":
+				return ec.fieldContext_PageInfo_hasPreviousPage(ctx, field)
+			case "hasNextPage":
+				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CouponEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.CouponEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CouponEdge_cursor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CouponEdge_cursor(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CouponEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _CouponEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.CouponEdge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CouponEdge_node(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Coupon)
+	fc.Result = res
+	return ec.marshalOCoupon2ᚖgatewayᚋgraphᚋmodelᚐCoupon(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CouponEdge_node(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CouponEdge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Coupon_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Coupon_type(ctx, field)
+			case "typeText":
+				return ec.fieldContext_Coupon_typeText(ctx, field)
+			case "tideSpotConfigId":
+				return ec.fieldContext_Coupon_tideSpotConfigId(ctx, field)
+			case "tideSpotId":
+				return ec.fieldContext_Coupon_tideSpotId(ctx, field)
+			case "tideSpotName":
+				return ec.fieldContext_Coupon_tideSpotName(ctx, field)
+			case "couponName":
+				return ec.fieldContext_Coupon_couponName(ctx, field)
+			case "generateWord":
+				return ec.fieldContext_Coupon_generateWord(ctx, field)
+			case "generateImgPath":
+				return ec.fieldContext_Coupon_generateImgPath(ctx, field)
+			case "createTime":
+				return ec.fieldContext_Coupon_createTime(ctx, field)
+			case "userWechat":
+				return ec.fieldContext_Coupon_userWechat(ctx, field)
+			case "userWechatName":
+				return ec.fieldContext_Coupon_userWechatName(ctx, field)
+			case "userPhone":
+				return ec.fieldContext_Coupon_userPhone(ctx, field)
+			case "submitWord":
+				return ec.fieldContext_Coupon_submitWord(ctx, field)
+			case "submitImgPath":
+				return ec.fieldContext_Coupon_submitImgPath(ctx, field)
+			case "effectiveTime":
+				return ec.fieldContext_Coupon_effectiveTime(ctx, field)
+			case "desc":
+				return ec.fieldContext_Coupon_desc(ctx, field)
+			case "use":
+				return ec.fieldContext_Coupon_use(ctx, field)
+			case "qrCodePath":
+				return ec.fieldContext_Coupon_qrCodePath(ctx, field)
+			case "state":
+				return ec.fieldContext_Coupon_state(ctx, field)
+			case "stateText":
+				return ec.fieldContext_Coupon_stateText(ctx, field)
+			case "buyGoodName":
+				return ec.fieldContext_Coupon_buyGoodName(ctx, field)
+			case "verificationWechatName":
+				return ec.fieldContext_Coupon_verificationWechatName(ctx, field)
+			case "useTime":
+				return ec.fieldContext_Coupon_useTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Coupon", field.Name)
 		},
 	}
 	return fc, nil
@@ -50226,6 +51197,88 @@ func (ec *executionContext) fieldContext_Query_userStampPointsRecord(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_couponList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_couponList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CouponList(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string), fc.Args["type"].(*string), fc.Args["stateCode"].(*string), fc.Args["tideSpotName"].(*string), fc.Args["generateRule"].(*string), fc.Args["buyGoodName"].(*string), fc.Args["verificationWechatName"].(*string), fc.Args["userWechatName"].(*string), fc.Args["userPhone"].(*string), fc.Args["useTimeStart"].(*int), fc.Args["useTimeEnd"].(*int), fc.Args["userWechat"].(*string), fc.Args["backSearch"].(*bool))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.CouponConnection
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CouponConnection); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.CouponConnection`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CouponConnection)
+	fc.Result = res
+	return ec.marshalOCouponConnection2ᚖgatewayᚋgraphᚋmodelᚐCouponConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_couponList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "totalCount":
+				return ec.fieldContext_CouponConnection_totalCount(ctx, field)
+			case "edges":
+				return ec.fieldContext_CouponConnection_edges(ctx, field)
+			case "pageInfo":
+				return ec.fieldContext_CouponConnection_pageInfo(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CouponConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_couponList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_tideSpotConfigList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_tideSpotConfigList(ctx, field)
 	if err != nil {
@@ -50241,7 +51294,7 @@ func (ec *executionContext) _Query_tideSpotConfigList(ctx context.Context, field
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		directive0 := func(rctx context.Context) (any, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().TideSpotConfigList(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string), fc.Args["type"].(*string), fc.Args["tideSpotId"].(*string))
+			return ec.resolvers.Query().TideSpotConfigList(rctx, fc.Args["first"].(*int), fc.Args["after"].(*string), fc.Args["last"].(*int), fc.Args["before"].(*string), fc.Args["type"].(*string), fc.Args["tideSpotId"].(*string), fc.Args["enable"].(*bool))
 		}
 
 		directive1 := func(ctx context.Context) (any, error) {
@@ -87048,6 +88101,8 @@ func (ec *executionContext) _Coupon(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Coupon_userWechat(ctx, field, obj)
 		case "userWechatName":
 			out.Values[i] = ec._Coupon_userWechatName(ctx, field, obj)
+		case "userPhone":
+			out.Values[i] = ec._Coupon_userPhone(ctx, field, obj)
 		case "submitWord":
 			out.Values[i] = ec._Coupon_submitWord(ctx, field, obj)
 		case "submitImgPath":
@@ -87064,6 +88119,102 @@ func (ec *executionContext) _Coupon(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Coupon_state(ctx, field, obj)
 		case "stateText":
 			out.Values[i] = ec._Coupon_stateText(ctx, field, obj)
+		case "buyGoodName":
+			out.Values[i] = ec._Coupon_buyGoodName(ctx, field, obj)
+		case "verificationWechatName":
+			out.Values[i] = ec._Coupon_verificationWechatName(ctx, field, obj)
+		case "useTime":
+			out.Values[i] = ec._Coupon_useTime(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var couponConnectionImplementors = []string{"CouponConnection"}
+
+func (ec *executionContext) _CouponConnection(ctx context.Context, sel ast.SelectionSet, obj *model.CouponConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, couponConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CouponConnection")
+		case "totalCount":
+			out.Values[i] = ec._CouponConnection_totalCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "edges":
+			out.Values[i] = ec._CouponConnection_edges(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "pageInfo":
+			out.Values[i] = ec._CouponConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var couponEdgeImplementors = []string{"CouponEdge"}
+
+func (ec *executionContext) _CouponEdge(ctx context.Context, sel ast.SelectionSet, obj *model.CouponEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, couponEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CouponEdge")
+		case "cursor":
+			out.Values[i] = ec._CouponEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "node":
+			out.Values[i] = ec._CouponEdge_node(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -90677,6 +91828,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_userStampPointsRecord(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "couponList":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_couponList(ctx, field)
 				return res
 			}
 
@@ -97063,6 +98233,60 @@ func (ec *executionContext) marshalNConversation2ᚖgatewayᚋgraphᚋmodelᚐCo
 	return ec._Conversation(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNCouponEdge2ᚕᚖgatewayᚋgraphᚋmodelᚐCouponEdgeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.CouponEdge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCouponEdge2ᚖgatewayᚋgraphᚋmodelᚐCouponEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNCouponEdge2ᚖgatewayᚋgraphᚋmodelᚐCouponEdge(ctx context.Context, sel ast.SelectionSet, v *model.CouponEdge) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._CouponEdge(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNEvent2ᚖgatewayᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v *model.Event) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -99312,6 +100536,20 @@ func (ec *executionContext) marshalOConversation2ᚖgatewayᚋgraphᚋmodelᚐCo
 		return graphql.Null
 	}
 	return ec._Conversation(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCoupon2ᚖgatewayᚋgraphᚋmodelᚐCoupon(ctx context.Context, sel ast.SelectionSet, v *model.Coupon) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Coupon(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCouponConnection2ᚖgatewayᚋgraphᚋmodelᚐCouponConnection(ctx context.Context, sel ast.SelectionSet, v *model.CouponConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CouponConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOEvent2ᚕᚖgatewayᚋgraphᚋmodelᚐEvent(ctx context.Context, sel ast.SelectionSet, v []*model.Event) graphql.Marshaler {

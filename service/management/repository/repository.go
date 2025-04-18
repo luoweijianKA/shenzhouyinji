@@ -38,6 +38,8 @@ type Repository interface {
 	GetTideSpotList(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotRes, error)
 
 	CreateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsKeyword, error)
+	UpdateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error)
+	GetCouponList(ctx context.Context, item *pb.CouponRequest) (*pb.CouponRes, error)
 
 	CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsKeyword, error)
 	GetTideSpotConfigList(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigRes, error)
@@ -219,6 +221,50 @@ func (r *MySqlRepository) UpdateCoupon(ctx context.Context, item *pb.Coupon) (*p
 	return &pb.MsUpdateRes{Value: true}, nil
 }
 
+func (r *MySqlRepository) GetCouponList(ctx context.Context, req *pb.CouponRequest) (*pb.CouponRes, error) {
+	result := new(pb.CouponRes)
+	result.Data = make([]*pb.Coupon, 0)
+	db := r.Database.Table("coupon")
+	if len(req.Type) > 0 {
+		db = db.Where("type = ?", req.Type)
+	}
+	if len(req.TideSpotAme) > 0 {
+		db = db.Where("tide_spot_ame like ?", "%"+req.TideSpotAme+"%")
+	}
+	if len(req.GenerateRule) > 0 {
+		db = db.Where("compare_word like ?", "%"+req.GenerateRule+"%")
+	}
+	if len(req.BuyGoodName) > 0 {
+		db = db.Where("buy_good_name like ?", "%"+req.BuyGoodName+"%")
+	}
+	if len(req.BuyGoodName) > 0 {
+		db = db.Where("buy_good_name like ?", "%"+req.BuyGoodName+"%")
+	}
+	if len(req.VerificationWechatName) > 0 {
+		db = db.Where("verification_wechat_name like ?", "%"+req.VerificationWechatName+"%")
+	}
+	if len(req.UserWechatName) > 0 {
+		db = db.Where("user_wechat_name like ?", "%"+req.UserWechatName+"%")
+	}
+	if len(req.UserPhone) > 0 {
+		db = db.Where("user_phone like ?", "%"+req.UserPhone+"%")
+	}
+	if req.UseTimeStart > 0 {
+		db = db.Where("use_time >= ?", req.UseTimeStart)
+	}
+	if req.UseTimeEnd > 0 {
+		db = db.Where("use_time <= ?", req.UseTimeEnd)
+	}
+	if len(req.UserWechat) > 0 {
+		db = db.Where("user_wechat = ?", req.UserWechat)
+	}
+	if err := db.Order("create_time DESC ").Debug().Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // AreaInfo
 func (r *MySqlRepository) CreateAreaInfo(ctx context.Context, item *pb.AreaInfo) (*pb.MsKeyword, error) {
 	var areaInfo pb.AreaInfo
@@ -347,6 +393,7 @@ func (r *MySqlRepository) CreateTideSpotConfig(ctx context.Context, item *pb.Tid
 
 	item.Id = uuid.NewV4().String()
 	item.CreateTime = int32(time.Now().Unix())
+	item.Enable = true
 	if err := r.Database.Table("tide_spot_config").Create(&item).Error; err != nil {
 		return nil, err
 	}
@@ -375,6 +422,10 @@ func (r *MySqlRepository) GetTideSpotConfigList(ctx context.Context, req *pb.Tid
 	}
 	if len(req.Type) > 0 {
 		db.Where("type = ?", req.Type)
+	}
+	if req.Enable {
+		db.Where("enable = 1")
+		db.Where("effective_time > ?", time.Now().Unix())
 	}
 	if err := db.Order(" create_time DESC").Find(&result.Data).Error; err != nil {
 		return nil, err

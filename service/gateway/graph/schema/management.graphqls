@@ -190,6 +190,7 @@ type Coupon {
   createTime: Int
   userWechat: String
   userWechatName: String
+  userPhone: String
   submitWord: String
   submitImgPath: String
   effectiveTime: Int
@@ -198,7 +199,21 @@ type Coupon {
   qrCodePath: String
   state: String
   stateText: String
+  buyGoodName: String
+  verificationWechatName: String
+  useTime: Int
 }
+
+type CouponEdge {
+  cursor: ID!
+  node: Coupon
+}
+type CouponConnection {
+  totalCount: Int!
+  edges: [CouponEdge!]!
+  pageInfo: PageInfo!
+}
+
 
 input NewCoupon {
   tideSpotConfigId: String!

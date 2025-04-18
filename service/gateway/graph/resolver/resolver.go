@@ -7,9 +7,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image/jpeg"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"gateway/graph/auth"
@@ -17,6 +20,7 @@ import (
 	"gateway/weixin"
 
 	"github.com/gofrs/uuid"
+	"github.com/skip2/go-qrcode"
 	aPB "gitlab.com/annoying-orange/shenzhouyinji/service/account/proto"
 	ePB "gitlab.com/annoying-orange/shenzhouyinji/service/event/proto"
 	mPB "gitlab.com/annoying-orange/shenzhouyinji/service/management/proto"
@@ -33,6 +37,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 var (
+	mu                    sync.Mutex
 	ErrNoRecord           = errors.New("record not found")
 	ErrExistsNricAndPhone = errors.New("nric and phone already exist")
 	ErrExistsNric         = errors.New("nric already exist")
@@ -68,6 +73,12 @@ const (
 	AuditingCodeAccount      AuditingCode = "ACCOUNT"
 	AuditingCodeEvent        AuditingCode = "EVENT"
 	AuditingCodeUserPoints   AuditingCode = "USER_POINTS"
+)
+
+const (
+	RESOURCES_NAME   = "resources"
+	UPLOADS          = "uploads"
+	UPLOADS_ORIGINAL = "uploads_original"
 )
 
 type Menu string
@@ -218,6 +229,71 @@ func (r *Resolver) NewAccount(v *aPB.Account) *model.Account {
 	}
 }
 
+func (r *Resolver) UpdateQRCode(v *mPB.Coupon) string {
+	code, err := qrcode.New(fmt.Sprintf("{\"path\":\"/\",\"id\":\"%s\"}", v.Id), qrcode.Medium)
+	if err != nil {
+		logger.Error("生成优惠券生成失败")
+	}
+	timestamp := time.Now().Unix()
+	timestampStr := strconv.FormatInt(timestamp, 10)
+	timestampStr += ".jpeg"
+
+	name := time.Now().Format("20060102")
+	tag := "QRCode"
+	if len(tag) > 0 {
+		name = fmt.Sprintf("%s/%s", tag, name)
+	}
+	if err := mkdirAll(fmt.Sprintf("%s/%s/%s", RESOURCES_NAME, UPLOADS_ORIGINAL, name)); err != nil {
+		logger.Error("生成优惠券生成失败")
+
+	}
+
+	filename := timestampStr
+
+	// Create file
+	dst, err := os.Create(fmt.Sprintf("%s/%s/%s/%s", RESOURCES_NAME, UPLOADS_ORIGINAL, name, filename))
+	defer dst.Close()
+	if err != nil {
+		logger.Error("生成优惠券生成失败")
+
+	}
+
+	// Copy the uploaded file to the created file on the filesystem
+	//if _, err := io.Copy(dst, file); err != nil {
+	//	logger.Error("生成优惠券生成失败")
+	//}
+	jpeg.Encode(dst, code.Image(256), nil)
+
+	rawURI := fmt.Sprintf("/%s/%s/%s", UPLOADS_ORIGINAL, name, filename)
+	return rawURI
+}
+
+func (r *Resolver) UpdateTideSpotConfigFromGenerateCoupon(ctx context.Context, tideSpotConfig *mPB.TideSpotConfig) {
+	mu.Lock()
+	generateNum := tideSpotConfig.GenerateNum + 1
+	notUseNum := tideSpotConfig.NotUseNum + 1
+
+	tideSpotConfigReq := &mPB.TideSpotConfig{
+		Id:          tideSpotConfig.Id,
+		GenerateNum: generateNum,
+		NotUseNum:   notUseNum,
+	}
+	_, err := r.managementService.UpdateTideSpotConfig(ctx, tideSpotConfigReq)
+	if err != nil {
+		logger.Error(err)
+		mu.Unlock()
+	} else {
+		mu.Unlock()
+	}
+}
+
+func mkdirAll(name string) error {
+	if _, err := os.Stat(name); errors.Is(err, os.ErrNotExist) {
+		return os.MkdirAll(name, os.ModePerm)
+	}
+	return nil
+}
+
 func (r *Resolver) NewPassport(v *ePB.Passport) *model.Passport {
 	return &model.Passport{
 		ID:            v.Id,
@@ -328,6 +404,55 @@ func (r *Resolver) NewTideSpot(v *mPB.TideSpot) *model.TideSpot {
 		Status:            &status,
 	}
 }
+func (r *Resolver) NewCoupon(v *mPB.Coupon) *model.Coupon {
+	et := int(v.EffectiveTime)
+	ct := int(v.CreateTime)
+	ut := int(v.UseTime)
+
+	typeText := ""
+	if v.Type == "Deduction" {
+		typeText = "抵扣券"
+	}
+	if v.Type == "Exchange" {
+		typeText = "兑换券"
+	}
+	state := ""
+	stateText := ""
+	if int(time.Now().Unix()) > et {
+		state = "Expired"
+		stateText = "已过期"
+	} else if v.Use {
+		state = "Used"
+		stateText = "已使用"
+	} else {
+		state = "Normal"
+		stateText = "待使用"
+	}
+	// 未使用时置空使用人员
+	userWechatName := ""
+	if !v.Use {
+		userWechatName = ""
+	}
+	return &model.Coupon{
+		ID:                     v.Id,
+		Type:                   &v.Type,
+		TypeText:               &typeText,
+		TideSpotName:           &v.TideSpotName,
+		CouponName:             &v.CouponName,
+		Desc:                   &v.Desc,
+		EffectiveTime:          &et,
+		CreateTime:             &ct,
+		QRCodePath:             &v.QrCodePath,
+		State:                  &state,
+		StateText:              &stateText,
+		UserWechatName:         &userWechatName,
+		BuyGoodName:            &v.BuyGoodName,
+		VerificationWechatName: &v.VerificationWechatName,
+		UserPhone:              &v.UserPhone,
+		UseTime:                &ut,
+	}
+}
+
 func (r *Resolver) NewTideSpotConfig(v *mPB.TideSpotConfig) *model.TideSpotConfig {
 	ct := int(v.CreateTime)
 	et := int(v.EffectiveTime)

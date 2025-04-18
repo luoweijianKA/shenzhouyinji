@@ -816,8 +816,110 @@ func (r *queryResolver) UserStampPointsRecord(ctx context.Context, input model.N
 	return results, err
 }
 
+// CouponList is the resolver for the couponList field.
+func (r *queryResolver) CouponList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, stateCode *string, tideSpotName *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool) (*model.CouponConnection, error) {
+	afterCursor, err := DecodedCursor(after)
+	if err != nil {
+		return nil, err
+	}
+
+	beforeCursor, err := DecodedCursor(before)
+	if err != nil {
+		return nil, err
+	}
+
+	edges := make([]*model.CouponEdge, *first)
+	count := 0
+	currentPage := false
+
+	if afterCursor == "" && beforeCursor == "" {
+		currentPage = true
+	}
+
+	startCursor := ""
+	endCursor := ""
+	hasPreviousPage := false
+	hasNextPage := false
+
+	in := mPB.CouponRequest{
+		Type: NotNilString(typeArg, ""),
+	}
+
+	out, err := r.managementService.GetCouponList(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+	results := out.Data
+
+	if afterCursor == "" && len(beforeCursor) > 0 {
+		for i, v := range results {
+			if v.Id == beforeCursor {
+				currentPage = true
+			}
+			if currentPage && *last > 0 {
+				m, n := i-*last, i
+				if m < 0 {
+					m = 0
+				}
+				for _, v := range results[m:n] {
+					edges[count] = &model.CouponEdge{
+						Cursor: EncodeToCursor(v.Id),
+						Node:   r.NewCoupon(v),
+					}
+					count++
+				}
+
+				hasPreviousPage = i-count > 0
+				hasNextPage = i < len(results)-1
+				break
+			}
+		}
+	} else {
+		for i, v := range results {
+			if currentPage && count < *first {
+				edges[count] = &model.CouponEdge{
+					Cursor: EncodeToCursor(v.Id),
+					Node:   r.NewCoupon(v),
+				}
+				count++
+			}
+
+			if v.Id == afterCursor {
+				currentPage = true
+			}
+
+			if hasPreviousPage == false {
+				hasPreviousPage = i-count >= 0
+			}
+
+			if count == *first {
+				hasNextPage = i < len(results)-1
+				break
+			}
+		}
+	}
+
+	if count > 0 {
+		startCursor = EncodeToCursor(edges[0].Node.ID)
+		endCursor = EncodeToCursor(edges[count-1].Node.ID)
+	}
+
+	conn := model.CouponConnection{
+		TotalCount: len(results),
+		Edges:      edges[:count],
+		PageInfo: &model.PageInfo{
+			StartCursor:     startCursor,
+			EndCursor:       endCursor,
+			HasPreviousPage: &hasPreviousPage,
+			HasNextPage:     &hasNextPage,
+		},
+	}
+
+	return &conn, nil
+}
+
 // TideSpotConfigList is the resolver for the tideSpotConfigList field.
-func (r *queryResolver) TideSpotConfigList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string) (*model.TideSpotConfigConnection, error) {
+func (r *queryResolver) TideSpotConfigList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string, enable *bool) (*model.TideSpotConfigConnection, error) {
 	afterCursor, err := DecodedCursor(after)
 	if err != nil {
 		return nil, err
@@ -844,6 +946,7 @@ func (r *queryResolver) TideSpotConfigList(ctx context.Context, first *int, afte
 	in := mPB.TideSpotConfigRequest{
 		Type:       NotNilString(typeArg, ""),
 		TideSpotId: NotNilString(tideSpotID, ""),
+		Enable:     NotNilBool(enable, false),
 	}
 
 	out, err := r.managementService.GetTideSpotConfigList(ctx, &in)

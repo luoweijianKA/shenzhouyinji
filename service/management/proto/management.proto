@@ -36,6 +36,7 @@ service ManagementService {
 
     rpc CreateCoupon(Coupon) returns (MsKeyword) {}
     rpc UpdateCoupon(Coupon) returns (MsUpdateRes) {}
+    rpc GetCouponList(CouponRequest) returns (CouponRes) {}
 
     rpc GetTurtleBackConfigList(MsKeyword) returns (TurtleBackConfigRes){}
     rpc UpdateTurtleBackConfig(TurtleBackConfig) returns (MsUpdateRes){}
@@ -78,6 +79,7 @@ message TideSpotConfigRequest {
     string type = 1;
     string tideSpotId = 2;
     string id = 3;
+    bool enable = 4;
 }
 
 message AreaInfo {
@@ -102,6 +104,23 @@ message TideSpotRes {
     repeated TideSpot data = 1;
 }
 
+message CouponRequest {
+    string type = 1;
+    string stateCode = 2;
+    string tide_spot_ame = 3;
+    string generate_rule = 4;
+    string buy_good_name = 5;
+    string verification_wechat_name = 6;
+    string user_wechat_name = 7;
+    string user_phone = 8;
+    int32 use_time_start = 9;
+    int32 use_time_end = 10;
+    string user_wechat = 11;
+    bool back_search = 12;
+}
+message CouponRes {
+    repeated Coupon data = 1;
+}
 message Coupon {
     string id = 1;
     string type = 2;
@@ -122,6 +141,12 @@ message Coupon {
     string qr_code_path = 17;
     int32 minimum_amount = 18;
     int32 deduction_amount = 19;
+
+    string buy_good_name = 20;
+    string verification_wechat = 21;
+    string verification_wechat_name = 22;
+    int32  use_time = 23;
+    string user_phone = 24;
 }
 
 message TideSpotConfig {

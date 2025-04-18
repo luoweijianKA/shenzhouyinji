@@ -173,26 +173,41 @@ type Conversation struct {
 }
 
 type Coupon struct {
-	ID               string  `json:"id"`
-	Type             *string `json:"type,omitempty"`
-	TypeText         *string `json:"typeText,omitempty"`
-	TideSpotConfigID *string `json:"tideSpotConfigId,omitempty"`
-	TideSpotID       *string `json:"tideSpotId,omitempty"`
-	TideSpotName     *string `json:"tideSpotName,omitempty"`
-	CouponName       *string `json:"couponName,omitempty"`
-	GenerateWord     *string `json:"generateWord,omitempty"`
-	GenerateImgPath  *string `json:"generateImgPath,omitempty"`
-	CreateTime       *int    `json:"createTime,omitempty"`
-	UserWechat       *string `json:"userWechat,omitempty"`
-	UserWechatName   *string `json:"userWechatName,omitempty"`
-	SubmitWord       *string `json:"submitWord,omitempty"`
-	SubmitImgPath    *string `json:"submitImgPath,omitempty"`
-	EffectiveTime    *int    `json:"effectiveTime,omitempty"`
-	Desc             *string `json:"desc,omitempty"`
-	Use              *bool   `json:"use,omitempty"`
-	QRCodePath       *string `json:"qrCodePath,omitempty"`
-	State            *string `json:"state,omitempty"`
-	StateText        *string `json:"stateText,omitempty"`
+	ID                     string  `json:"id"`
+	Type                   *string `json:"type,omitempty"`
+	TypeText               *string `json:"typeText,omitempty"`
+	TideSpotConfigID       *string `json:"tideSpotConfigId,omitempty"`
+	TideSpotID             *string `json:"tideSpotId,omitempty"`
+	TideSpotName           *string `json:"tideSpotName,omitempty"`
+	CouponName             *string `json:"couponName,omitempty"`
+	GenerateWord           *string `json:"generateWord,omitempty"`
+	GenerateImgPath        *string `json:"generateImgPath,omitempty"`
+	CreateTime             *int    `json:"createTime,omitempty"`
+	UserWechat             *string `json:"userWechat,omitempty"`
+	UserWechatName         *string `json:"userWechatName,omitempty"`
+	UserPhone              *string `json:"userPhone,omitempty"`
+	SubmitWord             *string `json:"submitWord,omitempty"`
+	SubmitImgPath          *string `json:"submitImgPath,omitempty"`
+	EffectiveTime          *int    `json:"effectiveTime,omitempty"`
+	Desc                   *string `json:"desc,omitempty"`
+	Use                    *bool   `json:"use,omitempty"`
+	QRCodePath             *string `json:"qrCodePath,omitempty"`
+	State                  *string `json:"state,omitempty"`
+	StateText              *string `json:"stateText,omitempty"`
+	BuyGoodName            *string `json:"buyGoodName,omitempty"`
+	VerificationWechatName *string `json:"verificationWechatName,omitempty"`
+	UseTime                *int    `json:"useTime,omitempty"`
+}
+
+type CouponConnection struct {
+	TotalCount int           `json:"totalCount"`
+	Edges      []*CouponEdge `json:"edges"`
+	PageInfo   *PageInfo     `json:"pageInfo"`
+}
+
+type CouponEdge struct {
+	Cursor string  `json:"cursor"`
+	Node   *Coupon `json:"node,omitempty"`
 }
 
 type Event struct {

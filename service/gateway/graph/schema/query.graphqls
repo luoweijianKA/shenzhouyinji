@@ -47,6 +47,26 @@ type Query {
   ): [UserStampPointsRecord] @auth
 
   # management service
+  couponList(
+    first: Int = 20
+    after: ID
+    last: Int = 20
+    before: ID
+    type: String
+    stateCode: String
+    tideSpotName: String
+    generateRule: String
+    buyGoodName: String
+    verificationWechatName: String
+    userWechatName: String
+    userPhone: String
+    useTimeStart: Int
+    useTimeEnd: Int
+    userWechat: String
+    backSearch: Boolean
+  ): CouponConnection @auth
+
+
   tideSpotConfigList(
     first: Int = 20
     after: ID
@@ -54,6 +74,7 @@ type Query {
     before: ID
     type: String
     tideSpotId: String
+    enable: Boolean
   ): TideSpotConfigConnection @auth
 
   tideSpotList(

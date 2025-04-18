@@ -44,8 +44,14 @@ func (h *Handler) GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword, 
 }
 
 func (h *Handler) UpdateCoupon(ctx context.Context, req *pb.Coupon, res *pb.MsUpdateRes) error {
-	//TODO implement me
-	panic("implement me")
+	result, err := h.Repository.UpdateCoupon(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
 }
 
 func (h *Handler) CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig, res *pb.MsKeyword) error {
@@ -56,6 +62,19 @@ func (h *Handler) CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConf
 	}
 
 	res.Value = result.Value
+
+	return nil
+}
+
+func (h *Handler) GetCouponList(ctx context.Context, req *pb.CouponRequest, res *pb.CouponRes) error {
+
+	result, err := h.Repository.GetCouponList(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Data = result.Data
 
 	return nil
 }
