@@ -446,7 +446,7 @@ const UPDATE_TIDE_SPOT = gql`
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>编号</TableCell>
+                                    <TableCell sx={{ width: '370px' }}>编号</TableCell>
                                     <TableCell>景区名称</TableCell>
                                     <TableCell>电子围栏</TableCell>
                                     <TableCell>创建时间</TableCell>
