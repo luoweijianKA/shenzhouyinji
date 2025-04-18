@@ -252,19 +252,11 @@ const ExchangeRecord: React.FC = () => {
                     state: node.state,
                     stateText: node.stateText
                 };
-            })
-            .filter((row: ExchangeRecordData) => {
-                const matchesSearch = Object.entries(searchParams).every(([key, value]) => {
-                    if (!value) return true;
-                    const rowValue = row[key as keyof ExchangeRecordData];
-                    return rowValue?.toString().toLowerCase().includes(value.toLowerCase());
-                });
-                return matchesSearch;
             });
         
         console.log('Transformed data:', transformedData); // Debug log
         return transformedData;
-    }, [data?.couponList?.edges, searchParams]);
+    }, [data?.couponList?.edges]);
 
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);

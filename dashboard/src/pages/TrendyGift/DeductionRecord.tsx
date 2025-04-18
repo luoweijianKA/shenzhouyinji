@@ -254,19 +254,11 @@ const DeductionRecord: React.FC = () => {
                     state: node.state,
                     stateText: node.stateText
                 };
-            })
-            .filter((row: DeductionRecordData) => {
-                const matchesSearch = Object.entries(searchParams).every(([key, value]) => {
-                    if (!value) return true;
-                    const rowValue = row[key as keyof DeductionRecordData];
-                    return rowValue?.toString().toLowerCase().includes(value.toLowerCase());
-                });
-                return matchesSearch;
             });
         
         console.log('Transformed data:', transformedData); // Debug log
         return transformedData;
-    }, [data?.couponList?.edges, tabValue, searchParams]);
+    }, [data?.couponList?.edges]);
 
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
