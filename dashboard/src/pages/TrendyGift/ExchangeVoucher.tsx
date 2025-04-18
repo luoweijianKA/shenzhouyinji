@@ -344,6 +344,77 @@ const TIDE_SPOT_CONFIG_LIST = gql`
   }
 `;
 
+/**
+ * GraphQL 查询：获取潮汐点（电子围栏）列表
+ */
+const GET_TIDE_SPOT_LIST = gql`
+  query TideSpotList($first: Int = 20, $after: ID, $last: Int = 20, $before: ID, $name: String) {
+    tideSpotList(
+      first: $first
+      after: $after
+      last: $last
+      before: $before
+      name: $name
+    ) {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          electricFence
+          createTime
+          updateTime
+          positionTolerance
+          __typename
+        }
+        __typename
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasPreviousPage
+        hasNextPage
+        __typename
+      }
+      __typename
+    }
+  }
+`;
+
+/**
+ * 电子围栏节点数据结构
+ */
+interface TideSpotNode {
+    id: string;
+    name: string;
+    electricFence: string;
+    createTime: number;
+    updateTime: number;
+    positionTolerance: number;
+    __typename: string;
+}
+
+/**
+ * GraphQL 查询返回的数据结构
+ */
+interface TideSpotListQueryData {
+    tideSpotList: {
+        totalCount: number;
+        edges: {
+            node: TideSpotNode;
+            __typename: string;
+        }[];
+        pageInfo: {
+            startCursor: string;
+            endCursor: string;
+            hasPreviousPage: boolean;
+            hasNextPage: boolean;
+            __typename: string;
+        };
+        __typename: string;
+    };
+}
+
 // 常量样式对象
 const STYLES = {
     formLabel: { minWidth: 120, textAlign: 'right', mr: 2, alignSelf: 'flex-start', pt: '7px' },
@@ -523,7 +594,10 @@ const AddDialogContent = React.memo<{
     handleVoucherContentChange: (index: number, value: string) => void,
     addVoucherContent: () => void,
     removeVoucherContent: (id: number) => void,
-    handleFileChange: (event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => void
+    handleFileChange: (event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => void,
+    tideSpotOptions: TideSpotNode[],
+    handleSelectScroll: (event: React.UIEvent<HTMLDivElement>) => void,
+    tideSpotLoading: boolean
 }>(({
     formData,
     handleInputChange,
@@ -531,24 +605,43 @@ const AddDialogContent = React.memo<{
     handleVoucherContentChange,
     addVoucherContent,
     removeVoucherContent,
-    handleFileChange
+    handleFileChange,
+    tideSpotOptions,
+    handleSelectScroll,
+    tideSpotLoading
 }) => (
     <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, pt: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel sx={STYLES.formLabel}>所属景区:</FormLabel>
             <FormControl fullWidth size="small">
-                <InputLabel id="add-scenery-select-label"
-                    sx={{ ...(formData.sceneryId && { display: 'none' }) }}>请选择</InputLabel>
+                <InputLabel id="add-scenery-select-label">请选择</InputLabel>
                 <Select
                     labelId="add-scenery-select-label"
                     name="sceneryId"
                     value={formData.sceneryId}
                     onChange={handleSelectChange}
                     displayEmpty
-                    label={formData.sceneryId ? undefined : "请选择"}
+                    label="请选择"
+                    MenuProps={{
+                        PaperProps: {
+                            onScroll: handleSelectScroll,
+                            style: {
+                                maxHeight: 300
+                            }
+                        }
+                    }}
                 >
                     <MenuItem value="" disabled>请选择</MenuItem>
-                    <MenuItem value="1">长隆欢乐世界</MenuItem>
+                    {tideSpotOptions.map((spot: TideSpotNode) => (
+                        <MenuItem key={spot.id} value={spot.id}>{spot.name}</MenuItem>
+                    ))}
+                    {tideSpotLoading && (
+                        <MenuItem disabled>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                <CircularProgress size={20} />
+                            </Box>
+                        </MenuItem>
+                    )}
                 </Select>
             </FormControl>
         </Box>
@@ -795,6 +888,7 @@ interface ExchangeVoucherProps {}
  * 兑换券管理页面
  */
 const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
+    // State declarations
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -802,10 +896,15 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
     const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
     const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
     const [formData, setFormData] = useState<AddFormData>(INITIAL_ADD_FORM_DATA);
+    const [hasMoreTideSpots, setHasMoreTideSpots] = useState(true);
+    const [tideSpotList, setTideSpotList] = useState<TideSpotNode[]>([]);
+
+    // GraphQL mutations
     const [createTideSpotConfig, { loading: submitting }] = useMutation<CreateTideSpotConfigResponse>(CREATE_TIDE_SPOT_CONFIG);
     const [updateTideSpotConfig] = useMutation<UpdateTideSpotConfigResponse>(UPDATE_TIDE_SPOT_CONFIG);
 
-    const { loading, data, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
+    // GraphQL queries
+    const { loading, data: exchangeData, refetch } = useQuery<TideSpotConfigResponse>(TIDE_SPOT_CONFIG_LIST, {
         variables: {
             first: rowsPerPage,
             last: rowsPerPage,
@@ -815,11 +914,62 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
         fetchPolicy: 'network-only'
     });
 
+    const { data: tideSpotData, loading: tideSpotLoading, fetchMore } = useQuery<TideSpotListQueryData>(GET_TIDE_SPOT_LIST, {
+        variables: {
+            first: 20,
+            name: ""
+        },
+        onCompleted: (data) => {
+            if (data?.tideSpotList?.edges) {
+                setTideSpotList(data.tideSpotList.edges.map(edge => edge.node));
+                setHasMoreTideSpots(data.tideSpotList.pageInfo.hasNextPage);
+            }
+        }
+    });
+
+    // 加载更多电子围栏数据
+    const loadMoreTideSpots = useCallback(async () => {
+        if (!hasMoreTideSpots || tideSpotLoading) return;
+
+        try {
+            const result = await fetchMore({
+                variables: {
+                    first: 20,
+                    after: tideSpotData?.tideSpotList?.pageInfo?.endCursor
+                },
+                updateQuery: (prev, { fetchMoreResult }) => {
+                    if (!fetchMoreResult) return prev;
+                    return {
+                        tideSpotList: {
+                            ...fetchMoreResult.tideSpotList,
+                            edges: [...prev.tideSpotList.edges, ...fetchMoreResult.tideSpotList.edges]
+                        }
+                    };
+                }
+            });
+
+            if (result.data?.tideSpotList?.edges) {
+                setTideSpotList(prev => [...prev, ...result.data.tideSpotList.edges.map(edge => edge.node)]);
+                setHasMoreTideSpots(result.data.tideSpotList.pageInfo.hasNextPage);
+            }
+        } catch (error) {
+            console.error('Failed to load more tide spots:', error);
+        }
+    }, [fetchMore, hasMoreTideSpots, tideSpotData?.tideSpotList?.pageInfo?.endCursor, tideSpotLoading]);
+
+    // 处理下拉框滚动事件
+    const handleSelectScroll = useCallback((event: React.UIEvent<HTMLDivElement>) => {
+        const target = event.target as HTMLDivElement;
+        if (target.scrollHeight - target.scrollTop === target.clientHeight) {
+            loadMoreTideSpots();
+        }
+    }, [loadMoreTideSpots]);
+
     // Convert API data to display format
     const displayRows = useMemo(() => {
-        if (!data?.tideSpotConfigList?.edges) return [];
-        console.log('渲染的数据',data.tideSpotConfigList.edges[0].node.id)
-        return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => {
+        if (!exchangeData?.tideSpotConfigList?.edges) return [];
+        console.log('渲染的数据', exchangeData.tideSpotConfigList.edges[0].node.id);
+        return exchangeData.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => {
             // 格式化创建时间
             const createTime = new Date(parseInt(node.createTime) * 1000).toLocaleString('zh-CN', {
                 year: 'numeric',
@@ -861,51 +1011,51 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                 } : undefined
             };
         });
-    }, [data?.tideSpotConfigList?.edges]);
+    }, [exchangeData?.tideSpotConfigList?.edges]);
 
     // Update stats from API data
     const stats = useMemo(() => {
-        if (!data?.tideSpotConfigList) return mockStats;
+        if (!exchangeData?.tideSpotConfigList) return mockStats;
         return [
             {
                 title: '生成兑换券（张）',
-                value: data.tideSpotConfigList.totalGenerateNum.toString(),
+                value: exchangeData.tideSpotConfigList.totalGenerateNum.toString(),
                 icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_be.png" />,
                 bgColor: '#F41515'
             },
             {
                 title: '兑换金额（元）',
-                value: data.tideSpotConfigList.totalUseAmount.toString(),
+                value: exchangeData.tideSpotConfigList.totalUseAmount.toString(),
                 icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_money.png" />,
                 bgColor: '#FA7202'
             },
             {
                 title: '已兑换数（张）',
-                value: data.tideSpotConfigList.totalUseNum.toString(),
+                value: exchangeData.tideSpotConfigList.totalUseNum.toString(),
                 icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_exchanged.png" />,
                 bgColor: '#FFCC00'
             },
             {
                 title: '未兑换数（张）',
-                value: data.tideSpotConfigList.totalNotUseNum.toString(),
+                value: exchangeData.tideSpotConfigList.totalNotUseNum.toString(),
                 icon: <CustomIcon src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_no_exchange.png" />,
                 bgColor: '#7DD000'
             },
         ];
-    }, [data?.tideSpotConfigList]);
+    }, [exchangeData?.tideSpotConfigList]);
 
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
         const cursor = newPage > page
-            ? data?.tideSpotConfigList?.pageInfo?.endCursor
-            : data?.tideSpotConfigList?.pageInfo?.startCursor;
+            ? exchangeData?.tideSpotConfigList?.pageInfo?.endCursor
+            : exchangeData?.tideSpotConfigList?.pageInfo?.startCursor;
         refetch({
             first: rowsPerPage,
             last: rowsPerPage,
             type: 'Exchange',
             after: cursor || ''
         });
-    }, [page, data?.tideSpotConfigList?.pageInfo, refetch, rowsPerPage]);
+    }, [page, exchangeData?.tideSpotConfigList?.pageInfo, refetch, rowsPerPage]);
 
     const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const newRowsPerPage = parseInt(event.target.value, 10);
@@ -1053,9 +1203,15 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                 compareLogoPath = uploadResult.file.uri;
             }
 
+            // 从 tideSpotList 中获取选中的景区名称
+            const selectedTideSpot = tideSpotList.find(spot => spot.id === formData.sceneryId);
+            if (!selectedTideSpot) {
+                throw new Error('Selected tide spot not found');
+            }
+
             const input: NewTideSpotConfig = {
                 tideSpotId: formData.sceneryId,
-                tideSpotName: formData.sceneryName,
+                tideSpotName: selectedTideSpot.name, // 使用从 tideSpotList 中获取的名称
                 couponName: formData.voucherName,
                 type: 'Exchange',
                 compareWord: formData.keywordMatch,
@@ -1075,7 +1231,7 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
         } catch (error) {
             console.error('Failed to create exchange voucher:', error);
         }
-    }, [formData, createTideSpotConfig, handleCloseAddDialog, refetch]);
+    }, [formData, createTideSpotConfig, handleCloseAddDialog, refetch, tideSpotList]);
 
     const handleFileChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, fieldName: 'voucherImage' | 'matchImage') => {
         if (event.target.files && event.target.files[0]) {
@@ -1154,6 +1310,9 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                         addVoucherContent={addVoucherContent}
                         removeVoucherContent={removeVoucherContent}
                         handleFileChange={handleFileChange}
+                        tideSpotOptions={tideSpotList}
+                        handleSelectScroll={handleSelectScroll}
+                        tideSpotLoading={tideSpotLoading}
                     />
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
@@ -1263,7 +1422,7 @@ const ExchangeVoucher: React.FC<ExchangeVoucherProps> = () => {
                 <TablePagination
                     rowsPerPageOptions={[20, 50, 100]}
                     component="div"
-                    count={data?.tideSpotConfigList?.totalCount || 0}
+                    count={exchangeData?.tideSpotConfigList?.totalCount || 0}
                     labelRowsPerPage="页面数量:"
                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
                     rowsPerPage={rowsPerPage}
