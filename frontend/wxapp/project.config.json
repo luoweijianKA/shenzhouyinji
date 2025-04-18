@@ -16,7 +16,8 @@
     "postcss": true,
     "minified": true,
     "ignoreUploadUnusedFiles": false,
-    "packNpmRelationList": []
+    "packNpmRelationList": [],
+    "condition": false
   },
   "editorSetting": {
     "tabIndent": "insertSpaces",
