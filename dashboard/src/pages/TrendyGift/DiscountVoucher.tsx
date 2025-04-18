@@ -44,6 +44,7 @@ import zhCN from 'date-fns/locale/zh-CN';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import FileUploader from '../../utils/fileUpload';
 
 /**
  * 自定义图标组件
@@ -423,7 +424,7 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
                 <Button
                     variant="outlined"
                     component="label"
-                    startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
+                    startIcon={!formData.voucherImage && <CameraAlt sx={{ color: '#F44336' }} />}
                     sx={STYLES.uploadButton}
                 >
                     <input
@@ -447,7 +448,7 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
                 <Button
                     variant="outlined"
                     component="label"
-                    startIcon={<CameraAlt sx={{ color: '#F44336' }} />}
+                    startIcon={!formData.matchImage && <CameraAlt sx={{ color: '#F44336' }} />}
                     sx={STYLES.uploadButton}
                 >
                     <input
@@ -959,8 +960,8 @@ const DiscountVoucher: React.FC = () => {
                 couponName: formData.voucherName,
                 type: 'Deduction',
                 compareWord: formData.keywordMatch || '',
-                couponImgPath: formData.voucherImage ? await uploadFile(formData.voucherImage) : '/',
-                compareLogoPath: formData.matchImage ? await uploadFile(formData.matchImage) : '/',
+                couponImgPath: formData.voucherImage ? (await FileUploader.uploadFile(formData.voucherImage, { tag: 'image' })).file.uri : '/',
+                compareLogoPath: formData.matchImage ? (await FileUploader.uploadFile(formData.matchImage, { tag: 'image' })).file.uri : '/',
                 desc: formData.useLimit || '',
                 effectiveTime: formData.expireTime ? Math.floor(new Date(formData.expireTime).getTime() / 1000) : Math.floor(Date.now() / 1000),
                 tideSpotGoodListJson: JSON.stringify(formData.applicableProducts.map(product => ({
@@ -1057,11 +1058,21 @@ const DiscountVoucher: React.FC = () => {
         }
 
         try {
+            let guideVideoPath: string | undefined;
+            
+            if (guidance.video) {
+                const uploadResult = await FileUploader.uploadFile(guidance.video, { tag: 'video' });
+                if (!uploadResult.success) {
+                    throw new Error(uploadResult.message || 'Failed to upload video');
+                }
+                guideVideoPath = uploadResult.file.uri;
+            }
+
             const input: UpdateTideSpotConfig = {
                 id: selectedRowId,
                 enable: true,
                 guideDesc: guidance.text,
-                guideVideoPath: guidance.video ? await uploadFile(guidance.video) : undefined
+                guideVideoPath
             };
 
             console.log('Submitting guidance update:', input);
@@ -1268,12 +1279,6 @@ const DiscountVoucher: React.FC = () => {
             />
         </Box>
     );
-};
-
-// Helper function to upload files
-const uploadFile = async (file: File): Promise<string> => {
-    // TODO: Implement file upload logic
-    return '/';
 };
 
 export default DiscountVoucher;
