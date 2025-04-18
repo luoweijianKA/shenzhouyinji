@@ -53,7 +53,6 @@ import SettingsCheckInTag from './Settings/CheckInTag'
 import SettingsMap from './Settings/Map'
 import SettingsLog from './Settings/Log'
 import SignIn from './SignIn'
-import TrendyGift from './TrendyGift'
 import ExchangeVoucher from './TrendyGift/ExchangeVoucher'
 import DiscountVoucher from './TrendyGift/DiscountVoucher'
 import ExchangeRecord from './TrendyGift/ExchangeRecord'
@@ -372,12 +371,6 @@ const activedRoutes = [
   {
     path: '/settings/log',
     component: SettingsLog,
-    exact: true,
-    strict: true,
-  },
-  {
-    path: '/trendy-gift',
-    component: TrendyGift,
     exact: true,
     strict: true,
   },
