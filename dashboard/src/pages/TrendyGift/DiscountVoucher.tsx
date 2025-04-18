@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -41,6 +41,9 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import zhCN from 'date-fns/locale/zh-CN';
+import { Editor } from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 
 /**
  * 自定义图标组件
@@ -99,7 +102,7 @@ const StatCard = React.memo<StatCardProps>(({ title, value, icon, bgColor }) => 
  * 抵扣券表格行数据结构
  */
 interface DiscountVoucherRow {
-    id: number;
+    id: string;
     sceneryName: string;
     voucherName: string;
     useLimit: string;
@@ -111,6 +114,7 @@ interface DiscountVoucherRow {
     triggerRule: string;
     createTime: string;
     status: '正常' | '已过期' | '已终止';
+    guidance?: { text: string; video: File | null };
 }
 
 /**
@@ -287,6 +291,8 @@ const UPDATE_TIDE_SPOT_CONFIG = gql`
 interface UpdateTideSpotConfig {
     id: string;
     enable: boolean;
+    guideDesc?: string;
+    guideVideoPath?: string;
 }
 
 // Mock data - consider moving or fetching
@@ -636,12 +642,151 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
 ));
 
 /**
+ * 指引弹窗属性
+ */
+interface GuidanceDialogProps {
+    open: boolean;
+    onClose: () => void;
+    onSubmit: (guidance: { text: string; video: File | null }) => void;
+    data: { text: string; video: File | null } | null;
+}
+
+/**
+ * 指引编辑/查看弹窗
+ */
+const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmit, data }) => {
+    const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+
+    useEffect(() => {
+        if (open) {
+            let initialEditorState = EditorState.createEmpty();
+            if (data?.text) {
+                try {
+                    const rawContent = JSON.parse(data.text);
+                    const contentState = convertFromRaw(rawContent);
+                    initialEditorState = EditorState.createWithContent(contentState);
+                } catch (e) {
+                    console.warn("Failed to parse guidance text as JSON/raw, attempting HTML.", e);
+                    try {
+                        const blocksFromHTML = convertFromHTML(data.text);
+                        if (blocksFromHTML.contentBlocks) {
+                            const state = ContentState.createFromBlockArray(blocksFromHTML.contentBlocks, blocksFromHTML.entityMap);
+                            initialEditorState = EditorState.createWithContent(state);
+                        } else {
+                            console.warn("Could not convert HTML to ContentState.");
+                        }
+                    } catch (htmlError) {
+                        console.error("Error converting HTML:", htmlError);
+                    }
+                }
+            }
+            setEditorState(initialEditorState);
+            setVideoFile(data?.video || null);
+        } else {
+            setEditorState(EditorState.createEmpty());
+            setVideoFile(null);
+        }
+    }, [data, open]);
+
+    const onEditorStateChange = useCallback((newEditorState: EditorState) => {
+        setEditorState(newEditorState);
+    }, []);
+
+    const handleVideoUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setVideoFile(event.target.files[0]);
+        } else {
+            setVideoFile(null);
+        }
+    }, []);
+
+    const handleSubmit = useCallback(() => {
+        const contentState = editorState.getCurrentContent();
+        const hasText = contentState.hasText();
+        const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
+        console.log('Submitting guidance:', { text: rawContent, video: videoFile });
+        onSubmit({ text: rawContent, video: videoFile });
+        onClose();
+    }, [editorState, videoFile, onSubmit, onClose]);
+
+    const DIALOG_STYLES = {
+        title: { m: 0, p: 2, borderBottom: '1px solid #E0E0E0' },
+        actions: { p: 3, pt: 2, borderTop: '1px solid #E0E0E0' }
+    };
+
+    return (
+        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+            <DialogTitle sx={DIALOG_STYLES.title}>
+                指引
+                <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
+                    <Close />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ p: 3, pt: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <FormLabel sx={{ mb: 1.5, mt: 3, fontWeight: 'normal' }}>操作指引:</FormLabel>
+                        <Editor
+                            editorState={editorState}
+                            onEditorStateChange={onEditorStateChange}
+                            wrapperClassName="rdw-wrapper"
+                            editorClassName="rdw-editor"
+                            toolbarClassName="rdw-toolbar"
+                            editorStyle={{
+                                border: '1px solid #E0E0E0',
+                                minHeight: '250px',
+                                padding: '0 15px',
+                                borderRadius: '0 0 4px 4px',
+                                backgroundColor: 'white'
+                            }}
+                            toolbarStyle={{
+                                border: '1px solid #E0E0E0',
+                                borderBottom: 'none',
+                                borderRadius: '4px 4px 0 0',
+                                marginBottom: 0,
+                            }}
+                            toolbar={{
+                                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'remove', 'history'],
+                                inline: { options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript'] },
+                                blockType: { options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Blockquote', 'Code'] },
+                                list: { options: ['unordered', 'ordered', 'indent', 'outdent'] },
+                                textAlign: { options: ['left', 'center', 'right', 'justify'] },
+                            }}
+                        />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FormLabel sx={{ minWidth: 'auto', mr: 1.5, fontWeight: 'normal' }}>操作视频:</FormLabel>
+                        <Button
+                            variant="outlined"
+                            component="label"
+                            sx={STYLES.uploadButton}
+                        >
+                            <CameraAlt sx={{ color: '#F44336' }} />
+                            <input type="file" hidden accept="video/*" onChange={handleVideoUpload} />
+                        </Button>
+                        {videoFile && <Typography variant="body2" sx={{ ml: 2 }}>{videoFile.name}</Typography>}
+                    </Box>
+                </Box>
+            </DialogContent>
+            <DialogActions sx={DIALOG_STYLES.actions}>
+                <Button onClick={onClose} sx={{ mr: 1 }}>取消</Button>
+                <Button variant="contained" onClick={handleSubmit}>确定</Button>
+            </DialogActions>
+        </Dialog>
+    );
+});
+
+/**
  * 抵扣券管理页面
  */
 const DiscountVoucher: React.FC = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(20);
     const [open, setOpen] = useState(false);
+    const [openGuidanceDialog, setOpenGuidanceDialog] = useState(false);
+    const [currentGuidanceData, setCurrentGuidanceData] = useState<{ text: string; video: File | null } | null>(null);
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
     const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
     const [submitting, setSubmitting] = useState(false);
     const [createTideSpotConfig] = useMutation<CreateTideSpotConfigResponse>(CREATE_TIDE_SPOT_CONFIG);
@@ -688,7 +833,8 @@ const DiscountVoucher: React.FC = () => {
                 second: '2-digit',
                 hour12: false
             }).replace(/\//g, '-'),
-            status: node.stateText as '正常' | '已过期' | '已终止'
+            status: node.stateText as '正常' | '已过期' | '已终止',
+            guidance: node.guideDesc ? { text: node.guideDesc, video: node.guideVideoPath ? new File([node.guideVideoPath], node.guideVideoPath.split('/').pop() || '') : null } : undefined
         }));
     }, [data?.tideSpotConfigList?.edges]);
 
@@ -892,6 +1038,52 @@ const DiscountVoucher: React.FC = () => {
         }
     }, [updateTideSpotConfig, refetch]);
 
+    const handleOpenGuidanceDialog = useCallback((rowData: DiscountVoucherRow) => {
+        setCurrentGuidanceData(rowData.guidance || { text: '', video: null });
+        setSelectedRowId(rowData.id);
+        setOpenGuidanceDialog(true);
+    }, []);
+
+    const handleCloseGuidanceDialog = useCallback(() => {
+        setOpenGuidanceDialog(false);
+        setCurrentGuidanceData(null);
+        setSelectedRowId(null);
+    }, []);
+
+    const handleGuidanceSubmit = useCallback(async (guidance: { text: string; video: File | null }) => {
+        if (!selectedRowId) {
+            console.error('No selected row ID');
+            return;
+        }
+
+        try {
+            const input: UpdateTideSpotConfig = {
+                id: selectedRowId,
+                enable: true,
+                guideDesc: guidance.text,
+                guideVideoPath: guidance.video ? await uploadFile(guidance.video) : undefined
+            };
+
+            console.log('Submitting guidance update:', input);
+
+            const result = await updateTideSpotConfig({
+                variables: { input }
+            });
+
+            console.log('Guidance update result:', result);
+
+            if (result.data?.updateTideSpotConfig.succed) {
+                setOpenGuidanceDialog(false);
+                setCurrentGuidanceData(null);
+                await refetch();
+            } else {
+                console.error('Failed to update guidance:', result.data?.updateTideSpotConfig.message);
+            }
+        } catch (error) {
+            console.error('Failed to update guidance:', error);
+        }
+    }, [selectedRowId, updateTideSpotConfig, refetch]);
+
     return (
         <Box sx={{ pt: 8 }}>
             <PageHeader container>
@@ -1045,6 +1237,7 @@ const DiscountVoucher: React.FC = () => {
                                         size="small"
                                         color="info"
                                         sx={{ minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0 }}
+                                        onClick={() => handleOpenGuidanceDialog(row)}
                                     >
                                         指引
                                     </Button>
@@ -1065,6 +1258,14 @@ const DiscountVoucher: React.FC = () => {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </TableContainer>
+
+            {/* 指引弹窗 */}
+            <GuidanceDialog
+                open={openGuidanceDialog}
+                onClose={handleCloseGuidanceDialog}
+                onSubmit={handleGuidanceSubmit}
+                data={currentGuidanceData}
+            />
         </Box>
     );
 };
