@@ -8,8 +8,8 @@ Component({
       value: false,
     },
     qrcode: {
-      type: Object,
-      value: null,
+      type: String,
+      value: '',
     },
   },
   methods: {

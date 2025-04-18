@@ -1,8 +1,8 @@
 <view class="list">
     <t-tabs defaultValue="all" bind:change="onTabsChange" bind:click="onTabsClick" sticky="true">
         <t-tab-panel label="全部" value="all">
-            <view class="item">
-                <coupon-item bindqrcode="handleQrcode" data-item="" />
+            <view class="item" wx:for="{{list}}" wx:key="id">
+                <coupon-item bindqrcode="handleQrcode" data-item="{{item}}" item="{{item}}" />
             </view>
         </t-tab-panel>
         <t-tab-panel label="兑换券（4）" value="exchange" />

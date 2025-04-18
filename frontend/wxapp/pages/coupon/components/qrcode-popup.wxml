@@ -1,7 +1,7 @@
 <t-popup visible="{{visible}}" bind:visible-change="onVisibleChange" placement="center">
     <view class="content">
         <view class="name">景秀</view>
-        <image src="https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/bg_gift@3x.png" mode="aspectFill" class="code" />
+        <image src="{{qrcode}}" mode="aspectFill" class="code" />
         <t-icon t-class="close-btn" name="close-circle" size="64rpx" color="#fff" bind:tap="onClose" />
     </view>
 </t-popup>

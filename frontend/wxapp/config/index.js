@@ -4,21 +4,23 @@ export const config = {
 };
 
 export const apiServer = {
-  gqlUri: "https://api.shenzhouyinji.cn/query",
+  gqlUri: 'https://ces.shenzhouyinji.cn/query',
 };
 
 function getHeader() {
-  const accessToken = wx.getStorageSync('accessToken')
-  const header = (accessToken && accessToken.length > 0)
-    ? {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'authorization': `Bearer ${accessToken}`,
-    } : {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    }
-  return header
+  const accessToken = wx.getStorageSync('accessToken');
+  const header =
+    accessToken && accessToken.length > 0
+      ? {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          authorization: `Bearer ${accessToken}`,
+        }
+      : {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        };
+  return header;
 }
 
 export async function useQuery({ query, variables }) {
@@ -29,15 +31,15 @@ export async function useQuery({ query, variables }) {
       header: getHeader(),
       data: JSON.stringify({ query, variables }),
       success(res) {
-        const { data, errors } = res.data
+        const { data, errors } = res.data;
         if (errors && errors.length > 0) {
-          reject(errors[0])
-          return
+          reject(errors[0]);
+          return;
         }
-        reslove(data)
+        reslove(data);
       },
-    })
-  })
+    });
+  });
 }
 
 export async function useMutation({ mutation, variables }) {
@@ -48,13 +50,13 @@ export async function useMutation({ mutation, variables }) {
       header: getHeader(),
       data: JSON.stringify({ query: mutation, variables }),
       success(res) {
-        const { data, errors } = res.data
+        const { data, errors } = res.data;
         if (errors && errors.length > 0) {
-          reject(errors[0])
-          return
+          reject(errors[0]);
+          return;
         }
-        reslove(data)
+        reslove(data);
       },
-    })
-  })
+    });
+  });
 }

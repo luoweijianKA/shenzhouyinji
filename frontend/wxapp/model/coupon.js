@@ -1,14 +1,14 @@
 import { useQuery, useMutation } from '../config/index';
 
-export async function getCouponList(first, after, last, type, state) {
+export async function getCouponList(first, after, last, type, stateCode) {
   const data = await useQuery({
     query: `query CouponList(
-                $first: Int = 20,
+                $first: Int = 10,
                 $after: ID,
-                $last: Int = 20,
+                $last: Int = 10,
                 $before: ID,
                 $type: String,
-                $state: String = "Normal",
+                $stateCode: String = "Normal"
             ) {
                 couponList(
                     first: $first,
@@ -16,7 +16,7 @@ export async function getCouponList(first, after, last, type, state) {
                     last: $last,
                     before: $before,
                     type: $type,
-                    state: $state
+                    stateCode: $stateCode
                 ) {
                     totalCount
                     edges {
@@ -32,13 +32,17 @@ export async function getCouponList(first, after, last, type, state) {
                             effectiveTime
                             createTime
                             qrCodePath
+                            totalExchangeCount
+                            totalDeductionCount
+                            minimumAmount
+                            deductionAmount
                         }
                         __typename
                     }
                 }
             }`,
-    variables: { first, after, last, type, state },
+    variables: { first, after, last, type, stateCode },
   });
 
-  return data.tideSpotConfigList;
+  return data.couponList;
 }
