@@ -32,9 +32,13 @@ import { AddCircleOutline, CameraAlt, Close, RemoveCircleOutline } from '@mui/ic
 import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState } from 'draft-js';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import { LinkButton, PageHeader, Title } from "../styled";
+import { LinkButton, PageHeader, Title, DatePickerWrapper } from "../styled";
 import { useQuery, useMutation } from '@apollo/client';
 import { gql } from '@apollo/client';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import zhCN from 'date-fns/locale/zh-CN';
 
 /**
  * 统计卡片组件
@@ -620,8 +624,32 @@ const AddDialogContent = React.memo<{
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel sx={STYLES.formLabel}>有效时间:</FormLabel>
-            <TextField fullWidth name="expireTime" type="text" value={formData.expireTime}
-                onChange={handleInputChange} size="small" placeholder="例如：2024-12-31" />
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={zhCN}>
+                <DatePickerWrapper>
+                    <DesktopDatePicker
+                        value={formData.expireTime ? new Date(formData.expireTime) : null}
+                        onChange={(newValue) => {
+                            if (newValue) {
+                                handleInputChange({
+                                    target: {
+                                        name: 'expireTime',
+                                        value: newValue.toISOString()
+                                    }
+                                } as React.ChangeEvent<HTMLInputElement>);
+                            }
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                fullWidth
+                                size="small"
+                                error={false}
+                                helperText={null}
+                            />
+                        )}
+                    />
+                </DatePickerWrapper>
+            </LocalizationProvider>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>

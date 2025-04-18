@@ -498,18 +498,18 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-             
+
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
                 {formData.applicableProducts.map((product, index) => (
-                    <Box 
-                        key={product.id} 
-                        sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 1.5, 
-                            bgcolor: '#F8F9FA', 
-                            p: 2, 
-                            borderRadius: 1 
+                    <Box
+                        key={product.id}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5,
+                            bgcolor: '#F8F9FA',
+                            p: 2,
+                            borderRadius: 1
                         }}
                     >
                         <Box sx={{ flex: 1, display: 'flex', gap: 2 }}>
@@ -562,18 +562,18 @@ const DiscountDialogContent = React.memo<DiscountDialogContentProps>(({
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-        
+
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flexGrow: 1 }}>
                 {formData.discountRules.map((rule, index) => (
-                    <Box 
-                        key={rule.id} 
-                        sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 1.5, 
-                            bgcolor: '#F8F9FA', 
-                            p: 2, 
-                            borderRadius: 1 
+                    <Box
+                        key={rule.id}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.5,
+                            bgcolor: '#F8F9FA',
+                            p: 2,
+                            borderRadius: 1
                         }}
                     >
                         <Box sx={{flex: 1}}>
@@ -661,7 +661,7 @@ const DiscountVoucher: React.FC = () => {
     const displayRows = useMemo(() => {
         if (!data?.tideSpotConfigList?.edges) return [];
         return data.tideSpotConfigList.edges.map(({ node }: TideSpotConfigEdge) => ({
-            id: parseInt(node.id),
+            id: node.id,
             sceneryName: node.tideSpotName || '未知景区',
             voucherName: node.couponName,
             useLimit: node.desc,
@@ -840,8 +840,8 @@ const DiscountVoucher: React.FC = () => {
 
     const handleChangePage = useCallback((event: unknown, newPage: number) => {
         setPage(newPage);
-        const cursor = newPage > page 
-            ? data?.tideSpotConfigList?.pageInfo?.endCursor 
+        const cursor = newPage > page
+            ? data?.tideSpotConfigList?.pageInfo?.endCursor
             : data?.tideSpotConfigList?.pageInfo?.startCursor;
         refetch({
             first: rowsPerPage,
@@ -876,13 +876,13 @@ const DiscountVoucher: React.FC = () => {
         }
     }, []);
 
-    const handleTerminate = useCallback(async (id: number) => {
+    const handleTerminate = useCallback(async (id: string) => {
         try {
             const input: UpdateTideSpotConfig = {
                 id: id.toString(),
                 enable: false
             };
-            
+
             await updateTideSpotConfig({
                 variables: { input }
             });
@@ -949,8 +949,8 @@ const DiscountVoucher: React.FC = () => {
                 </DialogContent>
                 <DialogActions sx={STYLES.dialogActions}>
                     <Button onClick={handleClose} sx={{ mr: 1 }}>取消</Button>
-                    <Button 
-                        variant="contained" 
+                    <Button
+                        variant="contained"
                         onClick={handleSubmit}
                         disabled={submitting}
                     >
@@ -1032,18 +1032,18 @@ const DiscountVoucher: React.FC = () => {
                                 </TableCell>
                                 <TableCell>
                                     {row.status === '正常' && (
-                                        <Button 
-                                            size="small" 
-                                            color="error" 
+                                        <Button
+                                            size="small"
+                                            color="error"
                                             sx={{ minWidth: 'auto', p: 0.5 }}
                                             onClick={() => handleTerminate(row.id)}
                                         >
                                             中止
                                         </Button>
                                     )}
-                                    <Button 
-                                        size="small" 
-                                        color="info" 
+                                    <Button
+                                        size="small"
+                                        color="info"
                                         sx={{ minWidth: 'auto', p: 0.5, ml: row.status === '正常' ? 1 : 0 }}
                                     >
                                         指引
