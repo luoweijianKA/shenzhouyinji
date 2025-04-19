@@ -1,65 +1,65 @@
 import { useQuery, useMutation, apiServer } from '../config/index';
 
 // 获取优惠券列表
-export async function getCouponList({ pageIndex, pageSize, type, stateCode }) {
-  const token = wx.getStorageSync('accessToken');
-  const authorization = 'Bearer ' + token;
-
-  const data = new Promise(function (reslove, reject) {
-    wx.request({
-      url: apiServer.gqlUri,
-      method: 'POST',
-      header: {
-        Authorization: authorization,
-      },
-      data: JSON.stringify({
-        query: `query CouponListByPagination($pageIndex: Int!, $pageSize: Int!, $type: String, $stateCode: String) {
-                    couponListByPagination(
-                        pageIndex: $pageIndex
-                        pageSize: $pageSize
-                        type: $type
-                        stateCode: $stateCode
-                    ) {
-                        totalCount
-                        totalExchangeCount
-                        totalDeductionCount
-                        data {
-                            id
-                            type
-                            typeText
-                            tideSpotName
-                            couponName
-                            desc
-                            effectiveTime
-                            createTime
-                            qrCodePath
-                            state
-                            stateText
-                            userWechatName
-                            buyGoodName
-                            verificationWechatName
-                            userPhone
-                            useTime
-                            minimumAmount
-                            deductionAmount
-                        }
-                        __typename
-                    }
-                }`,
-        variables: { pageIndex, pageSize, type, stateCode },
-      }),
-      success(res) {
-        reslove(res.data.data.couponListByPagination);
-      },
-      fail(res) {
-        console.log({ fail: res.data });
-        reject(res.data);
-      },
-    });
-  });
-
-  return data;
-}
+// export async function getCouponList({ pageIndex, pageSize, type, stateCode }) {
+//   const token = wx.getStorageSync('accessToken');
+//   const authorization = 'Bearer ' + token;
+//
+//   const data = new Promise(function (reslove, reject) {
+//     wx.request({
+//       url: apiServer.gqlUri,
+//       method: 'POST',
+//       header: {
+//         Authorization: authorization,
+//       },
+//       data: JSON.stringify({
+//         query: `query CouponListByPagination($pageIndex: Int!, $pageSize: Int!, $type: String, $stateCode: String) {
+//                     couponListByPagination(
+//                         pageIndex: $pageIndex
+//                         pageSize: $pageSize
+//                         type: $type
+//                         stateCode: $stateCode
+//                     ) {
+//                         totalCount
+//                         totalExchangeCount
+//                         totalDeductionCount
+//                         data {
+//                             id
+//                             type
+//                             typeText
+//                             tideSpotName
+//                             couponName
+//                             desc
+//                             effectiveTime
+//                             createTime
+//                             qrCodePath
+//                             state
+//                             stateText
+//                             userWechatName
+//                             buyGoodName
+//                             verificationWechatName
+//                             userPhone
+//                             useTime
+//                             minimumAmount
+//                             deductionAmount
+//                         }
+//                         __typename
+//                     }
+//                 }`,
+//         variables: { pageIndex, pageSize, type, stateCode },
+//       }),
+//       success(res) {
+//         reslove(res.data.data.couponListByPagination);
+//       },
+//       fail(res) {
+//         console.log({ fail: res.data });
+//         reject(res.data);
+//       },
+//     });
+//   });
+//
+//   return data;
+// }
 
 // 上传凭证
 export async function uploadVoucher(input) {
@@ -226,3 +226,91 @@ export async function getCouponConfigDetail(id) {
 
   return data;
 }
+
+
+// 获取景区列表（用于筛选）
+export async function getTideSpotList(params = {}) {
+  const {
+    first = 20,
+    after = '',
+    last = 20,
+    before = '',
+    name = ''
+  } = params;
+
+  const data = await useQuery({
+    operationName: 'TideSpotList',
+    query: `query TideSpotList($first: Int = 20, $after: ID, $last: Int = 20, $before: ID, $name: String) {
+      tideSpotList(
+        first: $first
+        after: $after
+        last: $last
+        before: $before
+        name: $name
+      ) {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            electricFence
+            createTime
+            updateTime
+            positionTolerance
+            __typename
+          }
+          __typename
+        }
+        pageInfo {
+          startCursor
+          endCursor
+          hasPreviousPage
+          hasNextPage
+          __typename
+        }
+        __typename
+      }
+    }`,
+    variables: { first, after, last, before, name }
+  });
+
+  return {
+    list: data.tideSpotList.edges.map(edge => edge.node),
+    pageInfo: data.tideSpotList.pageInfo,
+    totalCount: data.tideSpotList.totalCount
+  };
+}
+
+// 获取优惠券列表
+export async function getCouponList(tideSpotId = '') {
+  const data = await useQuery({
+    operationName: 'CouponListGroupByType',
+    query: `query CouponListGroupByType($tideSpotId: String) {
+      couponListGroupByType(tideSpotId: $tideSpotId) {
+        exchangeList {
+          id
+          couponName
+          tideSpotName
+          effectiveTime
+          tideSpotConfigId
+          __typename
+        }
+        deductionList {
+          id
+          couponName
+          tideSpotName
+          effectiveTime
+          tideSpotConfigId
+          minimumAmount
+          deductionAmount
+          __typename
+        }
+      }
+      __typename
+    }`,
+    variables: { tideSpotId }
+  });
+
+  return data.couponListGroupByType;
+}
+

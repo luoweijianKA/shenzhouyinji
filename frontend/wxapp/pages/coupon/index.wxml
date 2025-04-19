@@ -1,39 +1,60 @@
 <view class="bg">
+    <!-- 筛选器 -->
     <view class="selector">
         <t-dropdown-menu>
-            <t-dropdown-item label="{{product.name}}" options="{{product.options}}" placement="right" value="{{product.value}}" bindchange="onChange" />
+            <t-dropdown-item label="{{product.name}}" 
+                           options="{{product.options}}" 
+                           placement="right" 
+                           value="{{product.value}}" 
+                           bindchange="onChange"
+                           bindscrolltolower="loadMoreTideSpot" />
         </t-dropdown-menu>
     </view>
-    <view class="list">
+
+    <!-- 加载状态 -->
+    <t-loading theme="circular" size="40rpx" loading="{{loading}}" />
+
+    <!-- 兑换券列表 -->
+    <view class="list" wx:if="{{coupons.exchange.length > 0}}">
         <view class="list-title">兑换券</view>
-        <view class="list-item list-item-exchange">
-            <view class="item-top">东方明珠景区</view>
+        <view class="list-item list-item-exchange" 
+              wx:for="{{coupons.exchange}}" 
+              wx:key="id">
+            <view class="item-top">{{item.sceneryName}}</view>
             <view class="item-left">
-                <view class="item-title">熊猫玩偶</view>
-                <view class="item-subtitle">有效时间：2025年09月16日</view>
+                <view class="item-title">{{item.title}}</view>
+                <view class="item-subtitle">有效时间：{{item.expireDate}}</view>
             </view>
-            <view class="item-right" bindtap="handleRule">
+            <view class="item-right" bindtap="handleRule" data-id="{{item.id}}">
                 <view>上传</view>
                 <view>凭证</view>
             </view>
         </view>
     </view>
-    <view class="list">
+
+    <!-- 抵扣券列表 -->
+    <view class="list" wx:if="{{coupons.deduction.length > 0}}">
         <view class="list-title">抵扣券</view>
-        <view class="list-item list-item-deduction">
+        <view class="list-item list-item-deduction" 
+              wx:for="{{coupons.deduction}}" 
+              wx:key="id">
             <view class="item-left">
-                <view class="item-top">东方明珠景区</view>
+                <view class="item-top">{{item.sceneryName}}</view>
                 <view class="item-title">
                     <view class="itemt-unit">￥</view>
-                    <view class="itemt-price">35</view>
-                    <view class="itemt-desc">满100元可用</view>
+                    <view class="itemt-price">{{item.amount}}</view>
+                    <view class="itemt-desc">{{item.condition}}</view>
                 </view>
-                <view class="item-subtitle">有效时间：2025年09月16日</view>
+                <view class="item-subtitle">有效时间：{{item.expireDate}}</view>
             </view>
-            <view class="item-right">
+            <view class="item-right" bindtap="handleRule" data-id="{{item.id}}">
                 <view>上传</view>
                 <view>凭证</view>
             </view>
         </view>
     </view>
+
+    <!-- 空状态 -->
+    <t-empty wx:if="{{!loading && coupons.exchange.length === 0 && coupons.deduction.length === 0}}"
+            description="暂无优惠券" />
 </view>
