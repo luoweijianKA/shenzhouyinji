@@ -1,12 +1,12 @@
 import { CHAO_SELECTED_ICON } from '../../constants/index';
-import { getTideSpotList, getCouponList } from '../../model/coupon';
+import { getTideSpotList, getCouponListGroupByType } from '../../model/coupon';
 
 Page({
   data: {
     product: {
       name: '全部',
       value: 'all',
-      options: []
+      options: [],
     },
     couponList: [],
     tideSpotList: [],
@@ -14,7 +14,7 @@ Page({
     loading: false,
     hasMore: true,
     pageInfo: null,
-    dropdownHeight: '300rpx'
+    dropdownHeight: '300rpx',
   },
 
   onLoad() {
@@ -34,26 +34,29 @@ Page({
   async loadTideSpotList() {
     try {
       const { list, pageInfo } = await getTideSpotList();
-      const options = list.map(item => ({
+      const options = list.map((item) => ({
         value: item.id,
-        label: item.name
+        label: item.name,
       }));
-      
-      this.setData({
-        tideSpotList: list,
-        pageInfo,
-        'product.options': options,
-        'product.value': options[0]?.value || 'all',
-        'product.name': options[0]?.label || '全部',
-        currentTideSpot: options[0]?.value || ''
-      }, () => {
-        this.loadCouponList();
-      });
+
+      this.setData(
+        {
+          tideSpotList: list,
+          pageInfo,
+          'product.options': options,
+          'product.value': options[0]?.value || 'all',
+          'product.name': options[0]?.label || '全部',
+          currentTideSpot: options[0]?.value || '',
+        },
+        () => {
+          this.loadCouponList();
+        },
+      );
     } catch (error) {
       console.error('加载景区列表失败:', error);
       wx.showToast({
         title: '加载景区列表失败',
-        icon: 'none'
+        icon: 'none',
       });
     }
   },
@@ -65,26 +68,26 @@ Page({
     this.setData({ loading: true });
     try {
       const { list, pageInfo } = await getTideSpotList({
-        after: this.data.pageInfo.endCursor
+        after: this.data.pageInfo.endCursor,
       });
 
-      const newOptions = list.map(item => ({
+      const newOptions = list.map((item) => ({
         value: item.id,
-        label: item.name
+        label: item.name,
       }));
 
       this.setData({
         tideSpotList: [...this.data.tideSpotList, ...list],
         pageInfo,
         'product.options': [...this.data.product.options, ...newOptions],
-        loading: false
+        loading: false,
       });
     } catch (error) {
       console.error('加载更多景区失败:', error);
       this.setData({ loading: false });
       wx.showToast({
         title: '加载更多景区失败',
-        icon: 'none'
+        icon: 'none',
       });
     }
   },
@@ -95,13 +98,16 @@ Page({
       (item) => item.value === e.detail.value,
     );
 
-    this.setData({
-      'product.value': e.detail.value,
-      'product.name': selectedItem?.label || '',
-      currentTideSpot: e.detail.value
-    }, () => {
-      this.loadCouponList();
-    });
+    this.setData(
+      {
+        'product.value': e.detail.value,
+        'product.name': selectedItem?.label || '',
+        currentTideSpot: e.detail.value,
+      },
+      () => {
+        this.loadCouponList();
+      },
+    );
   },
 
   // 下拉刷新
@@ -111,14 +117,13 @@ Page({
       tideSpotList: [],
       currentTideSpot: '',
       hasMore: true,
-      pageInfo: null
+      pageInfo: null,
     });
-    Promise.all([
-      this.loadTideSpotList(),
-      this.loadCouponList()
-    ]).finally(() => {
-      wx.stopPullDownRefresh();
-    });
+    Promise.all([this.loadTideSpotList(), this.loadCouponList()]).finally(
+      () => {
+        wx.stopPullDownRefresh();
+      },
+    );
   },
 
   // 上拉加载更多
@@ -130,39 +135,39 @@ Page({
   async loadCouponList() {
     try {
       this.setData({ loading: true });
-      const res = await getCouponList(this.data.currentTideSpot);
+      const res = await getCouponListGroupByType(this.data.currentTideSpot);
 
       if (res) {
         // 处理兑换券列表
-        const exchangeList = res.exchangeList.map(item => ({
+        const exchangeList = res.exchangeList.map((item) => ({
           id: item.id,
           title: item.couponName,
           sceneryName: item.tideSpotName,
-          expireDate: this.formatDate(item.effectiveTime)
+          expireDate: this.formatDate(item.effectiveTime),
         }));
 
         // 处理抵扣券列表
-        const deductionList = res.deductionList.map(item => ({
+        const deductionList = res.deductionList.map((item) => ({
           id: item.id,
           title: item.couponName,
           sceneryName: item.tideSpotName,
           amount: item.deductionAmount,
           condition: `满${item.minimumAmount}元可用`,
-          expireDate: this.formatDate(item.effectiveTime)
+          expireDate: this.formatDate(item.effectiveTime),
         }));
 
         this.setData({
           coupons: {
             exchange: exchangeList,
-            deduction: deductionList
-          }
+            deduction: deductionList,
+          },
         });
       }
     } catch (error) {
       console.error('加载优惠券失败:', error);
       wx.showToast({
         title: '加载优惠券失败',
-        icon: 'none'
+        icon: 'none',
       });
     } finally {
       this.setData({ loading: false });
@@ -173,7 +178,10 @@ Page({
   formatDate(timestamp) {
     if (!timestamp) return '';
     const date = new Date(timestamp * 1000);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      '0',
+    )}-${String(date.getDate()).padStart(2, '0')}`;
   },
 
   handleRule(e) {
@@ -190,5 +198,5 @@ Page({
     if (scrollHeight - scrollTop - clientHeight < 50) {
       this.loadMoreTideSpot();
     }
-  }
+  },
 });

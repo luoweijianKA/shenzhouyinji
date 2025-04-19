@@ -1,3 +1,4 @@
+import { formatTime } from '../../utils/util.js';
 const { getCouponList } = require('../../model/coupon');
 
 Page({
@@ -8,7 +9,7 @@ Page({
     pageInfo: {
       pageIndex: 1,
       pageSize: 10,
-      totalCount: 0,
+      totalCount: undefined, // 原本默认是0，为了兼容t-tab-panel label没有被监听变更的bug
       useCount: 0,
       expireCount: 0,
     },
@@ -27,8 +28,18 @@ Page({
       stateCode: currentTab, // 状态code（Expired：已过期， Used：已使用，Normal：待使用）
     });
 
+    let _list = [];
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      _list.push({
+        ...item,
+        effectiveTimeText:
+          formatTime(item.effectiveTime * 1000, 'YYYY年MM月DD日') || '',
+      });
+    }
+
     this.setData({
-      list: pageIndex > 1 ? this.data.list.concat(data) : data,
+      list: pageIndex > 1 ? this.data.list.concat(_list) : _list,
       pageInfo: {
         ...pageInfo,
         pageIndex,
