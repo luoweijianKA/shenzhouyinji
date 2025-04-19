@@ -1,5 +1,6 @@
 import { useQuery, useMutation, apiServer } from '../config/index';
 
+// 获取优惠券列表
 export async function getCouponList({ pageIndex, pageSize, type, stateCode }) {
   const token = wx.getStorageSync('accessToken');
   const authorization = 'Bearer ' + token;
@@ -60,6 +61,7 @@ export async function getCouponList({ pageIndex, pageSize, type, stateCode }) {
   return data;
 }
 
+// 上传凭证
 export async function uploadVoucher(input) {
   const token = wx.getStorageSync('accessToken');
   const authorization = 'Bearer ' + token;
@@ -88,6 +90,94 @@ export async function uploadVoucher(input) {
       }),
       success(res) {
         reslove(res.data.data.createCouponByOcr);
+      },
+      fail(res) {
+        console.log({ fail: res.data });
+        reject(res.data);
+      },
+    });
+  });
+
+  return data;
+}
+
+// 优惠券详情
+export async function getCouponDetail(id) {
+  const token = wx.getStorageSync('accessToken');
+  const authorization = 'Bearer ' + token;
+
+  const data = new Promise(function (reslove, reject) {
+    wx.request({
+      url: apiServer.gqlUri,
+      method: 'POST',
+      header: {
+        Authorization: authorization,
+      },
+      data: JSON.stringify({
+        query: `query Coupon($id: String!) {
+                    coupon(id: $id) {
+                        id
+                        type
+                        typeText
+                        tideSpotName
+                        couponName
+                        generateWord
+                        generateImgPath
+                        createTime
+                        userWechatName
+                        submitWord
+                        submitImgPath
+                        effectiveTime
+                        desc
+                    }
+                    __typename
+                }`,
+        variables: {
+          id,
+        },
+      }),
+      success(res) {
+        reslove(res.data.data.coupon);
+      },
+      fail(res) {
+        console.log({ fail: res.data });
+        reject(res.data);
+      },
+    });
+  });
+
+  return data;
+}
+
+// 核对通过优惠券
+export async function checkPassCoupon(input) {
+  const token = wx.getStorageSync('accessToken');
+  const authorization = 'Bearer ' + token;
+
+  const data = new Promise(function (reslove, reject) {
+    wx.request({
+      url: apiServer.gqlUri,
+      method: 'POST',
+      header: {
+        Authorization: authorization,
+      },
+      data: JSON.stringify({
+        query: `mutation UpdateCoupon($input: UpdateCoupon!) {
+                    updateCoupon(input: $input) {
+                        succed
+                        message
+                    }
+                }`,
+        variables: {
+          input: {
+            id: input.id,
+            couponBuyGoodListJSON: input.couponBuyGoodListJSON,
+            use: true,
+          },
+        },
+      }),
+      success(res) {
+        reslove(res.data.data.updateCoupon);
       },
       fail(res) {
         console.log({ fail: res.data });
