@@ -2,6 +2,12 @@ Page({
   data: {
     productList: [{ key: 0, name: '', code: '' }],
   },
+  onLoad(options) {
+    const { id } = options;
+    if (id) {
+      //
+    }
+  },
   handleAddProduct() {
     const { productList } = this.data;
     productList.push({ key: productList.length, name: '', code: '' });

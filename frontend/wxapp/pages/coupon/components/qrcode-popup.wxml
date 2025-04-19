@@ -1,6 +1,6 @@
 <t-popup visible="{{visible}}" bind:visible-change="onVisibleChange" placement="center">
     <view class="content">
-        <view class="name">景秀</view>
+        <view class="name">{{tideSpotName}}</view>
         <image src="{{qrcode}}" mode="aspectFill" class="code" />
         <t-icon t-class="close-btn" name="close-circle" size="64rpx" color="#fff" bind:tap="onClose" />
     </view>

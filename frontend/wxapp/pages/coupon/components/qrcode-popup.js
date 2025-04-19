@@ -11,6 +11,10 @@ Component({
       type: String,
       value: '',
     },
+    tideSpotName: {
+      type: String,
+      value: '',
+    },
   },
   methods: {
     onVisibleChange(e) {

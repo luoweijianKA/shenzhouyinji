@@ -1,5 +1,6 @@
 page {
   background-color: #f5f5f5;
+  padding-bottom: 22rpx;
 }
 .item {
   margin: 32rpx 22rpx 0;
