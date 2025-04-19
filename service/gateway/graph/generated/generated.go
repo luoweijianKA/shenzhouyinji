@@ -237,6 +237,10 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
+	CouponIsNewRes struct {
+		IsNew func(childComplexity int) int
+	}
+
 	CouponPagination struct {
 		Data                func(childComplexity int) int
 		ExpireCount         func(childComplexity int) int
@@ -528,6 +532,7 @@ type ComplexityRoot struct {
 		UpdateConfigs             func(childComplexity int, input map[string]any) int
 		UpdateConversation        func(childComplexity int, input model.UpdateConversation) int
 		UpdateCoupon              func(childComplexity int, input model.UpdateCoupon) int
+		UpdateCouponToRead        func(childComplexity int) int
 		UpdateEvent               func(childComplexity int, input model.UpdateEvent) int
 		UpdateEventSettings       func(childComplexity int, id string, settings map[string]any) int
 		UpdateEventUserPoints     func(childComplexity int, input model.NewUserPoints) int
@@ -754,6 +759,7 @@ type ComplexityRoot struct {
 		Conversation               func(childComplexity int, id string) int
 		ConversationByParticipant  func(childComplexity int, participant string, from *string) int
 		Coupon                     func(childComplexity int, id string) int
+		CouponIsNew                func(childComplexity int) int
 		CouponList                 func(childComplexity int, first *int, after *string, last *int, before *string, typeArg *string, stateCode *string, tideSpotName *string, tideSpotID *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool, tideSpotConfigID *string, buyGoodBarCode *string) int
 		CouponListByPagination     func(childComplexity int, pageIndex int, pageSize int, typeArg *string, stateCode *string, tideSpotName *string, tideSpotID *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool, tideSpotConfigID *string, buyGoodBarCode *string) int
 		CouponListGroupByType      func(childComplexity int, tideSpotID *string) int
@@ -1502,6 +1508,7 @@ type MutationResolver interface {
 	CreateCoupon(ctx context.Context, input model.NewCoupon) (*model.ID, error)
 	CreateCouponByOcr(ctx context.Context, input *model.OcrImgPath) (*model.OcrRes, error)
 	UpdateCoupon(ctx context.Context, input model.UpdateCoupon) (*model.Result, error)
+	UpdateCouponToRead(ctx context.Context) (*model.Result, error)
 	CreateEvent(ctx context.Context, input model.NewEvent) (*model.ID, error)
 	UpdateEvent(ctx context.Context, input model.UpdateEvent) (*model.Result, error)
 	CreateEventScenerySpots(ctx context.Context, input model.InputEventSceneryspot) (*model.EventSceneryspot, error)
@@ -1614,6 +1621,7 @@ type QueryResolver interface {
 	CouponListGroupByType(ctx context.Context, tideSpotID *string) (*model.CouponListGroupByTypeRes, error)
 	CouponListByPagination(ctx context.Context, pageIndex int, pageSize int, typeArg *string, stateCode *string, tideSpotName *string, tideSpotID *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool, tideSpotConfigID *string, buyGoodBarCode *string) (*model.CouponPagination, error)
 	Coupon(ctx context.Context, id string) (*model.Coupon, error)
+	CouponIsNew(ctx context.Context) (*model.CouponIsNewRes, error)
 	TideSpotConfig(ctx context.Context, id string) (*model.TideSpotConfig, error)
 	TideSpotConfigList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, tideSpotID *string, enable *bool) (*model.TideSpotConfigConnection, error)
 	TideSpotList(ctx context.Context, first *int, after *string, last *int, before *string, name *string) (*model.TideSpotConnection, error)
@@ -2617,6 +2625,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CouponEdge.Node(childComplexity), true
+
+	case "CouponIsNewRes.isNew":
+		if e.complexity.CouponIsNewRes.IsNew == nil {
+			break
+		}
+
+		return e.complexity.CouponIsNewRes.IsNew(childComplexity), true
 
 	case "CouponPagination.data":
 		if e.complexity.CouponPagination.Data == nil {
@@ -4571,6 +4586,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateCoupon(childComplexity, args["input"].(model.UpdateCoupon)), true
 
+	case "Mutation.updateCouponToRead":
+		if e.complexity.Mutation.UpdateCouponToRead == nil {
+			break
+		}
+
+		return e.complexity.Mutation.UpdateCouponToRead(childComplexity), true
+
 	case "Mutation.updateEvent":
 		if e.complexity.Mutation.UpdateEvent == nil {
 			break
@@ -6049,6 +6071,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Coupon(childComplexity, args["id"].(string)), true
+
+	case "Query.couponIsNew":
+		if e.complexity.Query.CouponIsNew == nil {
+			break
+		}
+
+		return e.complexity.Query.CouponIsNew(childComplexity), true
 
 	case "Query.couponList":
 		if e.complexity.Query.CouponList == nil {
@@ -11315,6 +11344,10 @@ type TurtleBackMenu {
   menuCode: String
 }
 
+type CouponIsNewRes {
+  isNew: Boolean!
+}
+
 type TurtleBackConfig {
   id:ID!
   sort: Int!
@@ -11544,6 +11577,7 @@ input UpdateCoupon {
   couponBuyGoodListJSON: String
   use: Boolean
 }
+
 
 type couponListGroupByTypeRes {
   exchangeList:[Coupon!]!
@@ -11883,6 +11917,7 @@ type Mutation {
   createCoupon(input: NewCoupon!) : Id! @auth
   createCouponByOcr(input: OcrImgPath) : OcrRes @auth
   updateCoupon(input: UpdateCoupon!) : Result @auth
+  updateCouponToRead: Result @auth
 
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole
@@ -12250,6 +12285,10 @@ type Query {
   ): CouponPagination @auth
 
   coupon(id :String!) : Coupon @auth
+
+  couponIsNew : CouponIsNewRes @auth
+
+
 
   tideSpotConfig(id: String!): TideSpotConfig @auth
 
@@ -29596,6 +29635,50 @@ func (ec *executionContext) fieldContext_CouponEdge_node(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _CouponIsNewRes_isNew(ctx context.Context, field graphql.CollectedField, obj *model.CouponIsNewRes) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_CouponIsNewRes_isNew(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsNew, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_CouponIsNewRes_isNew(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "CouponIsNewRes",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _CouponPagination_totalCount(ctx context.Context, field graphql.CollectedField, obj *model.CouponPagination) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_CouponPagination_totalCount(ctx, field)
 	if err != nil {
@@ -38948,6 +39031,75 @@ func (ec *executionContext) fieldContext_Mutation_updateCoupon(ctx context.Conte
 	if fc.Args, err = ec.field_Mutation_updateCoupon_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateCouponToRead(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateCouponToRead(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateCouponToRead(rctx)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.Result
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Result); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.Result`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Result)
+	fc.Result = res
+	return ec.marshalOResult2ᚖgatewayᚋgraphᚋmodelᚐResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateCouponToRead(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "succed":
+				return ec.fieldContext_Result_succed(ctx, field)
+			case "message":
+				return ec.fieldContext_Result_message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Result", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -53298,6 +53450,73 @@ func (ec *executionContext) fieldContext_Query_coupon(ctx context.Context, field
 	if fc.Args, err = ec.field_Query_coupon_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_couponIsNew(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_couponIsNew(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CouponIsNew(rctx)
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.CouponIsNewRes
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CouponIsNewRes); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *gateway/graph/model.CouponIsNewRes`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.CouponIsNewRes)
+	fc.Result = res
+	return ec.marshalOCouponIsNewRes2ᚖgatewayᚋgraphᚋmodelᚐCouponIsNewRes(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_couponIsNew(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "isNew":
+				return ec.fieldContext_CouponIsNewRes_isNew(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CouponIsNewRes", field.Name)
+		},
 	}
 	return fc, nil
 }
@@ -90688,6 +90907,45 @@ func (ec *executionContext) _CouponEdge(ctx context.Context, sel ast.SelectionSe
 	return out
 }
 
+var couponIsNewResImplementors = []string{"CouponIsNewRes"}
+
+func (ec *executionContext) _CouponIsNewRes(ctx context.Context, sel ast.SelectionSet, obj *model.CouponIsNewRes) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, couponIsNewResImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("CouponIsNewRes")
+		case "isNew":
+			out.Values[i] = ec._CouponIsNewRes_isNew(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var couponPaginationImplementors = []string{"CouponPagination"}
 
 func (ec *executionContext) _CouponPagination(ctx context.Context, sel ast.SelectionSet, obj *model.CouponPagination) graphql.Marshaler {
@@ -92350,6 +92608,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateCoupon":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateCoupon(ctx, field)
+			})
+		case "updateCouponToRead":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateCouponToRead(ctx, field)
 			})
 		case "createEvent":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -94461,6 +94723,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_coupon(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "couponIsNew":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_couponIsNew(ctx, field)
 				return res
 			}
 
@@ -103327,6 +103608,13 @@ func (ec *executionContext) marshalOCouponConnection2ᚖgatewayᚋgraphᚋmodel�
 		return graphql.Null
 	}
 	return ec._CouponConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCouponIsNewRes2ᚖgatewayᚋgraphᚋmodelᚐCouponIsNewRes(ctx context.Context, sel ast.SelectionSet, v *model.CouponIsNewRes) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CouponIsNewRes(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOCouponPagination2ᚖgatewayᚋgraphᚋmodelᚐCouponPagination(ctx context.Context, sel ast.SelectionSet, v *model.CouponPagination) graphql.Marshaler {

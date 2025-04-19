@@ -51,6 +51,7 @@ type Repository interface {
 
 	CreateTideSpotGood(ctx context.Context, req *pb.TideSpotGood) (*pb.MsKeyword, error)
 	CreateCouponBuyGood(ctx context.Context, req *pb.CouponBuyGood) (*pb.MsKeyword, error)
+	UpdateCouponToRead(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error)
 
 	GetTurtleBackConfigList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfigRes, error)
 	GetTurtleBackConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfig, error)
@@ -211,11 +212,18 @@ func (r *MySqlRepository) GetTopCategory(ctx context.Context, req *pb.MsEmptyReq
 // Coupon
 func (r *MySqlRepository) CreateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsKeyword, error) {
 	item.Id = uuid.NewV4().String()
-
+	item.Read = false
 	if err := r.Database.Table("coupon").Create(&item).Error; err != nil {
 		return nil, err
 	}
 	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+func (r *MySqlRepository) UpdateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error) {
+	if err := r.Database.Table("coupon").Where("id = ?", item.Id).Updates(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsUpdateRes{Value: true}, nil
 }
 
 func (r *MySqlRepository) GetCoupon(ctx context.Context, req *pb.MsKeyword) (*pb.Coupon, error) {
@@ -230,8 +238,8 @@ func (r *MySqlRepository) GetCoupon(ctx context.Context, req *pb.MsKeyword) (*pb
 
 }
 
-func (r *MySqlRepository) UpdateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error) {
-	if err := r.Database.Table("coupon").Where("id = ?", item.Id).Updates(&item).Error; err != nil {
+func (r *MySqlRepository) UpdateCouponToRead(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error) {
+	if err := r.Database.Table("coupon").Where("user_wechat = ?", item.UserWechat).Updates(&item).Error; err != nil {
 		return nil, err
 	}
 	return &pb.MsUpdateRes{Value: true}, nil
@@ -284,12 +292,18 @@ func (r *MySqlRepository) GetCouponList(ctx context.Context, req *pb.CouponReque
 		db.Where("effective_time > ?", time.Now().Unix())
 		db.Where("use = 0")
 	}
+	if req.IsNew {
+		db = db.Where("`read` = 0")
+	}
+	if len(req.UserWechat) > 0 {
+		db = db.Where("user_wechat = ?", req.UserWechat)
+	}
 	// 未兑换包括已过期和未使用
 	if req.StateCode == "NotUse" {
 		db.Where("effective_time <= ? or use = 0", time.Now().Unix())
 	}
 
-	if err := db.Order("create_time DESC ").Debug().Find(&result.Data).Error; err != nil {
+	if err := db.Debug().Order("create_time DESC ").Find(&result.Data).Error; err != nil {
 		return nil, err
 	}
 

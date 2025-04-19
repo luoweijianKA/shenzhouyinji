@@ -94,6 +94,10 @@ type Query {
 
   coupon(id :String!) : Coupon @auth
 
+  couponIsNew : CouponIsNewRes @auth
+
+
+
   tideSpotConfig(id: String!): TideSpotConfig @auth
 
   tideSpotConfigList(

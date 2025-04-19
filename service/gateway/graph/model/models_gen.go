@@ -216,6 +216,10 @@ type CouponEdge struct {
 	Node   *Coupon `json:"node,omitempty"`
 }
 
+type CouponIsNewRes struct {
+	IsNew bool `json:"isNew"`
+}
+
 type CouponPagination struct {
 	TotalCount          int       `json:"totalCount"`
 	TotalExchangeCount  int       `json:"totalExchangeCount"`

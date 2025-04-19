@@ -1007,10 +1007,10 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 	tideSpotConfigParam := mPB.MsKeyword{
 		Value: input.TideSpotConfigID,
 	}
-	tideSpotConfig, configErr := r.managementService.GetTideSpotConfigById(ctx, &tideSpotConfigParam)
-	if configErr != nil {
-		log.Println(configErr)
-		return nil, configErr
+	tideSpotConfig, err := r.managementService.GetTideSpotConfigById(ctx, &tideSpotConfigParam)
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
 	cur := auth.ForContext(ctx)
 	v := model.Token{}
@@ -1019,10 +1019,15 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 		r.DB.Collection("session").FindOne(ctx, bson.D{{Key: "key", Value: cur.Token}}).Decode(&v)
 	}
 	u, err := auth.ParseToken(v.Value)
-	account, accountErr := r.accountService.GetAccount(ctx, &aPB.AsKeyword{Value: u.Id})
-	if accountErr != nil {
-		log.Println(accountErr)
-		return nil, accountErr
+	account, err := r.accountService.GetAccount(ctx, &aPB.AsKeyword{Value: u.Id})
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	profile, err := r.accountService.GetProfileByUserID(ctx, &aPB.AsKeyword{Value: account.Id})
+	if err != nil {
+		log.Println(err)
+		return nil, err
 	}
 	req := &mPB.Coupon{
 		TideSpotConfigId:  input.TideSpotConfigID,
@@ -1041,6 +1046,7 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 		EffectiveTime:     int32(tideSpotConfig.EffectiveTime),
 		UserWechat:        account.GetWechat(),
 		UserWechatName:    account.WechatName,
+		UserPhone:         profile.Phone,
 	}
 
 	res, err := r.managementService.CreateCoupon(ctx, req)
@@ -1175,6 +1181,24 @@ func (r *mutationResolver) UpdateCoupon(ctx context.Context, input model.UpdateC
 		return nil, err
 	}
 	r.UpdateTideSpotConfigFromUseCoupon(ctx, tideSpotConfig)
+	return &model.Result{Succed: &res.Value}, nil
+}
+
+// UpdateCouponToRead is the resolver for the updateCouponToRead field.
+func (r *mutationResolver) UpdateCouponToRead(ctx context.Context) (*model.Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	curUser := auth.ForContext(ctx).User
+	req := &mPB.Coupon{
+		UserWechat: curUser.Wechat,
+		Read:       true,
+	}
+
+	res, err := r.managementService.UpdateCouponToRead(ctx, req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	return &model.Result{Succed: &res.Value}, nil
 }
 

@@ -64,6 +64,7 @@ type ManagementService interface {
 	GetCouponList(ctx context.Context, in *CouponRequest, opts ...client.CallOption) (*CouponRes, error)
 	GetCouponListByPage(ctx context.Context, in *CouponRequest, opts ...client.CallOption) (*CouponRes, error)
 	GetCoupon(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*Coupon, error)
+	UpdateCouponToRead(ctx context.Context, in *Coupon, opts ...client.CallOption) (*MsUpdateRes, error)
 	GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfigRes, error)
 	UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, opts ...client.CallOption) (*MsUpdateRes, error)
 	GetTurtleBackConfig(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfig, error)
@@ -373,6 +374,16 @@ func (c *managementService) GetCoupon(ctx context.Context, in *MsKeyword, opts .
 	return out, nil
 }
 
+func (c *managementService) UpdateCouponToRead(ctx context.Context, in *Coupon, opts ...client.CallOption) (*MsUpdateRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.UpdateCouponToRead", in)
+	out := new(MsUpdateRes)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *managementService) GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TurtleBackConfigRes, error) {
 	req := c.c.NewRequest(c.name, "ManagementService.GetTurtleBackConfigList", in)
 	out := new(TurtleBackConfigRes)
@@ -554,6 +565,7 @@ type ManagementServiceHandler interface {
 	GetCouponList(context.Context, *CouponRequest, *CouponRes) error
 	GetCouponListByPage(context.Context, *CouponRequest, *CouponRes) error
 	GetCoupon(context.Context, *MsKeyword, *Coupon) error
+	UpdateCouponToRead(context.Context, *Coupon, *MsUpdateRes) error
 	GetTurtleBackConfigList(context.Context, *MsKeyword, *TurtleBackConfigRes) error
 	UpdateTurtleBackConfig(context.Context, *TurtleBackConfig, *MsUpdateRes) error
 	GetTurtleBackConfig(context.Context, *MsKeyword, *TurtleBackConfig) error
@@ -601,6 +613,7 @@ func RegisterManagementServiceHandler(s server.Server, hdlr ManagementServiceHan
 		GetCouponList(ctx context.Context, in *CouponRequest, out *CouponRes) error
 		GetCouponListByPage(ctx context.Context, in *CouponRequest, out *CouponRes) error
 		GetCoupon(ctx context.Context, in *MsKeyword, out *Coupon) error
+		UpdateCouponToRead(ctx context.Context, in *Coupon, out *MsUpdateRes) error
 		GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, out *TurtleBackConfigRes) error
 		UpdateTurtleBackConfig(ctx context.Context, in *TurtleBackConfig, out *MsUpdateRes) error
 		GetTurtleBackConfig(ctx context.Context, in *MsKeyword, out *TurtleBackConfig) error
@@ -738,6 +751,10 @@ func (h *managementServiceHandler) GetCouponListByPage(ctx context.Context, in *
 
 func (h *managementServiceHandler) GetCoupon(ctx context.Context, in *MsKeyword, out *Coupon) error {
 	return h.ManagementServiceHandler.GetCoupon(ctx, in, out)
+}
+
+func (h *managementServiceHandler) UpdateCouponToRead(ctx context.Context, in *Coupon, out *MsUpdateRes) error {
+	return h.ManagementServiceHandler.UpdateCouponToRead(ctx, in, out)
 }
 
 func (h *managementServiceHandler) GetTurtleBackConfigList(ctx context.Context, in *MsKeyword, out *TurtleBackConfigRes) error {

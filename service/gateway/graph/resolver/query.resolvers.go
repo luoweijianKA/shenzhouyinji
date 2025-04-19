@@ -1135,6 +1135,28 @@ func (r *queryResolver) Coupon(ctx context.Context, id string) (*model.Coupon, e
 	return r.NewCoupon(res), nil
 }
 
+// CouponIsNew is the resolver for the couponIsNew field.
+func (r *queryResolver) CouponIsNew(ctx context.Context) (*model.CouponIsNewRes, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	user := auth.ForContext(ctx).User
+
+	in := mPB.CouponRequest{
+		UserWechat: user.Wechat,
+		IsNew:      true,
+	}
+	result := false
+	res, err := r.managementService.GetCouponList(ctx, &in)
+	result = res != nil && len(res.Data) > 0
+	if err != nil {
+		return nil, err
+	}
+	isNewRes := &model.CouponIsNewRes{
+		IsNew: result,
+	}
+	return isNewRes, nil
+}
+
 // TideSpotConfig is the resolver for the tideSpotConfig field.
 func (r *queryResolver) TideSpotConfig(ctx context.Context, id string) (*model.TideSpotConfig, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)

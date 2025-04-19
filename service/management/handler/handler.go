@@ -79,6 +79,17 @@ func (h *Handler) UpdateCoupon(ctx context.Context, req *pb.Coupon, res *pb.MsUp
 	return nil
 }
 
+func (h *Handler) UpdateCouponToRead(ctx context.Context, req *pb.Coupon, res *pb.MsUpdateRes) error {
+	result, err := h.Repository.UpdateCouponToRead(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
+}
+
 func (h *Handler) CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig, res *pb.MsKeyword) error {
 	result, err := h.Repository.CreateTideSpotConfig(ctx, req)
 

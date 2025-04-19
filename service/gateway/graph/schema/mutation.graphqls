@@ -54,6 +54,7 @@ type Mutation {
   createCoupon(input: NewCoupon!) : Id! @auth
   createCouponByOcr(input: OcrImgPath) : OcrRes @auth
   updateCoupon(input: UpdateCoupon!) : Result @auth
+  updateCouponToRead: Result @auth
 
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole

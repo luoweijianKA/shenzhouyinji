@@ -23,6 +23,10 @@ type TurtleBackMenu {
   menuCode: String
 }
 
+type CouponIsNewRes {
+  isNew: Boolean!
+}
+
 type TurtleBackConfig {
   id:ID!
   sort: Int!
@@ -252,6 +256,7 @@ input UpdateCoupon {
   couponBuyGoodListJSON: String
   use: Boolean
 }
+
 
 type couponListGroupByTypeRes {
   exchangeList:[Coupon!]!

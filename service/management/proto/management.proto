@@ -41,6 +41,9 @@ service ManagementService {
     rpc GetCouponList(CouponRequest) returns (CouponRes) {}
     rpc GetCouponListByPage(CouponRequest) returns (CouponRes) {}
     rpc GetCoupon(MsKeyword) returns (Coupon) {}
+    rpc UpdateCouponToRead(Coupon) returns (MsUpdateRes) {}
+
+
 
     rpc GetTurtleBackConfigList(MsKeyword) returns (TurtleBackConfigRes){}
     rpc UpdateTurtleBackConfig(TurtleBackConfig) returns (MsUpdateRes){}
@@ -125,11 +128,15 @@ message CouponRequest {
     string tide_spot_config_id = 14;
     int32 page_index = 15;
     int32 page_size = 16;
-
+    bool is_new = 17;
 }
 message CouponRes {
     repeated Coupon data = 1;
     int64 total = 2;
+}
+
+message CouponIsNewRes{
+    bool isNew = 1;
 }
 message Coupon {
     string id = 1;
@@ -160,6 +167,7 @@ message Coupon {
 
     string submit_logo_img_path = 25;
 
+    bool read = 26;
 }
 
 message TideSpotConfig {
