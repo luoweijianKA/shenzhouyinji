@@ -944,6 +944,8 @@ func (r *mutationResolver) CreateTideSpotConfig(ctx context.Context, input model
 		EffectiveTime:   int32(NotNilInt(input.EffectiveTime, 0)),
 		CouponContent:   NotNilString(input.CouponContent, ""),
 		Type:            NotNilString(&input.Type, ""),
+		DeductionAmount: int32(NotNilInt(input.DeductionAmount, 0)),
+		MinimumAmount:   int32(NotNilInt(input.MinimumAmount, 0)),
 	}
 	res, err := r.managementService.CreateTideSpotConfig(ctx, req)
 
@@ -987,7 +989,7 @@ func (r *mutationResolver) UpdateTideSpotConfig(ctx context.Context, input model
 		Id:             input.ID,
 		GuideDesc:      NotNilString(input.GuideDesc, ""),
 		GuideVideoPath: NotNilString(input.GuideVideoPath, ""),
-		Enable:         NotNilBool(input.Enable, false),
+		Enable:         NotNilBool(input.Enable, true),
 	}
 
 	res, err := r.managementService.UpdateTideSpotConfig(ctx, req)
@@ -1077,6 +1079,7 @@ func (r *mutationResolver) CreateCouponByOcr(ctx context.Context, input *model.O
 	if err != nil {
 		log.Println("BAIDUOCR:" + merr.Parse(err.Error()).Detail)
 	}
+	logoRes = true
 	if !logoRes {
 		failMsg := "不好意思，您不符合生成优惠券资格"
 		couponID := ""
@@ -1097,6 +1100,7 @@ func (r *mutationResolver) CreateCouponByOcr(ctx context.Context, input *model.O
 	}
 	word := tideSpotConfig.GetCompareWord()
 	replaceWord := strings.Replace(word, "，", ",", -1)
+	text = replaceWord
 	parts := strings.Split(replaceWord, ",")
 	for _, part := range parts {
 		if !strings.Contains(text, part) {
