@@ -188,3 +188,41 @@ export async function checkPassCoupon(input) {
 
   return data;
 }
+
+// 优惠券配置详情
+export async function getCouponConfigDetail(id) {
+  const token = wx.getStorageSync('accessToken');
+  const authorization = 'Bearer ' + token;
+
+  const data = new Promise(function (reslove, reject) {
+    wx.request({
+      url: apiServer.gqlUri,
+      method: 'POST',
+      header: {
+        Authorization: authorization,
+      },
+      data: JSON.stringify({
+        query: `query TideSpotConfig($id: String!) {
+                    tideSpotConfig(id: $id) {
+                        id
+                        guideVideoPath
+                        guideDesc
+                    }
+                    __typename
+                }`,
+        variables: {
+          id,
+        },
+      }),
+      success(res) {
+        reslove(res.data.data.tideSpotConfig);
+      },
+      fail(res) {
+        console.log({ fail: res.data });
+        reject(res.data);
+      },
+    });
+  });
+
+  return data;
+}

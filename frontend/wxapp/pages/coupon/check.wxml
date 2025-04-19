@@ -18,7 +18,7 @@
         </view>
         <view class="item">
             <view class="item-left">生成关键图片</view>
-            <image class="item-image" src="{{detail.generateImgPath}}" mode="aspectFit" />
+            <image class="item-image" src="https://tupian.shenzhouyinji.cn/{{detail.generateImgPath}}" mode="aspectFit" />
         </view>
         <view class="item">
             <view class="item-left">优惠券生成时间</view>
@@ -34,7 +34,7 @@
         </view>
         <view class="item">
             <view class="item-left">使用人提交图片</view>
-            <image class="item-image" src="{{detail.submitImgPath}}" mode="aspectFit" />
+            <image class="item-image" src="https://tupian.shenzhouyinji.cn/{{detail.submitImgPath}}" mode="aspectFit" />
         </view>
         <view class="item">
             <view class="item-left">失效日期</view>
