@@ -30,7 +30,7 @@ service ManagementService {
 
     rpc GetTideSpotConfigList(TideSpotConfigRequest) returns (TideSpotConfigRes) {}
     rpc GetTideSpotConfigById(MsKeyword) returns (TideSpotConfig) {}
-
+    rpc GetTideSpotConfigCount(TideSpotConfigRequest) returns (TideSpotConfigCountRes) {}
 
     rpc CreateTideSpotGood(TideSpotGood) returns (MsKeyword) {}
 
@@ -191,6 +191,13 @@ message TideSpotConfig {
 message TideSpotConfigRes {
     repeated TideSpotConfig data = 1;
 }
+message TideSpotConfigCountRes {
+    int32 total_generate_num = 1;
+    int32 total_use_amount = 2;
+    int32 total_use_num = 3;
+    int32 total_not_use_num = 4;
+}
+
 message TideSpotGood {
     string id = 1;
     string good_name = 2;

@@ -56,6 +56,7 @@ type ManagementService interface {
 	UpdateTideSpotConfig(ctx context.Context, in *TideSpotConfig, opts ...client.CallOption) (*MsUpdateRes, error)
 	GetTideSpotConfigList(ctx context.Context, in *TideSpotConfigRequest, opts ...client.CallOption) (*TideSpotConfigRes, error)
 	GetTideSpotConfigById(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TideSpotConfig, error)
+	GetTideSpotConfigCount(ctx context.Context, in *TideSpotConfigRequest, opts ...client.CallOption) (*TideSpotConfigCountRes, error)
 	CreateTideSpotGood(ctx context.Context, in *TideSpotGood, opts ...client.CallOption) (*MsKeyword, error)
 	CreateCouponBuyGood(ctx context.Context, in *CouponBuyGood, opts ...client.CallOption) (*MsKeyword, error)
 	CreateCoupon(ctx context.Context, in *Coupon, opts ...client.CallOption) (*MsKeyword, error)
@@ -285,6 +286,16 @@ func (c *managementService) GetTideSpotConfigList(ctx context.Context, in *TideS
 func (c *managementService) GetTideSpotConfigById(ctx context.Context, in *MsKeyword, opts ...client.CallOption) (*TideSpotConfig, error) {
 	req := c.c.NewRequest(c.name, "ManagementService.GetTideSpotConfigById", in)
 	out := new(TideSpotConfig)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementService) GetTideSpotConfigCount(ctx context.Context, in *TideSpotConfigRequest, opts ...client.CallOption) (*TideSpotConfigCountRes, error) {
+	req := c.c.NewRequest(c.name, "ManagementService.GetTideSpotConfigCount", in)
+	out := new(TideSpotConfigCountRes)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -535,6 +546,7 @@ type ManagementServiceHandler interface {
 	UpdateTideSpotConfig(context.Context, *TideSpotConfig, *MsUpdateRes) error
 	GetTideSpotConfigList(context.Context, *TideSpotConfigRequest, *TideSpotConfigRes) error
 	GetTideSpotConfigById(context.Context, *MsKeyword, *TideSpotConfig) error
+	GetTideSpotConfigCount(context.Context, *TideSpotConfigRequest, *TideSpotConfigCountRes) error
 	CreateTideSpotGood(context.Context, *TideSpotGood, *MsKeyword) error
 	CreateCouponBuyGood(context.Context, *CouponBuyGood, *MsKeyword) error
 	CreateCoupon(context.Context, *Coupon, *MsKeyword) error
@@ -581,6 +593,7 @@ func RegisterManagementServiceHandler(s server.Server, hdlr ManagementServiceHan
 		UpdateTideSpotConfig(ctx context.Context, in *TideSpotConfig, out *MsUpdateRes) error
 		GetTideSpotConfigList(ctx context.Context, in *TideSpotConfigRequest, out *TideSpotConfigRes) error
 		GetTideSpotConfigById(ctx context.Context, in *MsKeyword, out *TideSpotConfig) error
+		GetTideSpotConfigCount(ctx context.Context, in *TideSpotConfigRequest, out *TideSpotConfigCountRes) error
 		CreateTideSpotGood(ctx context.Context, in *TideSpotGood, out *MsKeyword) error
 		CreateCouponBuyGood(ctx context.Context, in *CouponBuyGood, out *MsKeyword) error
 		CreateCoupon(ctx context.Context, in *Coupon, out *MsKeyword) error
@@ -693,6 +706,10 @@ func (h *managementServiceHandler) GetTideSpotConfigList(ctx context.Context, in
 
 func (h *managementServiceHandler) GetTideSpotConfigById(ctx context.Context, in *MsKeyword, out *TideSpotConfig) error {
 	return h.ManagementServiceHandler.GetTideSpotConfigById(ctx, in, out)
+}
+
+func (h *managementServiceHandler) GetTideSpotConfigCount(ctx context.Context, in *TideSpotConfigRequest, out *TideSpotConfigCountRes) error {
+	return h.ManagementServiceHandler.GetTideSpotConfigCount(ctx, in, out)
 }
 
 func (h *managementServiceHandler) CreateTideSpotGood(ctx context.Context, in *TideSpotGood, out *MsKeyword) error {

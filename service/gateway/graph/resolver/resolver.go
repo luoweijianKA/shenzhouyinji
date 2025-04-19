@@ -366,11 +366,13 @@ func (r *Resolver) UpdateTideSpotConfigFromUseCoupon(ctx context.Context, tideSp
 	mu.Lock()
 	useNum := tideSpotConfig.UseNum + 1
 	notUseNum := tideSpotConfig.NotUseNum - 1
+	useAmount := tideSpotConfig.UseAmount + tideSpotConfig.DeductionAmount
 
 	tideSpotConfigReq := &mPB.TideSpotConfig{
 		Id:        tideSpotConfig.Id,
 		UseNum:    useNum,
 		NotUseNum: notUseNum,
+		UseAmount: useAmount,
 	}
 	_, err := r.managementService.UpdateTideSpotConfig(ctx, tideSpotConfigReq)
 	if err != nil {

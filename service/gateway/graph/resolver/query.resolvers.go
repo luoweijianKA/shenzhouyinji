@@ -1075,13 +1075,45 @@ func (r *queryResolver) CouponListByPagination(ctx context.Context, pageIndex in
 	}
 	deductionOut, err := r.managementService.GetCouponList(ctx, &deductionIn)
 	deductionRes := deductionOut.Data
+
+	useIn := mPB.CouponRequest{
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              "Used",
+	}
+	useOut, err := r.managementService.GetCouponList(ctx, &useIn)
+	useRes := useOut.Data
+
+	expiredIn := mPB.CouponRequest{
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              "Expired",
+	}
+	expiredOut, err := r.managementService.GetCouponList(ctx, &expiredIn)
+	expiredRes := expiredOut.Data
 	return &model.CouponPagination{
 		Data:                results,
 		TotalCount:          total,
 		TotalExchangeCount:  len(exchangeRes),
 		TotalDeductionCount: len(deductionRes),
-		UseCount:            0,
-		ExpireCount:         0,
+		UseCount:            len(useRes),
+		ExpireCount:         len(expiredRes),
 	}, err
 }
 
@@ -1210,7 +1242,10 @@ func (r *queryResolver) TideSpotConfigList(ctx context.Context, first *int, afte
 		startCursor = EncodeToCursor(edges[0].Node.ID)
 		endCursor = EncodeToCursor(edges[count-1].Node.ID)
 	}
-
+	configCount, err := r.managementService.GetTideSpotConfigCount(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
 	conn := model.TideSpotConfigConnection{
 		TotalCount: len(results),
 		Edges:      edges[:count],
@@ -1220,6 +1255,10 @@ func (r *queryResolver) TideSpotConfigList(ctx context.Context, first *int, afte
 			HasPreviousPage: &hasPreviousPage,
 			HasNextPage:     &hasNextPage,
 		},
+		TotalGenerateNum: int(configCount.TotalGenerateNum),
+		TotalUseNum:      int(configCount.TotalUseNum),
+		TotalNotUseNum:   int(configCount.TotalNotUseNum),
+		TotalUseAmount:   int(configCount.TotalUseAmount),
 	}
 
 	return &conn, nil

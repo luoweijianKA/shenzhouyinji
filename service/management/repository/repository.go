@@ -47,6 +47,7 @@ type Repository interface {
 	GetTideSpotConfigList(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigRes, error)
 	UpdateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsUpdateRes, error)
 	GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotConfig, error)
+	GetTideSpotConfigCount(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigCountRes, error)
 
 	CreateTideSpotGood(ctx context.Context, req *pb.TideSpotGood) (*pb.MsKeyword, error)
 	CreateCouponBuyGood(ctx context.Context, req *pb.CouponBuyGood) (*pb.MsKeyword, error)
@@ -501,6 +502,23 @@ func (r *MySqlRepository) CreateTideSpotConfig(ctx context.Context, item *pb.Tid
 		return nil, err
 	}
 	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+func (r *MySqlRepository) GetTideSpotConfigCount(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigCountRes, error) {
+	result := new(pb.TideSpotConfigCountRes)
+	result.TotalGenerateNum = 0
+	result.TotalUseNum = 0
+	result.TotalNotUseNum = 0
+	result.TotalUseAmount = 0
+	db := r.Database.Table("tide_spot_config").Select(" sum(generate_num) as total_generate_num ,sum(use_num) as total_use_num,sum(not_use_num) as total_not_use_num,sum(use_amount) as  total_use_amount")
+	if len(req.Type) > 0 {
+		db.Where("type = ?", req.Type)
+	}
+	if err := db.Find(&result).Error; err != nil {
+		return nil, err
+	}
+	return result, nil
+
 }
 
 func (r *MySqlRepository) UpdateTideSpotConfig(ctx context.Context, item *pb.TideSpotConfig) (*pb.MsUpdateRes, error) {

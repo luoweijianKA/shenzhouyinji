@@ -22,6 +22,19 @@ func (h *Handler) CreateCouponBuyGood(ctx context.Context, req *pb.CouponBuyGood
 	return nil
 }
 
+func (h *Handler) GetTideSpotConfigCount(ctx context.Context, req *pb.TideSpotConfigRequest, res *pb.TideSpotConfigCountRes) error {
+	result, err := h.Repository.GetTideSpotConfigCount(ctx, req)
+
+	if err != nil {
+		return err
+	}
+	res.TotalUseNum = result.TotalUseNum
+	res.TotalGenerateNum = result.TotalGenerateNum
+	res.TotalUseAmount = result.TotalUseAmount
+	res.TotalNotUseNum = result.TotalNotUseNum
+	return nil
+}
+
 func (h *Handler) GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword, res *pb.TideSpotConfig) error {
 	result, err := h.Repository.GetTideSpotConfigById(ctx, req)
 
