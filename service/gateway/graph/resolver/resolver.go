@@ -1,14 +1,17 @@
 package resolver
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"image/jpeg"
+	"io"
 	"math/rand"
+	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -20,7 +23,6 @@ import (
 	"gateway/weixin"
 
 	"github.com/gofrs/uuid"
-	"github.com/skip2/go-qrcode"
 	aPB "gitlab.com/annoying-orange/shenzhouyinji/service/account/proto"
 	ePB "gitlab.com/annoying-orange/shenzhouyinji/service/event/proto"
 	mPB "gitlab.com/annoying-orange/shenzhouyinji/service/management/proto"
@@ -228,9 +230,81 @@ func (r *Resolver) NewAccount(v *aPB.Account) *model.Account {
 		CreateTime:   int(v.CreateTime),
 	}
 }
+func requestToken(appid, secret string) (string, error) {
+	u, err := url.Parse("https://api.weixin.qq.com/cgi-bin/token")
+	if err != nil {
+		logger.Fatal(err)
+	}
+	paras := &url.Values{}
+	//设置请求参数
+	paras.Set("appid", appid)
+	paras.Set("secret", secret)
+	paras.Set("grant_type", "client_credential")
+	u.RawQuery = paras.Encode()
+	resp, err := http.Get(u.String())
+	//关闭资源
+	if resp != nil && resp.Body != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return "", errors.New("request token err :" + err.Error())
+	}
+
+	jMap := make(map[string]interface{})
+	err = json.NewDecoder(resp.Body).Decode(&jMap)
+	if err != nil {
+		return "", errors.New("request token response json parse err :" + err.Error())
+	}
+	if jMap["errcode"] == nil || jMap["errcode"] == 0 {
+		accessToken, _ := jMap["access_token"].(string)
+		return accessToken, nil
+	} else {
+		//返回错误信息
+		errcode := jMap["errcode"].(string)
+		errmsg := jMap["errmsg"].(string)
+		err = errors.New(errcode + ":" + errmsg)
+		return "", err
+	}
+}
+
+func GetQRCode(id string) ([]byte, error) {
+	//上面生成的access code 判断为空时重新请求
+	accessToken, err := requestToken("wx2b36c7777353cd2e", "8a7bca23c18dbc558ae623ba89041699")
+	if err != nil {
+		return nil, errors.New("get QRCode err :" + err.Error())
+	}
+	strUrl := fmt.Sprintf("https://api.weixin.qq.com/wxa/getwxacode?access_token=%s", accessToken)
+
+	parm := make(map[string]string)
+	parm["path"] = fmt.Sprintf("pages/coupon/check?id=%s", id)
+	jsonStr, err := json.Marshal(parm)
+	if err != nil {
+		return nil, errors.New("json Marshal QRCode paramter err :" + err.Error())
+	}
+	req, err := http.NewRequest("POST", strUrl, bytes.NewBuffer([]byte(jsonStr)))
+	if err != nil {
+		return nil, errors.New("get QRCode err :" + err.Error())
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, errors.New("get QRCode err :" + err.Error())
+	}
+
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, errors.New("get QRCode err :" + err.Error())
+	}
+
+	return body, nil
+}
 
 func (r *Resolver) UpdateQRCode(v *mPB.Coupon) string {
-	code, err := qrcode.New(fmt.Sprintf("{\"path\":\"/\",\"id\":\"%s\"}", v.Id), qrcode.Medium)
+
+	code, err := GetQRCode(v.Id)
 	if err != nil {
 		logger.Error("生成优惠券生成失败")
 	}
@@ -255,14 +329,15 @@ func (r *Resolver) UpdateQRCode(v *mPB.Coupon) string {
 	defer dst.Close()
 	if err != nil {
 		logger.Error("生成优惠券生成失败")
-
 	}
-
+	_, err = dst.Write(code)
+	if err != nil {
+		logger.Error("生成优惠券生成失败")
+	}
 	// Copy the uploaded file to the created file on the filesystem
 	//if _, err := io.Copy(dst, file); err != nil {
 	//	logger.Error("生成优惠券生成失败")
 	//}
-	jpeg.Encode(dst, code.Image(256), nil)
 
 	rawURI := fmt.Sprintf("/%s/%s/%s", UPLOADS_ORIGINAL, name, filename)
 	return rawURI
@@ -277,6 +352,25 @@ func (r *Resolver) UpdateTideSpotConfigFromGenerateCoupon(ctx context.Context, t
 		Id:          tideSpotConfig.Id,
 		GenerateNum: generateNum,
 		NotUseNum:   notUseNum,
+	}
+	_, err := r.managementService.UpdateTideSpotConfig(ctx, tideSpotConfigReq)
+	if err != nil {
+		logger.Error(err)
+		mu.Unlock()
+	} else {
+		mu.Unlock()
+	}
+}
+
+func (r *Resolver) UpdateTideSpotConfigFromUseCoupon(ctx context.Context, tideSpotConfig *mPB.TideSpotConfig) {
+	mu.Lock()
+	useNum := tideSpotConfig.UseNum + 1
+	notUseNum := tideSpotConfig.NotUseNum - 1
+
+	tideSpotConfigReq := &mPB.TideSpotConfig{
+		Id:        tideSpotConfig.Id,
+		UseNum:    useNum,
+		NotUseNum: notUseNum,
 	}
 	_, err := r.managementService.UpdateTideSpotConfig(ctx, tideSpotConfigReq)
 	if err != nil {
@@ -433,11 +527,14 @@ func (r *Resolver) NewCoupon(v *mPB.Coupon) *model.Coupon {
 	if !v.Use {
 		userWechatName = ""
 	}
+	minimumAmount := int(v.MinimumAmount)
+	deductionAmount := int(v.DeductionAmount)
 	return &model.Coupon{
 		ID:                     v.Id,
 		Type:                   &v.Type,
 		TypeText:               &typeText,
 		TideSpotName:           &v.TideSpotName,
+		TideSpotID:             &v.TideSpotId,
 		CouponName:             &v.CouponName,
 		Desc:                   &v.Desc,
 		EffectiveTime:          &et,
@@ -450,6 +547,13 @@ func (r *Resolver) NewCoupon(v *mPB.Coupon) *model.Coupon {
 		VerificationWechatName: &v.VerificationWechatName,
 		UserPhone:              &v.UserPhone,
 		UseTime:                &ut,
+		SubmitImgPath:          &v.SubmitImgPath,
+		MinimumAmount:          &minimumAmount,
+		DeductionAmount:        &deductionAmount,
+		TideSpotConfigID:       &v.TideSpotConfigId,
+		GenerateWord:           &v.GenerateWord,
+		GenerateImgPath:        &v.GenerateImgPath,
+		SubmitWord:             &v.SubmitWord,
 	}
 }
 

@@ -37,6 +37,7 @@ type Mutation {
   createCategory(input: NewCategory!): Id! @auth @hasRole
   updateCategory(input: UpdateCategory!): Result! @auth @hasRole
 
+
   createTag(input: NewTag!): Id! @auth @hasRole
   updateTag(input: UpdateTag!): Result! @auth @hasRole
 
@@ -51,6 +52,8 @@ type Mutation {
   updateTideSpotConfig(input: UpdateTideSpotConfig!): Result! @auth
 
   createCoupon(input: NewCoupon!) : Id! @auth
+  createCouponByOcr(input: OcrImgPath) : OcrRes @auth
+  updateCoupon(input: UpdateCoupon!) : Result @auth
 
   # event service
   createEvent(input: NewEvent!): Id! @auth @hasRole

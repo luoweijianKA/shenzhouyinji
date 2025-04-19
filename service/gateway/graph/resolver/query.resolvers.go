@@ -817,7 +817,7 @@ func (r *queryResolver) UserStampPointsRecord(ctx context.Context, input model.N
 }
 
 // CouponList is the resolver for the couponList field.
-func (r *queryResolver) CouponList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, stateCode *string, tideSpotName *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool) (*model.CouponConnection, error) {
+func (r *queryResolver) CouponList(ctx context.Context, first *int, after *string, last *int, before *string, typeArg *string, stateCode *string, tideSpotName *string, tideSpotID *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool, tideSpotConfigID *string, buyGoodBarCode *string) (*model.CouponConnection, error) {
 	afterCursor, err := DecodedCursor(after)
 	if err != nil {
 		return nil, err
@@ -841,8 +841,23 @@ func (r *queryResolver) CouponList(ctx context.Context, first *int, after *strin
 	hasPreviousPage := false
 	hasNextPage := false
 
+	if NotNilBool(backSearch, false) {
+		user := auth.ForContext(ctx).User
+		userWechat = &user.Wechat
+	}
 	in := mPB.CouponRequest{
-		Type: NotNilString(typeArg, ""),
+		Type:                   NotNilString(typeArg, ""),
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              NotNilString(stateCode, ""),
 	}
 
 	out, err := r.managementService.GetCouponList(ctx, &in)
@@ -903,10 +918,45 @@ func (r *queryResolver) CouponList(ctx context.Context, first *int, after *strin
 		startCursor = EncodeToCursor(edges[0].Node.ID)
 		endCursor = EncodeToCursor(edges[count-1].Node.ID)
 	}
+	exchangeIn := mPB.CouponRequest{
+		Type:                   "Exchange",
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              NotNilString(stateCode, ""),
+	}
+	exchangeOut, err := r.managementService.GetCouponList(ctx, &exchangeIn)
+	exchangeRes := exchangeOut.Data
+
+	deductionIn := mPB.CouponRequest{
+		Type:                   "Deduction",
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              NotNilString(stateCode, ""),
+	}
+	deductionOut, err := r.managementService.GetCouponList(ctx, &deductionIn)
+	deductionRes := deductionOut.Data
 
 	conn := model.CouponConnection{
-		TotalCount: len(results),
-		Edges:      edges[:count],
+		TotalCount:          len(results),
+		TotalExchangeCount:  len(exchangeRes),
+		TotalDeductionCount: len(deductionRes),
+		Edges:               edges[:count],
 		PageInfo: &model.PageInfo{
 			StartCursor:     startCursor,
 			EndCursor:       endCursor,
@@ -916,6 +966,159 @@ func (r *queryResolver) CouponList(ctx context.Context, first *int, after *strin
 	}
 
 	return &conn, nil
+}
+
+// CouponListGroupByType is the resolver for the couponListGroupByType field.
+func (r *queryResolver) CouponListGroupByType(ctx context.Context, tideSpotID *string) (*model.CouponListGroupByTypeRes, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	user := auth.ForContext(ctx).User
+	userWechat := &user.Wechat
+	exchangeIn := mPB.CouponRequest{
+		Type:       "Exchange",
+		TideSpotId: NotNilString(tideSpotID, ""),
+		UserWechat: NotNilString(userWechat, ""),
+	}
+	exchangeRes, err := r.managementService.GetCouponList(ctx, &exchangeIn)
+	if err != nil {
+		return nil, err
+	}
+	exchangeResults := make([]*model.Coupon, 0)
+	for _, s := range exchangeRes.Data {
+		exchangeResults = append(exchangeResults, r.NewCoupon(s))
+	}
+
+	deductionIn := mPB.CouponRequest{
+		Type:       "Deduction",
+		TideSpotId: NotNilString(tideSpotID, ""),
+		UserWechat: NotNilString(userWechat, ""),
+	}
+	deductionRes, err := r.managementService.GetCouponList(ctx, &deductionIn)
+	if err != nil {
+		return nil, err
+	}
+	deductionResults := make([]*model.Coupon, 0)
+	for _, s := range deductionRes.Data {
+		deductionResults = append(deductionResults, r.NewCoupon(s))
+	}
+
+	return &model.CouponListGroupByTypeRes{
+		ExchangeList:  exchangeResults,
+		DeductionList: deductionResults,
+	}, err
+}
+
+// CouponListByPagination is the resolver for the couponListByPagination field.
+func (r *queryResolver) CouponListByPagination(ctx context.Context, pageIndex int, pageSize int, typeArg *string, stateCode *string, tideSpotName *string, tideSpotID *string, generateRule *string, buyGoodName *string, verificationWechatName *string, userWechatName *string, userPhone *string, useTimeStart *int, useTimeEnd *int, userWechat *string, backSearch *bool, tideSpotConfigID *string, buyGoodBarCode *string) (*model.CouponPagination, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	if NotNilBool(backSearch, false) {
+		user := auth.ForContext(ctx).User
+		userWechat = &user.Wechat
+	}
+	in := mPB.CouponRequest{
+		Type:                   NotNilString(typeArg, ""),
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              NotNilString(stateCode, ""),
+		PageIndex:              int32(pageIndex),
+		PageSize:               int32(pageSize),
+	}
+
+	res, err := r.managementService.GetCouponListByPage(ctx, &in)
+	if err != nil {
+		return nil, err
+	}
+	total := int(res.Total)
+	results := make([]*model.Coupon, 0)
+	for _, s := range res.Data {
+		results = append(results, r.NewCoupon(s))
+	}
+	exchangeIn := mPB.CouponRequest{
+		Type:                   "Exchange",
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              NotNilString(stateCode, ""),
+	}
+	exchangeOut, err := r.managementService.GetCouponList(ctx, &exchangeIn)
+	exchangeRes := exchangeOut.Data
+
+	deductionIn := mPB.CouponRequest{
+		Type:                   "Deduction",
+		TideSpotName:           NotNilString(tideSpotName, ""),
+		TideSpotId:             NotNilString(tideSpotName, ""),
+		GenerateRule:           NotNilString(generateRule, ""),
+		BuyGoodName:            NotNilString(buyGoodName, ""),
+		VerificationWechatName: NotNilString(verificationWechatName, ""),
+		UserWechatName:         NotNilString(userWechatName, ""),
+		UserPhone:              NotNilString(userPhone, ""),
+		UseTimeStart:           int32(NotNilInt(useTimeStart, 0)),
+		UseTimeEnd:             int32(NotNilInt(useTimeEnd, 0)),
+		UserWechat:             NotNilString(userWechat, ""),
+		StateCode:              NotNilString(stateCode, ""),
+	}
+	deductionOut, err := r.managementService.GetCouponList(ctx, &deductionIn)
+	deductionRes := deductionOut.Data
+	return &model.CouponPagination{
+		Data:                results,
+		TotalCount:          total,
+		TotalExchangeCount:  len(exchangeRes),
+		TotalDeductionCount: len(deductionRes),
+		UseCount:            0,
+		ExpireCount:         0,
+	}, err
+}
+
+// Coupon is the resolver for the coupon field.
+func (r *queryResolver) Coupon(ctx context.Context, id string) (*model.Coupon, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	req := mPB.MsKeyword{
+		Value: id,
+	}
+
+	res, err := r.managementService.GetCoupon(ctx, &req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.NewCoupon(res), nil
+}
+
+// TideSpotConfig is the resolver for the tideSpotConfig field.
+func (r *queryResolver) TideSpotConfig(ctx context.Context, id string) (*model.TideSpotConfig, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	req := mPB.MsKeyword{
+		Value: id,
+	}
+
+	res, err := r.managementService.GetTideSpotConfigById(ctx, &req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.NewTideSpotConfig(res), nil
 }
 
 // TideSpotConfigList is the resolver for the tideSpotConfigList field.

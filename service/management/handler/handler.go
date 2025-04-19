@@ -10,6 +10,18 @@ type Handler struct {
 	Repository repo.Repository
 }
 
+func (h *Handler) CreateCouponBuyGood(ctx context.Context, req *pb.CouponBuyGood, res *pb.MsKeyword) error {
+	result, err := h.Repository.CreateCouponBuyGood(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Value = result.Value
+
+	return nil
+}
+
 func (h *Handler) GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword, res *pb.TideSpotConfig) error {
 	result, err := h.Repository.GetTideSpotConfigById(ctx, req)
 
@@ -75,6 +87,20 @@ func (h *Handler) GetCouponList(ctx context.Context, req *pb.CouponRequest, res 
 	}
 
 	res.Data = result.Data
+
+	return nil
+}
+
+func (h *Handler) GetCouponListByPage(ctx context.Context, req *pb.CouponRequest, res *pb.CouponRes) error {
+
+	result, err := h.Repository.GetCouponListByPage(ctx, req)
+
+	if err != nil {
+		return err
+	}
+
+	res.Data = result.Data
+	res.Total = result.Total
 
 	return nil
 }
@@ -253,6 +279,41 @@ func (h *Handler) UpdateCategory(ctx context.Context, req *pb.Category, res *pb.
 	}
 
 	res.Value = result.Value
+
+	return nil
+}
+
+func (h *Handler) GetCoupon(ctx context.Context, req *pb.MsKeyword, res *pb.Coupon) error {
+	result, err := h.Repository.GetCoupon(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	res.Id = result.Id
+	res.Type = result.Type
+	res.TideSpotConfigId = result.TideSpotConfigId
+	res.TideSpotId = result.TideSpotId
+	res.TideSpotName = result.TideSpotName
+	res.CouponName = result.CouponName
+	res.GenerateWord = result.GenerateWord
+	res.GenerateImgPath = result.GenerateImgPath
+	res.CreateTime = result.CreateTime
+	res.UserWechat = result.UserWechat
+	res.UserWechatName = result.UserWechatName
+	res.SubmitWord = result.SubmitWord
+	res.SubmitImgPath = result.SubmitImgPath
+	res.EffectiveTime = result.EffectiveTime
+	res.Desc = result.Desc
+	res.Use = result.Use
+	res.QrCodePath = result.QrCodePath
+	res.MinimumAmount = result.MinimumAmount
+	res.DeductionAmount = result.DeductionAmount
+	res.BuyGoodName = result.BuyGoodName
+	res.VerificationWechat = result.VerificationWechat
+	res.VerificationWechatName = result.VerificationWechatName
+	res.UseTime = result.UseTime
+	res.UserPhone = result.UserPhone
+	res.SubmitLogoImgPath = result.SubmitLogoImgPath
 
 	return nil
 }

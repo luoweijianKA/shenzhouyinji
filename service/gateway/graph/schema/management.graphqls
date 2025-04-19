@@ -42,6 +42,17 @@ input NewCategory {
   sort: Int!
 }
 
+input OcrImgPath {
+  textImgPath: String!
+  logoImgPath: String!
+  tideSpotConfigId: String!
+}
+
+type OcrRes {
+  couponId: String
+  msg: String
+}
+
 input UpdateCategory {
   id: ID!
   name: String
@@ -202,6 +213,10 @@ type Coupon {
   buyGoodName: String
   verificationWechatName: String
   useTime: Int
+  minimumAmount: Int
+  deductionAmount: Int
+  submitLogoImgPath: String
+  buyGoodNameAndCode: String
 }
 
 type CouponEdge {
@@ -210,17 +225,38 @@ type CouponEdge {
 }
 type CouponConnection {
   totalCount: Int!
+  totalExchangeCount: Int!
+  totalDeductionCount: Int!
   edges: [CouponEdge!]!
   pageInfo: PageInfo!
 }
 
+type CouponPagination {
+  totalCount: Int!
+  totalExchangeCount: Int!
+  totalDeductionCount: Int!
+  useCount: Int!
+  expireCount: Int!
+  data: [Coupon]
+}
 
 input NewCoupon {
   tideSpotConfigId: String!
   submitWord: String!
   submitImgPath: String!
+  submitLogoImgPath: String!
 }
 
+input UpdateCoupon {
+  id:ID!
+  couponBuyGoodListJSON: String
+  use: Boolean
+}
+
+type couponListGroupByTypeRes {
+  exchangeList:[Coupon!]!
+  deductionList:[Coupon!]!
+}
 
 
 
@@ -262,6 +298,8 @@ type TideSpotConfigConnection {
   totalUseNum: Int!
   totalNotUseNum: Int!
 }
+
+
 
 enum Restore {
   SCENERYSPOT

@@ -13,6 +13,7 @@ import (
 	"gateway/graph/auth"
 	"gateway/graph/generated"
 	"gateway/graph/model"
+	ocr "gateway/graph/orc"
 	"gateway/graph/utils"
 	"io"
 	"io/ioutil"
@@ -930,6 +931,8 @@ func (r *mutationResolver) UpdateTideSpot(ctx context.Context, input *model.Upda
 func (r *mutationResolver) CreateTideSpotConfig(ctx context.Context, input model.NewTideSpotConfig) (*model.ID, error) {
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
+	//logoImg, _ := os.ReadFile(NotNilString(input.CouponImgPath, ""))
+
 	req := &mPB.TideSpotConfig{
 		TideSpotId:      NotNilString(&input.TideSpotID, ""),
 		TideSpotName:    NotNilString(&input.TideSpotName, ""),
@@ -944,14 +947,19 @@ func (r *mutationResolver) CreateTideSpotConfig(ctx context.Context, input model
 	}
 	res, err := r.managementService.CreateTideSpotConfig(ctx, req)
 
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	if input.TideSpotGoodListJSON != nil && len(*input.TideSpotGoodListJSON) > 0 {
 		// tideSpotGoodList := make([]*mPB.TideSpotGood, 0)
 		tideSpotGoodList := make([]map[string]interface{}, 0)
 		json.Unmarshal([]byte(*input.TideSpotGoodListJSON), &tideSpotGoodList)
 		for _, good := range tideSpotGoodList {
 			goodReq := &mPB.TideSpotGood{
-				GoodName:    good["goodName"].(string),
-				GoodBarcode: good["goodBarcode"].(string),
+				GoodName:         good["goodName"].(string),
+				GoodBarcode:      good["goodBarcode"].(string),
+				TideSpotConfigId: res.Value,
 			}
 			_, goodErr := r.managementService.CreateTideSpotGood(ctx, goodReq)
 			if goodErr != nil {
@@ -964,6 +972,9 @@ func (r *mutationResolver) CreateTideSpotConfig(ctx context.Context, input model
 		log.Println(err)
 		return nil, err
 	}
+
+	// 上传logo
+	ocr.UploadLogo(*input.CompareLogoPath, res.Value)
 	return &model.ID{ID: res.Value}, nil
 }
 
@@ -1014,21 +1025,22 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 		return nil, accountErr
 	}
 	req := &mPB.Coupon{
-		TideSpotConfigId: input.TideSpotConfigID,
-		SubmitWord:       input.SubmitWord,
-		SubmitImgPath:    input.SubmitImgPath,
-		Type:             tideSpotConfig.Type,
-		TideSpotId:       tideSpotConfig.TideSpotId,
-		TideSpotName:     tideSpotConfig.TideSpotName,
-		CouponName:       tideSpotConfig.CouponName,
-		GenerateWord:     tideSpotConfig.CompareWord,
-		GenerateImgPath:  tideSpotConfig.CouponImgPath,
-		Desc:             tideSpotConfig.Desc,
-		DeductionAmount:  tideSpotConfig.DeductionAmount,
-		MinimumAmount:    tideSpotConfig.MinimumAmount,
-		EffectiveTime:    int32(tideSpotConfig.EffectiveTime),
-		UserWechat:       account.GetWechat(),
-		UserWechatName:   account.WechatName,
+		TideSpotConfigId:  input.TideSpotConfigID,
+		SubmitWord:        input.SubmitWord,
+		SubmitImgPath:     input.SubmitImgPath,
+		SubmitLogoImgPath: input.SubmitLogoImgPath,
+		Type:              tideSpotConfig.Type,
+		TideSpotId:        tideSpotConfig.TideSpotId,
+		TideSpotName:      tideSpotConfig.TideSpotName,
+		CouponName:        tideSpotConfig.CouponName,
+		GenerateWord:      tideSpotConfig.CompareWord,
+		GenerateImgPath:   tideSpotConfig.CouponImgPath,
+		Desc:              tideSpotConfig.Desc,
+		DeductionAmount:   tideSpotConfig.DeductionAmount,
+		MinimumAmount:     tideSpotConfig.MinimumAmount,
+		EffectiveTime:     int32(tideSpotConfig.EffectiveTime),
+		UserWechat:        account.GetWechat(),
+		UserWechatName:    account.WechatName,
 	}
 
 	res, err := r.managementService.CreateCoupon(ctx, req)
@@ -1051,6 +1063,119 @@ func (r *mutationResolver) CreateCoupon(ctx context.Context, input model.NewCoup
 		return nil, err
 	}
 	return &model.ID{ID: res.Value}, nil
+}
+
+// CreateCouponByOcr is the resolver for the createCouponByOcr field.
+func (r *mutationResolver) CreateCouponByOcr(ctx context.Context, input *model.OcrImgPath) (*model.OcrRes, error) {
+	logoRes, err := ocr.OcrLogo(input.LogoImgPath)
+	if err != nil {
+		log.Println("BAIDUOCR:" + merr.Parse(err.Error()).Detail)
+	}
+	if !logoRes {
+		failMsg := "不好意思，您不符合生成优惠券资格"
+		couponID := ""
+		return &model.OcrRes{
+			CouponID: &couponID,
+			Msg:      &failMsg,
+		}, nil
+	}
+	text, err := ocr.OcrText(input.TextImgPath)
+	if err != nil {
+		log.Println("WXOCR:" + merr.Parse(err.Error()).Detail)
+	}
+	tideSpotConfig, err := r.managementService.GetTideSpotConfigById(ctx, &mPB.MsKeyword{
+		Value: input.TideSpotConfigID,
+	})
+	if err != nil {
+		log.Println("WXOCR:" + merr.Parse(err.Error()).Detail)
+	}
+	word := tideSpotConfig.GetCompareWord()
+	replaceWord := strings.Replace(word, "，", ",", -1)
+	parts := strings.Split(replaceWord, ",")
+	for _, part := range parts {
+		if !strings.Contains(text, part) {
+			failMsg := "不好意思，您不符合生成优惠券资格"
+			couponID := ""
+			return &model.OcrRes{
+				CouponID: &couponID,
+				Msg:      &failMsg,
+			}, nil
+		}
+
+	}
+	req := &model.NewCoupon{
+		TideSpotConfigID:  NotNilString(&input.TideSpotConfigID, ""),
+		SubmitImgPath:     NotNilString(&input.TextImgPath, ""),
+		SubmitLogoImgPath: NotNilString(&input.LogoImgPath, ""),
+		SubmitWord:        NotNilString(&input.TextImgPath, ""),
+	}
+	coupon, err := r.CreateCoupon(ctx, *req)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	typeText := ""
+	if tideSpotConfig.Type == "Exchange" {
+		typeText = "兑换券"
+	} else {
+		typeText = "抵扣券"
+	}
+	successMsg := fmt.Sprintf("恭喜，获取了%s【%s】1张，请到个人中心查看", typeText, tideSpotConfig.CouponName)
+	return &model.OcrRes{
+		CouponID: &coupon.ID,
+		Msg:      &successMsg,
+	}, nil
+}
+
+// UpdateCoupon is the resolver for the updateCoupon field.
+func (r *mutationResolver) UpdateCoupon(ctx context.Context, input model.UpdateCoupon) (*model.Result, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	req := &mPB.Coupon{
+		Id:  input.ID,
+		Use: *input.Use,
+	}
+
+	res, err := r.managementService.UpdateCoupon(ctx, req)
+	if input.CouponBuyGoodListJSON != nil && len(*input.CouponBuyGoodListJSON) > 0 {
+		// tideSpotGoodList := make([]*mPB.TideSpotGood, 0)
+		buyGoodList := make([]map[string]interface{}, 0)
+		json.Unmarshal([]byte(*input.CouponBuyGoodListJSON), &buyGoodList)
+		for _, good := range buyGoodList {
+			goodReq := &mPB.CouponBuyGood{
+				GoodName:    good["goodName"].(string),
+				GoodBarcode: good["goodBarcode"].(string),
+				CouponId:    input.ID,
+			}
+			_, goodErr := r.managementService.CreateCouponBuyGood(ctx, goodReq)
+			if goodErr != nil {
+				log.Println(goodErr)
+				return nil, goodErr
+			}
+		}
+	}
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	// todo 更新配置
+	coupon, err := r.managementService.GetCoupon(ctx, &mPB.MsKeyword{
+		Value: input.ID,
+	})
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	tideSpotConfig, err := r.managementService.GetTideSpotConfigById(ctx, &mPB.MsKeyword{
+		Value: coupon.TideSpotConfigId,
+	})
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	r.UpdateTideSpotConfigFromUseCoupon(ctx, tideSpotConfig)
+	return &model.Result{Succed: &res.Value}, nil
 }
 
 // CreateEvent is the resolver for the createEvent field.

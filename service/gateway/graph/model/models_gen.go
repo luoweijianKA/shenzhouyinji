@@ -197,17 +197,32 @@ type Coupon struct {
 	BuyGoodName            *string `json:"buyGoodName,omitempty"`
 	VerificationWechatName *string `json:"verificationWechatName,omitempty"`
 	UseTime                *int    `json:"useTime,omitempty"`
+	MinimumAmount          *int    `json:"minimumAmount,omitempty"`
+	DeductionAmount        *int    `json:"deductionAmount,omitempty"`
+	SubmitLogoImgPath      *string `json:"submitLogoImgPath,omitempty"`
+	BuyGoodNameAndCode     *string `json:"buyGoodNameAndCode,omitempty"`
 }
 
 type CouponConnection struct {
-	TotalCount int           `json:"totalCount"`
-	Edges      []*CouponEdge `json:"edges"`
-	PageInfo   *PageInfo     `json:"pageInfo"`
+	TotalCount          int           `json:"totalCount"`
+	TotalExchangeCount  int           `json:"totalExchangeCount"`
+	TotalDeductionCount int           `json:"totalDeductionCount"`
+	Edges               []*CouponEdge `json:"edges"`
+	PageInfo            *PageInfo     `json:"pageInfo"`
 }
 
 type CouponEdge struct {
 	Cursor string  `json:"cursor"`
 	Node   *Coupon `json:"node,omitempty"`
+}
+
+type CouponPagination struct {
+	TotalCount          int       `json:"totalCount"`
+	TotalExchangeCount  int       `json:"totalExchangeCount"`
+	TotalDeductionCount int       `json:"totalDeductionCount"`
+	UseCount            int       `json:"useCount"`
+	ExpireCount         int       `json:"expireCount"`
+	Data                []*Coupon `json:"data,omitempty"`
 }
 
 type Event struct {
@@ -474,9 +489,10 @@ type NewConversation struct {
 }
 
 type NewCoupon struct {
-	TideSpotConfigID string `json:"tideSpotConfigId"`
-	SubmitWord       string `json:"submitWord"`
-	SubmitImgPath    string `json:"submitImgPath"`
+	TideSpotConfigID  string `json:"tideSpotConfigId"`
+	SubmitWord        string `json:"submitWord"`
+	SubmitImgPath     string `json:"submitImgPath"`
+	SubmitLogoImgPath string `json:"submitLogoImgPath"`
 }
 
 type NewEvent struct {
@@ -850,6 +866,17 @@ type NotificationInput struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
 	Content string `json:"content"`
+}
+
+type OcrImgPath struct {
+	TextImgPath      string `json:"textImgPath"`
+	LogoImgPath      string `json:"logoImgPath"`
+	TideSpotConfigID string `json:"tideSpotConfigId"`
+}
+
+type OcrRes struct {
+	CouponID *string `json:"couponId,omitempty"`
+	Msg      *string `json:"msg,omitempty"`
 }
 
 type PageInfo struct {
@@ -1450,6 +1477,12 @@ type UpdateConversation struct {
 	Status int    `json:"status"`
 }
 
+type UpdateCoupon struct {
+	ID                    string  `json:"id"`
+	CouponBuyGoodListJSON *string `json:"couponBuyGoodListJSON,omitempty"`
+	Use                   *bool   `json:"use,omitempty"`
+}
+
 type UpdateEvent struct {
 	ID           string  `json:"id"`
 	Code         *string `json:"code,omitempty"`
@@ -1950,6 +1983,11 @@ type UserUnreadMessage struct {
 type VerifyUserPassport struct {
 	ID     string `json:"id"`
 	Verify bool   `json:"verify"`
+}
+
+type CouponListGroupByTypeRes struct {
+	ExchangeList  []*Coupon `json:"exchangeList"`
+	DeductionList []*Coupon `json:"deductionList"`
 }
 
 type AuditingCode string

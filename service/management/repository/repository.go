@@ -40,6 +40,8 @@ type Repository interface {
 	CreateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsKeyword, error)
 	UpdateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error)
 	GetCouponList(ctx context.Context, item *pb.CouponRequest) (*pb.CouponRes, error)
+	GetCouponListByPage(ctx context.Context, req *pb.CouponRequest) (*pb.CouponRes, error)
+	GetCoupon(ctx context.Context, req *pb.MsKeyword) (*pb.Coupon, error)
 
 	CreateTideSpotConfig(ctx context.Context, req *pb.TideSpotConfig) (*pb.MsKeyword, error)
 	GetTideSpotConfigList(ctx context.Context, req *pb.TideSpotConfigRequest) (*pb.TideSpotConfigRes, error)
@@ -47,6 +49,7 @@ type Repository interface {
 	GetTideSpotConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TideSpotConfig, error)
 
 	CreateTideSpotGood(ctx context.Context, req *pb.TideSpotGood) (*pb.MsKeyword, error)
+	CreateCouponBuyGood(ctx context.Context, req *pb.CouponBuyGood) (*pb.MsKeyword, error)
 
 	GetTurtleBackConfigList(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfigRes, error)
 	GetTurtleBackConfigById(ctx context.Context, req *pb.MsKeyword) (*pb.TurtleBackConfig, error)
@@ -214,6 +217,18 @@ func (r *MySqlRepository) CreateCoupon(ctx context.Context, item *pb.Coupon) (*p
 	return &pb.MsKeyword{Value: item.Id}, nil
 }
 
+func (r *MySqlRepository) GetCoupon(ctx context.Context, req *pb.MsKeyword) (*pb.Coupon, error) {
+	result := new(pb.Coupon)
+	result.Id = req.Value
+
+	if err := r.Database.Table("coupon").First(&result).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+
+}
+
 func (r *MySqlRepository) UpdateCoupon(ctx context.Context, item *pb.Coupon) (*pb.MsUpdateRes, error) {
 	if err := r.Database.Table("coupon").Where("id = ?", item.Id).Updates(&item).Error; err != nil {
 		return nil, err
@@ -228,8 +243,8 @@ func (r *MySqlRepository) GetCouponList(ctx context.Context, req *pb.CouponReque
 	if len(req.Type) > 0 {
 		db = db.Where("type = ?", req.Type)
 	}
-	if len(req.TideSpotAme) > 0 {
-		db = db.Where("tide_spot_ame like ?", "%"+req.TideSpotAme+"%")
+	if len(req.TideSpotName) > 0 {
+		db = db.Where("tide_spot_ame like ?", "%"+req.TideSpotName+"%")
 	}
 	if len(req.GenerateRule) > 0 {
 		db = db.Where("compare_word like ?", "%"+req.GenerateRule+"%")
@@ -258,7 +273,85 @@ func (r *MySqlRepository) GetCouponList(ctx context.Context, req *pb.CouponReque
 	if len(req.UserWechat) > 0 {
 		db = db.Where("user_wechat = ?", req.UserWechat)
 	}
+	if req.StateCode == "Used" {
+		db.Where("use = 1")
+	}
+	if req.StateCode == "Expired" {
+		db.Where("effective_time <= ?", time.Now().Unix())
+	}
+	if req.StateCode == "Normal" {
+		db.Where("effective_time > ?", time.Now().Unix())
+		db.Where("use = 0")
+	}
+	// 未兑换包括已过期和未使用
+	if req.StateCode == "NotUse" {
+		db.Where("effective_time <= ? or use = 0", time.Now().Unix())
+	}
+
 	if err := db.Order("create_time DESC ").Debug().Find(&result.Data).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (r *MySqlRepository) GetCouponListByPage(ctx context.Context, req *pb.CouponRequest) (*pb.CouponRes, error) {
+	result := new(pb.CouponRes)
+	result.Data = make([]*pb.Coupon, 0)
+	offset := (req.PageIndex - 1) * req.PageSize
+
+	db := r.Database.Table("coupon")
+	if len(req.Type) > 0 {
+		db = db.Where("type = ?", req.Type)
+	}
+	if len(req.TideSpotName) > 0 {
+		db = db.Where("tide_spot_ame like ?", "%"+req.TideSpotName+"%")
+	}
+	if len(req.GenerateRule) > 0 {
+		db = db.Where("compare_word like ?", "%"+req.GenerateRule+"%")
+	}
+	if len(req.BuyGoodName) > 0 {
+		db = db.Where("buy_good_name like ?", "%"+req.BuyGoodName+"%")
+	}
+	if len(req.BuyGoodName) > 0 {
+		db = db.Where("buy_good_name like ?", "%"+req.BuyGoodName+"%")
+	}
+	if len(req.VerificationWechatName) > 0 {
+		db = db.Where("verification_wechat_name like ?", "%"+req.VerificationWechatName+"%")
+	}
+	if len(req.UserWechatName) > 0 {
+		db = db.Where("user_wechat_name like ?", "%"+req.UserWechatName+"%")
+	}
+	if len(req.UserPhone) > 0 {
+		db = db.Where("user_phone like ?", "%"+req.UserPhone+"%")
+	}
+	if req.UseTimeStart > 0 {
+		db = db.Where("use_time >= ?", req.UseTimeStart)
+	}
+	if req.UseTimeEnd > 0 {
+		db = db.Where("use_time <= ?", req.UseTimeEnd)
+	}
+	if len(req.UserWechat) > 0 {
+		db = db.Where("user_wechat = ?", req.UserWechat)
+	}
+	if req.StateCode == "Used" {
+		db.Where("use = 1")
+	}
+	if req.StateCode == "Expired" {
+		db.Where("effective_time <= ?", time.Now().Unix())
+	}
+	if req.StateCode == "Normal" {
+		db.Where("effective_time > ?", time.Now().Unix())
+		db.Where("use = 0")
+	}
+	// 未兑换包括已过期和未使用
+	if req.StateCode == "NotUse" {
+		db.Where("effective_time <= ? or use = 0", time.Now().Unix())
+	}
+
+	db.Count(&result.Total)
+
+	if err := db.Limit(int(req.PageSize)).Offset(int(offset)).Order("create_time DESC ").Debug().Find(&result.Data).Error; err != nil {
 		return nil, err
 	}
 
@@ -383,6 +476,16 @@ func (r *MySqlRepository) CreateTideSpotGood(ctx context.Context, item *pb.TideS
 	item.Id = uuid.NewV4().String()
 
 	if err := r.Database.Table("tide_spot_good").Create(&item).Error; err != nil {
+		return nil, err
+	}
+	return &pb.MsKeyword{Value: item.Id}, nil
+}
+
+// CouponBuyGood
+func (r *MySqlRepository) CreateCouponBuyGood(ctx context.Context, item *pb.CouponBuyGood) (*pb.MsKeyword, error) {
+	item.Id = uuid.NewV4().String()
+
+	if err := r.Database.Table("coupon_buy_good").Create(&item).Error; err != nil {
 		return nil, err
 	}
 	return &pb.MsKeyword{Value: item.Id}, nil
