@@ -47,6 +47,13 @@
   "MENU_SETTINGS_MAP": "印迹地图",
   "MENU_SETTINGS_LOG": "系统日志",
 
+  "MENU_TRENDY_GIFT": "潮品礼遇",
+  "MENU_EXCHANGE_VOUCHER": "兑换券管理",
+  "MENU_DISCOUNT_VOUCHER": "抵扣券管理",
+  "MENU_EXCHANGE_RECORD": "兑换记录",
+  "MENU_DISCOUNT_RECORD": "抵扣记录",
+  "MENU_GEO_FENCE": "电子围栏",
+
   "ACTIVE": "激活",
   "INACTIVE": "禁用",
   "SUSPEND": "暂停",
