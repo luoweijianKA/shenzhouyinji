@@ -44,6 +44,7 @@ import zhCN from 'date-fns/locale/zh-CN';
 import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { ContentState, convertFromHTML, convertFromRaw, convertToRaw, EditorState } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
 import FileUploader from '../../utils/fileUpload';
 
 /**
@@ -716,7 +717,7 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmi
     const handleSubmit = useCallback(() => {
         const contentState = editorState.getCurrentContent();
         const hasText = contentState.hasText();
-        const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
+        const rawContent = hasText ? draftToHtml(convertToRaw(contentState)) : '';
         console.log('Submitting guidance:', { text: rawContent, video: videoFile });
         onSubmit({ text: rawContent, video: videoFile });
         onClose();

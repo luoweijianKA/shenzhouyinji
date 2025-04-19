@@ -22,7 +22,7 @@ interface UploadResponse {
  * 文件上传工具类
  */
 class FileUploader {
-    private static readonly UPLOAD_URL = 'https://ces.shenzhouyinji.cn/upload';
+    private static readonly UPLOAD_URL = 'https://fuwu.shenzhouyinji.cn/upload';
     private static readonly DEFAULT_OPTIONS: UploadOptions = {
         preview: true,
         tag: 'icon'

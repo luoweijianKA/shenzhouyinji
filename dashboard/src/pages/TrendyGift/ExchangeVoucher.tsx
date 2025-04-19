@@ -38,6 +38,7 @@ import { gql } from '@apollo/client';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import draftToHtml from 'draftjs-to-html';
 import zhCN from 'date-fns/locale/zh-CN';
 import FileUploader from '../../utils/fileUpload';
 
@@ -160,7 +161,7 @@ const GuidanceDialog = React.memo<GuidanceDialogProps>(({ open, onClose, onSubmi
     const handleSubmit = useCallback(() => {
         const contentState = editorState.getCurrentContent();
         const hasText = contentState.hasText();
-        const rawContent = hasText ? JSON.stringify(convertToRaw(contentState)) : '';
+        const rawContent = hasText ? draftToHtml(convertToRaw(contentState)) : '';
         console.log('Submitting guidance:', { text: rawContent, video: videoFile });
         onSubmit({ text: rawContent, video: videoFile });
         onClose();
