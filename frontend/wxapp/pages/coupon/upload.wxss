@@ -7,6 +7,9 @@ page {
   border-radius: 20rpx;
   background-color: #fff;
 }
+.section {
+  padding: 32rpx 0;
+}
 .title {
   padding: 48rpx 32rpx;
   color: #777777;
@@ -23,6 +26,7 @@ page {
   justify-content: center;
   border-radius: 8rpx;
   background: #eef6ff;
+  overflow: hidden;
 }
 .image-upload {
   width: 70rpx;
@@ -30,11 +34,15 @@ page {
   background: url('https://gd-1258904493.cos.ap-guangzhou.myqcloud.com/shenzhouyinji/icon_up_picture@3x.png')
     no-repeat 0 0 / 70rpx 70rpx;
 }
+.image-preview {
+  width: 510rpx;
+  height: 280rpx;
+}
 .footer {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 136rpx;
+  bottom: 96rpx;
   width: 360rpx;
   margin: 0 auto;
 }

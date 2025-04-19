@@ -49,6 +49,11 @@
 .left-deduction {
   background: linear-gradient(90deg, #68a3fc 0%, #0077ff 128%);
 }
+.title-exchange {
+  padding: 0 20rpx;
+  font-size: 24rpx;
+  line-height: 28rpx;
+}
 .title {
   font-size: 48rpx;
   line-height: 56rpx;

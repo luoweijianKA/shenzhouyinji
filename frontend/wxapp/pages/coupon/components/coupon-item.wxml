@@ -3,6 +3,9 @@
     <view wx:if="{{item.state === 'Normal'}}" class="status">待使用</view>
     <view wx:if="{{item.state === 'Used'}}" class="status" style="background:#FD8A4B">已使用</view>
     <view wx:if="{{item.state === 'Expired'}}" class="status" style="background:#CBCBCB">已过期</view>
+    <view class="left" wx:if="{{item.type === 'Exchange'}}">
+        <view class="title-exchange">{{item.couponName}}会计核算开发放得开</view>
+    </view>
     <view class="left left-deduction" wx:if="{{item.type === 'Deduction'}}">
         <view class="title">
             <text class="title-unit">￥</text>
@@ -16,7 +19,7 @@
             <view class="validate">{{item.effectiveTimeText}}到期</view>
         </view>
         <view class="qrcode">
-            <image bind:tap="handeQrcode" src="{{item.qrCodePath}}" mode="aspectFit" class="qrcode-image" />
+            <image bind:tap="handeQrcode" src="https://tupian.shenzhouyinji.cn/{{item.qrCodePath}}" mode="aspectFit" class="qrcode-image" />
         </view>
         <view class="scope">{{item.tideSpotName}}</view>
     </view>

@@ -1,48 +1,100 @@
-import { useQuery, useMutation } from '../config/index';
+import { useQuery, useMutation, apiServer } from '../config/index';
 
-export async function getCouponList(first, after, last, type, stateCode) {
-  const data = await useQuery({
-    query: `query CouponList(
-                $first: Int = 10,
-                $after: ID,
-                $last: Int = 10,
-                $before: ID,
-                $type: String,
-                $stateCode: String = "Normal"
-            ) {
-                couponList(
-                    first: $first,
-                    after: $after,
-                    last: $last,
-                    before: $before,
-                    type: $type,
-                    stateCode: $stateCode
-                ) {
-                    totalCount
-                    edges {
-                        node {
+export async function getCouponList({ pageIndex, pageSize, type, stateCode }) {
+  const token = wx.getStorageSync('accessToken');
+  const authorization = 'Bearer ' + token;
+
+  const data = new Promise(function (reslove, reject) {
+    wx.request({
+      url: apiServer.gqlUri,
+      method: 'POST',
+      header: {
+        Authorization: authorization,
+      },
+      data: JSON.stringify({
+        query: `query CouponListByPagination($pageIndex: Int!, $pageSize: Int!, $type: String, $stateCode: String) {
+                    couponListByPagination(
+                        pageIndex: $pageIndex
+                        pageSize: $pageSize
+                        type: $type
+                        stateCode: $stateCode
+                    ) {
+                        totalCount
+                        totalExchangeCount
+                        totalDeductionCount
+                        data {
                             id
                             type
                             typeText
-                            state
-                            stateText
                             tideSpotName
                             couponName
                             desc
                             effectiveTime
                             createTime
                             qrCodePath
-                            totalExchangeCount
-                            totalDeductionCount
+                            state
+                            stateText
+                            userWechatName
+                            buyGoodName
+                            verificationWechatName
+                            userPhone
+                            useTime
                             minimumAmount
                             deductionAmount
                         }
                         __typename
                     }
-                }
-            }`,
-    variables: { first, after, last, type, stateCode },
+                }`,
+        variables: { pageIndex, pageSize, type, stateCode },
+      }),
+      success(res) {
+        reslove(res.data.data.couponListByPagination);
+      },
+      fail(res) {
+        console.log({ fail: res.data });
+        reject(res.data);
+      },
+    });
   });
 
-  return data.couponList;
+  return data;
+}
+
+export async function uploadVoucher(input) {
+  const token = wx.getStorageSync('accessToken');
+  const authorization = 'Bearer ' + token;
+
+  const data = new Promise(function (reslove, reject) {
+    wx.request({
+      url: apiServer.gqlUri,
+      method: 'POST',
+      header: {
+        Authorization: authorization,
+      },
+      data: JSON.stringify({
+        query: `mutation CreateCouponByOcr($input: OcrImgPath!) {
+                    createCouponByOcr(input: $input) {
+                        couponId
+                        msg
+                    }
+                }`,
+        variables: {
+          input: {
+            tideSpotConfigId: input.tideSpotConfigId,
+            textImgPath: input.textImgPath,
+            logoImgPath: input.logoImgPath,
+          },
+        },
+      }),
+      success(res) {
+        reslove(res.data.data.createCouponByOcr);
+      },
+      fail(res) {
+        console.log({ fail: res.data });
+        reject(res.data);
+      },
+    });
+  });
+
+  return data;
 }

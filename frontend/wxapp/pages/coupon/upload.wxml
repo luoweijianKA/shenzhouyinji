@@ -1,7 +1,17 @@
 <view class="wrapper">
-    <view class="title">上传图片</view>
-    <view class="image-wrapper" bindtap="handleChooseImage">
-        <view class="image-upload"></view>
+    <view class="section">
+        <view class="title">上传凭证</view>
+        <view class="image-wrapper" bindtap="handleChooseVoucher">
+            <view class="image-upload" hidden="{{voucher.tempFile}}"></view>
+            <image wx:if="{{voucher.tempFile}}" src="{{voucher.tempFile}}" mode="aspectFill" class="image-preview" />
+        </view>
+    </view>
+    <view class="section">
+        <view class="title">上传logo</view>
+        <view class="image-wrapper" bindtap="handleChooseLogo">
+            <view class="image-upload" hidden="{{logo.tempFile}}"></view>
+            <image wx:if="{{logo.tempFile}}" src="{{logo.tempFile}}" mode="aspectFill" class="image-preview" />
+        </view>
     </view>
     <view class="footer">
         <t-button theme="primary" size="large" block class="button" bindtap="handleSubmit">

@@ -4,39 +4,43 @@ Page({
   data: {
     visible: false,
     qrcode: null,
+    // totalExchangeCount: 0,
+    // totalDeductionCount: 0,
     pageInfo: {
       pageIndex: 1,
-      pageSize: 1,
+      pageSize: 10,
       totalCount: 0,
     },
     list: [],
+    currentTab: '', // ''全部，'Exchange'兑换券，'Deduction'抵扣券
   },
   onLoad() {
     this.getList(1);
   },
   async getList(pageIndex) {
-    const { pageInfo } = this.data;
-    const { edges, totalCount } = await getCouponList(
-      pageInfo.pageSize,
-      null,
-      null,
-      '',
-      'Normal',
-    );
+    const { pageInfo, currentTab } = this.data;
+    const { data, totalCount, totalDeductionCount, totalExchangeCount } =
+      await getCouponList({
+        pageIndex: pageInfo.pageIndex,
+        pageSize: pageInfo.pageSize,
+        type: currentTab,
+        stateCode: 'Normal',
+      });
+
     this.setData({
-      list: edges.map((v) => v.node),
+      list: pageIndex > 1 ? this.data.list.concat(data) : data,
       pageInfo: {
         ...pageInfo,
+        pageIndex,
         totalCount,
       },
+      totalDeductionCount,
+      totalExchangeCount,
     });
-  },
-  loadMoreList() {
-    this.getList();
   },
   onReachBottom() {
     if (this.data.list.length < this.data.pageInfo.totalCount) {
-      this.loadMoreList();
+      this.getList(this.data.pageInfo.pageIndex + 1);
     } else {
       wx.showToast({
         icon: 'none',
@@ -44,14 +48,28 @@ Page({
       });
     }
   },
+  resetList() {
+    this.setData({
+      list: [],
+      pageInfo: {
+        pageIndex: 1,
+        pageSize: 10,
+        totalCount: 0,
+      },
+    });
+  },
   onTabsChange(event) {
     console.log(`Change tab, tab-panel value is ${event.detail.value}.`);
+    this.resetList();
+    this.setData(
+      {
+        currentTab: event.detail.value,
+      },
+      () => {
+        this.getList(1);
+      },
+    );
   },
-
-  onTabsClick(event) {
-    console.log(`Click tab, tab-panel value is ${event.detail.value}.`);
-  },
-
   handleHistory() {
     wx.navigateTo({
       url: '/pages/coupon/history',
